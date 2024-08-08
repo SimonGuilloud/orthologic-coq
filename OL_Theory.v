@@ -26,26 +26,23 @@ Class Ortholattice := {
   join : A -> A -> A where "x ∪ y" := (join x y);
   neg : A -> A where "¬ x" := (neg x);
 
-  equiv2 : relation A := fun x y => (leq x y) /\ (leq y x);
   equiv: relation A where "x == y" := (equiv x y);
+  equiv_leq : forall x y, (x == y) <-> ( (x <= y) /\ (y <= x));
 
-  equiv_leq : forall x y, (x == y) <-> ( (leq x y) /\ (leq y x));
+  P1 : forall x, x <= x;
+  P2 : forall x y z, x <= y -> y <= z -> x <= z;
+  P4 : forall x y, (x ∩ y) <= x;
+  P5 : forall x y, (x ∩ y) <= y;
+  P6 : forall x y z, (x <= y) -> (x <= z) -> x <= (y ∩ z);
+  P7 : forall x, x <= (¬ (¬ x));
+  P8 : forall x y, x <= y -> (¬ y) <= (¬ x);
+  P9 : forall x y, (x ∩ (¬ x)) <= y;
 
-  P1 : forall x, leq x x;
-  P2 : forall x y z, leq x y -> leq y z -> leq x z;
-  P4 : forall x y, leq (x ∩ y) x;
-  P5 : forall x y, leq (x ∩ y) y;
-  P6 : forall x y z, (leq x y) -> (leq x z) -> leq x (y ∩ z);
-  P7 : forall x, leq x (neg (neg x));
-  P8 : forall x y, leq x y -> leq (neg y) (neg x);
-  P9 : forall x y, leq (x ∩ (neg x)) y;
-
-  P4' : forall x y, leq x (x ∪ y);
-  P5' : forall x y, leq y (x ∪ y);
-  P6' : forall x y z, (leq x z) -> (leq y z) -> leq (x ∪ y) z;
-  P7' : forall x, leq (neg (neg x)) x;
-  P9' : forall x y, leq x ( y ∪ (neg y));
-
+  P4' : forall x y, x <= (x ∪ y);
+  P5' : forall x y, y <= (x ∪ y);
+  P6' : forall x y z, (x <= z) -> (y <= z) -> (x ∪ y) <= z;
+  P7' : forall x, (¬ (¬ x)) <= x;
+  P9' : forall x y, x <= ( y ∪ (¬ y));
 }.
 
 Infix "∩" := meet.
@@ -73,18 +70,13 @@ Ltac withman := match goal with
   | [ |- ?x <= ?x] => apply P1
   | [ |- _ <= _ ∩ _] => apply P6; withman
   | [ |- _ ∪ _ <= _] => apply P6'; withman
-  | [ |- _ ∩ _ <= _ ∪ _] => 
-    try (apply lub1; withman; eauto; fail);
-    try (apply lub2; withman; eauto; fail);
-    try (apply glb1; withman; eauto; fail);
-    try (apply glb2; withman; eauto; fail)
   | [ |- _ ∩ _ <= _] => 
     try (apply glb1; withman; eauto; fail);
     try (apply glb2; withman; eauto; fail)
   | [ |- _ <= _ ∪ _] => 
     try (apply lub1; withman; eauto; fail);
     try (apply lub2; withman; eauto; fail)
-  | [ |- ¬ ?x <= ¬ ?y] => apply P8; withman (* This is an extension to the base algorithm. It's not complete for ortholattices but it's still useful. *)
+  | [ |- ¬ _ <= ¬ _] => apply P8; withman (* This is an extension to the base algorithm. It's not complete for ortholattices but it's still useful. *)
   | [ |- _ <= _] => try (eauto;fail)
 end.
 Lemma example {OL: Ortholattice} a b : (a ∩ b) <= (a ∪ b).
@@ -104,18 +96,6 @@ Qed.
 Ltac destruct_equiv := match goal with
   | [H: (equiv ?x ?y) |- _] => destruct H
 end.
-
-Ltac destruct_equiv2 := repeat match goal with
-  | [H: (equiv2 ?x ?y) |- _] => destruct H
-end.
-
-
-Instance Proper_meet2 {OL: Ortholattice}: Proper (equiv2 ==> equiv2 ==> equiv2) meet. split.
-  - destruct_equiv2. withman.
-  - destruct_equiv2. withman.
-Qed.
-
-
 
 Instance Proper_meet {OL: Ortholattice}: Proper (equiv ==> equiv ==> equiv) meet. 
   unfold Proper. unfold respectful. intros. rewrite equiv_leq in *. intuition; withman.
@@ -181,16 +161,16 @@ Definition One := Join (Var 0) (Not (Var 0)).
 Fixpoint eval {OL: Ortholattice} (t: Term) (f: nat -> A) : A :=
   match t with
   | Var n => f n
-  | Meet t1 t2 => meet (eval t1 f) (eval t2 f)
-  | Join t1 t2 => join (eval t1 f) (eval t2 f)
-  | Not t1 => neg (eval t1 f)
+  | Meet t1 t2 => (eval t1 f) ∩ (eval t2 f)
+  | Join t1 t2 => (eval t1 f) ∪ (eval t2 f)
+  | Not t1 => ¬ (eval t1 f)
   end.
-
-Declare Instance Proper_eval {OL: Ortholattice}: Proper (eq ==> eq ==> eq) eval.
 
 
 Definition Leq (t1 t2: Term) : Prop := forall (OL: Ortholattice), 
   forall f: nat -> A, eval t1 f <= eval t2 f.
+
+Declare Instance Proper_eval {OL: Ortholattice}: Proper (eq ==> eq ==> eq) eval.
 
 
 
@@ -401,7 +381,7 @@ Proof.
   - simpl. rewrite IHt. auto.
 Qed.
 
-Theorem Completeness (l:Term) (r:Term) : Leq l r -> hasProof l r.
+Theorem Completeness l r : Leq l r -> hasProof l r.
 Proof.
   intros. specialize (H TermOL Var).
   destruct H as [p]. repeat rewrite Var_eval in p. sq. exact p.
@@ -693,7 +673,7 @@ Proof.
       + cutelimSize fuelSize (Swap A') B'. exists (Weaken P). finish.
       + simpl in *. analyze A' good_fuelSize good_fuelB p1. all: try (rename o into A1). all: try (rename o0 into A2).
         * cutelimSize fuelSize (Swap A1) (Contract B'). exists (Swap (Weaken P)). auto.
-        * cutelimSize fuelSize (Swap A1) (B'). exfalso. apply NoProofNN. exact (Cut A B).
+        * exfalso. apply NoProofNN. exact (Cut A B).
         * cutelimSize fuelSize (Swap A1) (Contract B'). cutelimSize fuelSize (Swap A2) (Contract B'). exists (Swap (RightAnd  (Swap P) (Swap P0))). finish.
         * cutelimSize fuelSize (Swap A1) (Contract B'). exists (Swap (RightOr1 (Swap P))). finish.
         * cutelimSize fuelSize (Swap A1) (Contract B'). exists (Swap (RightOr2 (Swap P))). finish.
@@ -788,7 +768,7 @@ Qed.
 
   (* Outer recursion. Informally, corresponds to saying ''Consider the topmost instance of Cut in the proof''. *)
 
-Theorem CutElimination : forall (fuelCut: nat) (fuelSize: nat)
+Theorem CutElimination_fuel : forall (fuelCut: nat) (fuelSize: nat)
   (s: AnTerm*AnTerm) (proof : OLProof s)
   (good_fuelSize: fuelSize >= (Size proof))
   (good_fuelCut: fuelCut >= (NumCut proof)),
@@ -839,4 +819,7 @@ Theorem CutElimination : forall (fuelCut: nat) (fuelSize: nat)
     }
 Qed.
 
-
+Theorem CutElimination s (proof : OLProof s): {p: OLProof s | isCutFree p}.
+Proof.
+  eapply CutElimination_fuel with (fuelCut := (NumCut proof)) (fuelSize := (Size proof)); eauto.
+Qed.
