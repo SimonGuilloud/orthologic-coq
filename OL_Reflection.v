@@ -605,7 +605,7 @@ Qed.
 
  (* If the algorithms outputs True, then g is semanticaly smaller than d.*)
 Theorem decideOLBoolMemoCorrect2 : forall g d, (decideOL_boolMemo g d) = true -> AnLeq g d.
-Proof. (* decideOLBoolMemoCorrect *)
+Proof. 
   intros. assert (squash (OLProof (g, d))). apply decideOLBoolCorrect with (anSize g + anSize d). 
   generalize H. apply decideOLBoolMemoCorrect. auto; lia. unfold correctMemoMap. simpl in *. auto.
   destruct H0. apply (Soundness (g, d)). auto.
@@ -667,14 +667,14 @@ Ltac leaves AA m j n l exp :=
   end.
 
 
-Ltac reify_term A m j n t env := match t with
-  | (?op ?X1 ?X2) => let __ := convertible op m in let r1 := reify_term A m j n X1 env
-                    with r2 := reify_term A m j n X2 env in 
+Ltac reify_term OL t env := match t with
+  | (?op ?X1 ?X2) => let __ := convertible op (@meet OL) in let r1 := reify_term OL X1 env
+                    with r2 := reify_term OL X2 env in 
                     constr:(Meet r1 r2)
-  | (?op ?X1 ?X2) => let __ := convertible op j in let r1 := reify_term A m j n X1 env
-                    with r2 := reify_term A m j n X2 env in
+  | (?op ?X1 ?X2) => let __ := convertible op (@join OL)  in let r1 := reify_term OL X1 env
+                    with r2 := reify_term OL X2 env in
                     constr:(Join r1 r2)
-  | (?op ?X1) => let __ := convertible op n in let r1 := reify_term A m j n X1 env in
+  | (?op ?X1) => let __ := convertible op (@neg OL)  in let r1 := reify_term OL X1 env in
                     constr:(Not r1)
   | ?X1 => let j := indexOf X1 env in constr:(Var j)
 end.
@@ -695,8 +695,8 @@ Ltac reify_leq OL S T :=
   let l2 := leaves AA m j n l1 T in
   let S' := (eval simpl in S) with
       T' := (eval simpl in T) in
-  let t1' := (reify_term AA m j n S' l2) with
-      t2' := (reify_term AA m j n T' l2) in
+  let t1' := (reify_term OL S' l2) with
+      t2' := (reify_term OL T' l2) in
   let h := head_tac l2 in
   let env := constr:(fun k:nat => nth k l2 h ) in
       change ((@eval OL t1' env) <= (@eval OL t2' env)).
@@ -738,6 +738,13 @@ Theorem test0 {OL: Ortholattice} : forall a,  a <= (a ∩ a).
 Proof.
   intro. 
   solveOLMemo OL.
+Qed.
+
+Theorem example2 {OL: Ortholattice} a b c: 
+  ¬(b ∪ ¬(c ∩ ¬b) ∪ a) <= (¬a ∪ ¬(b ∩ ¬a)).
+Proof.
+  intros. 
+  solveOL OL.
 Qed.
 
 
@@ -785,8 +792,14 @@ Proof.
 Qed.
 
 
-Theorem test8 : forall a b : bool,   (a && (negb a)) = (b && (a && negb a)).
+Theorem test8 : forall a b : bool, a && negb a = negb b && (a && b).
 Proof.
   intros. 
   solveOLMemo BoolOL.
+Qed.
+
+Theorem test9 : forall a b : bool, a && negb a = negb b && (a && b).
+Proof.
+  intros. 
+  solveOL BoolOL.
 Qed.
