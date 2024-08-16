@@ -18,23 +18,14 @@ Import ListNotations.
 
 (* Decision Algorithm for OL *)
 
-
-(*
-(* OrderedType for AnTerm,  needed if using TreeMaps *)
-
-Require Import Coq.Program.Tactics.
-Require Import Coq.Program.Wf.
-Require Import Coq.Structures.OrderedType.
-Require Import Coq.Arith.Compare_dec.
-
-Program Fixpoint compare_Term (x y : Term) {measure ((termSize x) + (termSize y))}: comparison :=
+Fixpoint compare_Term (x y : Term): comparison :=
   match x, y with
   | Var n1, Var n2 => Nat.compare n1 n2
   | Var _, Meet _ _ => Lt
   | Var _, Join _ _ => Lt
   | Var _, Not _ => Lt
   | Meet _ _, Var _ => Gt
-  | Meet l1 r1, Meet l2 r2 => 
+  | Meet l1 r1, Meet l2 r2 =>
       match compare_Term l1 l2 with
       | Lt => Lt
       | Eq => compare_Term r1 r2
@@ -44,7 +35,7 @@ Program Fixpoint compare_Term (x y : Term) {measure ((termSize x) + (termSize y)
   | Meet _ _, Not _ => Lt
   | Join _ _, Var _ => Gt
   | Join _ _, Meet _ _ => Gt
-  | Join l1 r1, Join l2 r2 => 
+  | Join l1 r1, Join l2 r2 =>
       match compare_Term l1 l2 with
       | Lt => Lt
       | Eq => compare_Term r1 r2
@@ -56,30 +47,85 @@ Program Fixpoint compare_Term (x y : Term) {measure ((termSize x) + (termSize y)
   | Not _, Join _ _ => Gt
   | Not t1, Not t2 => compare_Term t1 t2
   end.
-Next Obligation.
-  simpl. lia.
-Qed.
-Next Obligation.
-  simpl. lia.
-Qed.
-Next Obligation.
-  simpl. lia.
-Qed.
-Next Obligation.
-  simpl. lia.
-Qed.
-Next Obligation.
-  simpl. lia.
-Qed.
 
-Search Nat.compare.
-
-Lemma term_refl: forall x: Term, compare_Term x x = Eq.
+Lemma compare_Term_refl: forall x: Term, compare_Term x x = Eq.
 Proof.
-  induction x; simpl.
-  - simpl. cbv. rewrite PeanoNat.Nat.compare_eq_iff. reflexivity.
-  - unfold compare_Term. unfold
-  
+  induction x; simpl;
+    repeat match goal with
+      | [ H: _ = _ |- _ ] => rewrite H
+      end.
+  all: firstorder using Nat.compare_eq_iff.
+Qed.
+
+Lemma compare_Term_eq: forall x y: Term, compare_Term x y = Eq -> x = y.
+Proof.
+  induction x; destruct y; simpl; try congruence;
+    repeat match goal with
+      | [ H: forall _, _ = _ |- _ ] => rewrite H
+      end.
+  all: firstorder using Nat.compare_eq_iff, Nat.compare_antisym.
+  all: destruct compare_Term eqn:Hx; try congruence; simpl; f_equal; intuition.
+Qed.
+
+Lemma compare_Term_antisym: forall x y: Term, compare_Term x y = CompOpp (compare_Term y x).
+Proof.
+  induction x; destruct y; simpl;
+    repeat match goal with
+      | [ H: forall _, _ = _ |- _ ] => rewrite H
+      end.
+  all: firstorder using Nat.compare_antisym.
+  all: destruct compare_Term; simpl; reflexivity.
+Qed.
+
+Lemma compare_Term_antisym_impl: forall x y c, compare_Term x y = c -> compare_Term y x = CompOpp c.
+Proof.
+  intros; rewrite compare_Term_antisym; eauto using f_equal.
+Qed.
+
+Lemma nat_compare_trans: forall x y z: nat,
+    x ?= y = Lt ->
+    y ?= z = Lt ->
+    x ?= z = Lt.
+Proof.
+  intros ???.
+  rewrite !Nat.compare_lt_iff.
+  apply Nat.lt_trans.
+Qed.
+
+Lemma compare_Term_lt_trans: forall x y z: Term,
+    compare_Term x y = Lt ->
+    compare_Term y z = Lt ->
+    compare_Term x z = Lt.
+Proof.
+  induction x; destruct y, z; simpl in *; try congruence;
+    repeat match goal with
+      | [ H: forall _, _ = _ |- _ ] => rewrite H
+      end.
+
+  all: firstorder using nat_compare_trans.
+  all: destruct (compare_Term x1) eqn:Hx1, (compare_Term x2) eqn:Hx2; try congruence.
+  all: destruct (compare_Term y1) eqn:Hy1; try congruence.
+
+  all: repeat match goal with
+         | [ H: _ = _ |- _ ] => rewrite H
+         | [ H: compare_Term _ _ = Eq |- _ ] => apply compare_Term_eq in H; subst
+         | [  |- context[compare_Term ?x ?x] ] => rewrite compare_Term_refl
+         end.
+  all: erewrite ?IHx1 by eauto; eauto.
+Qed.
+
+Lemma compare_Term_eq_sym: forall x y: Term, compare_Term x y = Eq -> compare_Term y x = Eq.
+Proof.
+  intros * Heq; rewrite compare_Term_antisym, Heq; reflexivity.
+Qed.
+
+Lemma compare_Term_eq_trans: forall x y z: Term,
+    compare_Term x y = Eq ->
+    compare_Term y z = Eq ->
+    compare_Term x z = Eq.
+Proof.
+  intros ??? ?%compare_Term_eq ?%compare_Term_eq.
+  subst; apply compare_Term_refl.
 Qed.
 
 Definition compare_AnTerm (x y: AnTerm) : comparison :=
@@ -93,44 +139,85 @@ Definition compare_AnTerm (x y: AnTerm) : comparison :=
   | N, N => Eq
   end.
 
+Hint Resolve compare_Term_refl compare_Term_eq
+  compare_Term_antisym compare_Term_antisym_impl
+  compare_Term_eq_sym  compare_Term_eq_trans
+  compare_Term_lt_trans
+  : compare_Term.
 
-Module AnTermOrderedType <: OrderedType.
+Ltac compare_AnTerm_t :=
+  repeat match goal with
+    | _ => progress (simpl; subst)
+    | [  |- forall _: AnTerm, _ ] => intros x; destruct x
+    | [  |- _ = _ ] => f_equal
+    | _ => intros
+    end;
+  congruence || eauto with compare_Term.
+
+Lemma compare_AnTerm_refl: forall x: AnTerm, compare_AnTerm x x = Eq.
+Proof. compare_AnTerm_t. Qed.
+
+Lemma compare_AnTerm_eq: forall x y: AnTerm, compare_AnTerm x y = Eq -> x = y.
+Proof. compare_AnTerm_t. Qed.
+
+Lemma compare_AnTerm_antisym: forall x y: AnTerm, compare_AnTerm x y = CompOpp (compare_AnTerm y x).
+Proof. compare_AnTerm_t. Qed.
+
+Lemma compare_AnTerm_antisym_impl: forall x y c, compare_AnTerm x y = c -> compare_AnTerm y x = CompOpp c.
+Proof. compare_AnTerm_t. Qed.
+
+Lemma compare_AnTerm_lt_trans: forall x y z: AnTerm,
+    compare_AnTerm x y = Lt ->
+    compare_AnTerm y z = Lt ->
+    compare_AnTerm x z = Lt.
+Proof. compare_AnTerm_t. Qed.
+
+Lemma compare_AnTerm_eq_sym: forall x y: AnTerm, compare_AnTerm x y = Eq -> compare_AnTerm y x = Eq.
+Proof. compare_AnTerm_t. Qed.
+
+Lemma compare_AnTerm_eq_trans: forall x y z: AnTerm,
+    compare_AnTerm x y = Eq ->
+    compare_AnTerm y z = Eq ->
+    compare_AnTerm x z = Eq.
+Proof. compare_AnTerm_t. Qed.
+
+Require Import OrderedType.
+
+Module AnTerm_as_OT <: OrderedType.
   Definition t := AnTerm.
 
-  Definition compare (x y: AnTerm) : comparison := compare_AnTerm x y.
+  Definition eq (x y: AnTerm) := compare_AnTerm x y = Eq.
+  Definition lt (x y: AnTerm) := compare_AnTerm x y = Lt.
 
-  Definition eq (x y: AnTerm) := compare x y = Eq.
-  Definition lt (x y: AnTerm) := compare x y = Lt.
-
-  Theorem eq_refl : forall x : t, eq x x.
-  Proof.
-    intros x. destruct x; simpl. reflexivity.
-  Qed.
-
-  Theorem eq_sym : forall x y : t, eq x y -> eq y x.
-  Proof.
-    intros x y H. unfold eq in *. destruct (compare_AnTerm x y); destruct (compare_AnTerm y x); try reflexivity; inversion H.
-  Qed.
-
-  Theorem eq_trans : forall x y z : t, eq x y -> eq y z -> eq x z.
-  Proof.
-    intros x y z Hxy Hyz. unfold eq in *. destruct (compare_AnTerm x y); destruct (compare_AnTerm y z); try reflexivity; inversion Hxy; inversion Hyz.
-  Qed.
-
-  Theorem lt_trans : forall x y z : t, lt x y -> lt y z -> lt x z.
-  Proof.
-    intros x y z Hxy Hyz. unfold lt in *. destruct (compare_AnTerm x y); destruct (compare_AnTerm y z); try reflexivity; inversion Hxy; inversion Hyz.
-  Qed.
+  Definition eq_refl : forall x : t, eq x x := compare_AnTerm_refl.
+  Definition eq_sym : forall x y : t, eq x y -> eq y x := compare_AnTerm_eq_sym.
+  Definition eq_trans : forall x y z : t, eq x y -> eq y z -> eq x z := compare_AnTerm_eq_trans.
+  Definition lt_trans : forall x y z : t, lt x y -> lt y z -> lt x z := compare_AnTerm_lt_trans.
 
   Theorem lt_not_eq : forall x y : t, lt x y -> ~ eq x y.
+  Proof. unfold lt, eq; congruence. Qed.
+
+  Theorem compare : forall x y : t, Compare lt eq x y.
   Proof.
-    intros x y Hlt Heq. unfold lt, eq in *. destruct (compare_AnTerm x y); inversion Hlt; inversion Heq.
-  Qed.
-End AnTermOrderedType.
+    intros x y; destruct (compare_AnTerm x y) eqn:Hcmp;
+      [ | | apply compare_AnTerm_antisym_impl in Hcmp; simpl in Hcmp ].
+    all: econstructor; solve [unfold lt, eq; eassumption].
+  Defined.
 
-Print AnTerm.
+  Definition eq_dec : forall x y : t, {eq x y} + {~ eq x y}.
+  Proof.
+    intros x y; destruct (compare_AnTerm x y) eqn:Hcmp; [ left | right.. ].
+    all: unfold eq; congruence.
+  Defined.
+End AnTerm_as_OT.
 
-*)
+Require Import OrderedTypeEx.
+
+Module AnTermPair_as_OT := PairOrderedType AnTerm_as_OT AnTerm_as_OT.
+
+Require Import FMapAVL.
+
+Module FMapAnTermPair := FMapAVL.Make AnTermPair_as_OT.
 
 Definition anSize (t: AnTerm) : nat := match t with
   | L t1 => 1 + termSize t1
