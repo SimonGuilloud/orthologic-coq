@@ -221,65 +221,26 @@ Fixpoint decideOL_bool (fuel: nat) (g d: AnTerm) : bool :=
 
 Ltac recurse := simpl in *; lia.
 
+Hint Constructors OLProof squash : olproof.
+
+Hint Rewrite
+  Bool.orb_false_r
+  Bool.andb_true_iff Bool.orb_true_iff
+  Nat.eqb_eq : rw_bool.
+
 Theorem decideOLBoolCorrect : forall n g d, (decideOL_bool n g d) = true -> squash (OLProof (g, d)).
 Proof.
-  Ltac dest g := destruct g; try congruence.
-  Ltac swapNames g d := let q := fresh "q" in (rename g into q; rename d into g; rename q into d).
-
-  induction n.
-  - intros. unfold decideOL_bool in H. congruence.
-  - intros. simpl in H.
-    Ltac induct IHn H := apply IHn in H; inversion H; (try recurse). 
-      dest g; dest d; (try dest t0); (try dest t).
-
-    all: simpl in H. all: (repeat (rewrite Bool.orb_true_iff in H; simpl in H)).
-      all: repeat match goal with
-      | [ H: _ \/ _ |- _ ] =>  destruct H; (try congruence)
-      | _ => idtac
-      end.
-      all: match goal with
-      | [ H: (?n0 =? ?n1) = true |- _ ] =>  rewrite Nat.eqb_eq in H; subst; sq; (try apply Hyp); (apply Swap; apply Hyp)
-      | _ => idtac
-      end.
-      all: (match goal with 
-      | [ H: (_ && _) = true |- _ ] => (rewrite Bool.andb_true_iff in H; destruct H)
-      | _ => idtac
-      end).
-      all: repeat match goal with
-      | [ H: decideOL_bool _ _ _ = true |- _ ] => induct IHn H
-      | _ => idtac
-      end. 
-      all: try congruence.
-      all: sq. (*60 cases at this point, but many comes from the same match clause (wildcard).*)
-      all: (try (apply LeftOr; auto; fail)).
-      all: (try (apply RightAnd; auto; fail)).
-      all: (try (apply LeftNot; auto; fail)).
-      all: (try (apply RightNot; auto; fail)).
-      all: (try (apply Swap; apply Contract; apply RightOr1; apply Swap; apply RightOr2; auto)).
-      all: (try (apply Contract; apply LeftAnd2; apply Swap; apply LeftAnd1; auto)).
-      all: (try (apply Weaken; auto; fail)).
-      all: (try (apply LeftAnd1; auto; fail)).
-      all: (try (apply LeftAnd2; auto; fail)).
-      all: (try (apply RightOr1; auto; fail)).
-      all: (try (apply RightOr2; auto; fail)).
-      all: apply Swap.
-      all: (try (apply LeftOr; apply Swap; auto; fail)).
-      all: (try (apply RightAnd; apply Swap; auto; fail)).
-      all: (try (apply LeftNot; apply Swap; auto; fail)).
-      all: (try (apply RightNot; apply Swap; auto; fail)).
-      all: (try (apply Swap; apply Contract; apply RightOr1; apply Swap; apply RightOr2; auto)).
-      all: (try (apply Contract; apply LeftAnd2; apply Swap; apply LeftAnd1; auto)).
-      all: (try (apply Weaken; auto; fail)).
-      all: (try (apply LeftAnd1; auto; fail)).
-      all: (try (apply LeftAnd2; auto; fail)).
-      all: (try (apply RightOr1; auto; fail)).
-      all: (try (apply RightOr2; auto; fail)).
+  induction n; intros; simpl in *;
+    repeat match goal with
+           | _ => congruence
+           | [ H: _ /\ _ |- _ ] => destruct H
+           | [ H: _ \/ _ |- _ ] => destruct H
+           | [ H: context[match ?x with _ => _ end] |- _ ] => destruct x; simpl in H
+           | [ H: _ = _, IH: forall _ _, _ = _ -> squash _ |- _ ] => apply IHn in H; inversion_clear H
+           | _ => autorewrite with rw_bool in *; subst
+           end.
+  all: clear IHn; eauto 7 with olproof.
 Qed.
-
-
-
-
-
 
 (* Memoized version of the above algorithm. 
   O(e^n) => O(n^5). Optimal is O(n^2). 
@@ -453,6 +414,8 @@ Lemma SplitOrEq a b c d: a = c -> b = d -> (a || b = c || d).
 Proof.
   intros. subst. auto.
 Qed.
+
+Ltac dest g := destruct g; try congruence.
 
 Theorem decideOL_bool_big_fuel  : forall n n0 g d, (n >= anSize g + anSize d) -> ( n0 >= anSize g + anSize d) -> decideOL_bool n g d = decideOL_bool n0 g d.
 Proof.
