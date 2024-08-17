@@ -235,19 +235,18 @@ Module AnTerm_as_OT <: OrderedType.OrderedType.
   Defined.
 End AnTerm_as_OT.
 
-Require OrderedTypeEx.
-Require MSets MSetAVL.
+Require MSets MSetAVL MSetFacts.
 
 Module AnTerm_as_OOT := OrdersAlt.OT_from_Alt AnTerm_as_OTA.
 Module AnTermAVL := MSetAVL.Make AnTerm_as_OOT.
-(* No OTA version of PairOrderedType *)
-
-Module AnTermPair_as_OT := OrderedTypeEx.PairOrderedType AnTerm_as_OT AnTerm_as_OT.
-Module AnTermPair_as_OOT := OrdersAlt.Update_OT AnTermPair_as_OT.
+Module AnTermPair_as_OOT := OrdersEx.PairOrderedType AnTerm_as_OOT AnTerm_as_OOT.
 Module AnTermPairAVL := MSetAVL.Make AnTermPair_as_OOT.
-(* MSet but not FMap *)
+Module AnTermPairAVLFacts := MSetFacts.Facts AnTermPairAVL.
 
 Require Import FMapAVL FMapFacts.
+Module AnTermPair_as_OT := OrderedTypeEx.PairOrderedType AnTerm_as_OT AnTerm_as_OT.
+(* Module AnTermPair_as_OOT := OrdersAlt.Update_OT AnTermPair_as_OT. *)
+(* Module AnTermPairAVL := MSetAVL.Make AnTermPair_as_OOT. *)
 Module AnTermPairAVLMap := FMapAVL.Make AnTermPair_as_OT.
 Module AnTermPairAVLMapFacts := FMapFacts.Facts AnTermPairAVLMap.
 
@@ -392,11 +391,14 @@ Definition Mfalse := Mbool false.
 Infix "|||" := OrMemo (at level 50, left associativity).
 Infix "&&&" := AndMemo (at level 40, left associativity).
 
-Import AnTermPairAVLMap.
-Import AnTermPairAVLMapFacts.
+Module M := AnTermPairAVLMap.
+Module F := AnTermPairAVLMapFacts.
+
+(* Module Import M := AnTermPairAVL. *)
+(* Module Import F := AnTermPairAVLFacts. *)
 
 Fixpoint decideOL_boolM (fuel: nat) (g d: AnTerm) (memo: MemoMap) : (bool * MemoMap) :=
-match find (g, d) memo with
+match M.find (g, d) memo with
 | Some b => (b, memo)
 | None => let (b, m) :=
   (match fuel with
@@ -473,7 +475,7 @@ Definition decideOL_boolMemo (g d: AnTerm): bool :=
 Definition decideOL_bool_simp (g d: AnTerm): bool := decideOL_bool (anSize g + anSize d) g d.
 
 Definition correctMemoMap (l: MemoMap) :=  forall g d, 
-  match find (g, d) l with
+  match M.find (g, d) l with
   | Some true => forall n, (n >= anSize g + anSize d) -> (decideOL_bool n g d = true)
   | _ => True
   end.
@@ -522,7 +524,7 @@ Proof.
   induction n. intros. pose proof anSizePositive g; pose proof anSizePositive d. lia.
   induction n0. intros. pose proof anSizePositive g; pose proof anSizePositive d. lia.
 
-  intros. dest g; dest d; (try dest t0); (try dest t1); simpl; auto.
+  intros. dest g; dest d; (try dest t0); (try dest t); simpl; auto.
   all: repeat rewrite Bool.orb_false_r. 
   all: repeat apply SplitAndEq; repeat apply SplitOrEq; try (apply IHn; simpl in *; lia).
 Qed.
@@ -552,7 +554,7 @@ Proof. red; destruct c0, c1; intuition congruence. Qed.
 Lemma correctMemoAdditionEq2 n g d l e : (n >= anSize g + anSize d) -> correctMemoMap l -> (e = true -> decideOL_bool n g d = true)  -> correctMemoMap (AnTermPairAVLMap.add (g, d) e l).
 Proof.
   unfold correctMemoMap; intros Hge Hok He *.
-  rewrite add_o; destruct eq_dec as [(Heq1%compare_AnTerm_eq, Heq2%compare_AnTerm_eq) | Hneq ];
+  rewrite F.add_o; destruct F.eq_dec as [(Heq1%compare_AnTerm_eq, Heq2%compare_AnTerm_eq) | Hneq ];
     simpl in *; subst.
   - destruct e; intuition eauto using decideOL_bool_big_fuel.
   - apply Hok.
@@ -581,14 +583,14 @@ Proof.
     + intros. dest g; dest d; simpl in *; lia.
   
     + simpl in *. unfold correctMemoMap in *. specialize (H0 g d).
-      destruct (find (g, d) l).
+      destruct M.find.
       destruct b. subst. specialize (H0 0 H). simpl in *. congruence. auto. auto.
 
 
   - intros. split.
     + simpl. pose proof H0. unfold correctMemoMap in H0.  specialize (H0 g d).
-      destruct (find (g, d) l) eqn: res; simpl in *. auto.
-      destSimp g; destSimp d; (try destSimp t0); (try destSimp t1).
+      destruct M.find eqn: res; simpl in *. auto.
+      destSimp g; destSimp d; (try destSimp t0); (try destSimp t).
 
       all: apply correctMemoMap_second_let.  all: rewrite ?OrMemo_Mfalse_r, ?OrMemo_Mfalse_l, ?AndMemo_Mfalse_l.
    
@@ -643,9 +645,9 @@ Proof.
 
       (* Need to do the second half of the proof, which could be the same as the first *)
     + Opaque decideOL_bool. simpl. pose proof H0. unfold correctMemoMap in H0.  specialize (H0 g d).
-      destruct (find (g, d) l) eqn: res; simpl in *.
+      destruct (M.find (g, d) l) eqn: res; simpl in *.
       * destruct b eqn:b_eq; simpl in *; intro; auto; try congruence.
-      * Transparent decideOL_bool. destSimp g; destSimp d; (try destSimp t0); (try destSimp t1).
+      * Transparent decideOL_bool. destSimp g; destSimp d; (try destSimp t0); (try destSimp t).
         all: rewrite fst_let_simpl; simpl in *; repeat rewrite Bool.orb_false_r; repeat rewrite OrMemo_Mfalse_r; repeat rewrite OrMemo_Mfalse_l.
         all: try ( apply IHn; auto; simpl in *; lia).
         all: try (lazymatch goal with
