@@ -18,23 +18,14 @@ Import ListNotations.
 
 (* Decision Algorithm for OL *)
 
-
-(*
-(* OrderedType for AnTerm,  needed if using TreeMaps *)
-
-Require Import Coq.Program.Tactics.
-Require Import Coq.Program.Wf.
-Require Import Coq.Structures.OrderedType.
-Require Import Coq.Arith.Compare_dec.
-
-Program Fixpoint compare_Term (x y : Term) {measure ((termSize x) + (termSize y))}: comparison :=
+Fixpoint compare_Term (x y : Term): comparison :=
   match x, y with
   | Var n1, Var n2 => Nat.compare n1 n2
   | Var _, Meet _ _ => Lt
   | Var _, Join _ _ => Lt
   | Var _, Not _ => Lt
   | Meet _ _, Var _ => Gt
-  | Meet l1 r1, Meet l2 r2 => 
+  | Meet l1 r1, Meet l2 r2 =>
       match compare_Term l1 l2 with
       | Lt => Lt
       | Eq => compare_Term r1 r2
@@ -44,7 +35,7 @@ Program Fixpoint compare_Term (x y : Term) {measure ((termSize x) + (termSize y)
   | Meet _ _, Not _ => Lt
   | Join _ _, Var _ => Gt
   | Join _ _, Meet _ _ => Gt
-  | Join l1 r1, Join l2 r2 => 
+  | Join l1 r1, Join l2 r2 =>
       match compare_Term l1 l2 with
       | Lt => Lt
       | Eq => compare_Term r1 r2
@@ -56,30 +47,98 @@ Program Fixpoint compare_Term (x y : Term) {measure ((termSize x) + (termSize y)
   | Not _, Join _ _ => Gt
   | Not t1, Not t2 => compare_Term t1 t2
   end.
-Next Obligation.
-  simpl. lia.
-Qed.
-Next Obligation.
-  simpl. lia.
-Qed.
-Next Obligation.
-  simpl. lia.
-Qed.
-Next Obligation.
-  simpl. lia.
-Qed.
-Next Obligation.
-  simpl. lia.
-Qed.
 
-Search Nat.compare.
-
-Lemma term_refl: forall x: Term, compare_Term x x = Eq.
+Lemma compare_Term_refl: forall x: Term, compare_Term x x = Eq.
 Proof.
-  induction x; simpl.
-  - simpl. cbv. rewrite PeanoNat.Nat.compare_eq_iff. reflexivity.
-  - unfold compare_Term. unfold
-  
+  induction x; simpl;
+    repeat match goal with
+      | [ H: _ = _ |- _ ] => rewrite H
+      end.
+  all: firstorder using Nat.compare_eq_iff.
+Qed.
+
+Lemma compare_Term_eq_iff: forall x y: Term, compare_Term x y = Eq <-> x = y.
+Proof.
+  split; [ | intros; subst; eauto using compare_Term_refl ].
+  revert x y; induction x; destruct y; simpl; try congruence;
+    repeat match goal with
+      | [ H: forall _, _ = _ |- _ ] => rewrite H
+      end.
+  all: firstorder using Nat.compare_eq_iff, Nat.compare_antisym.
+  all: destruct compare_Term eqn:Hx; try congruence; simpl; f_equal; intuition.
+Qed.
+
+Lemma compare_Term_antisym: forall x y: Term, compare_Term y x = CompOpp (compare_Term x y).
+Proof.
+  induction x; destruct y; simpl;
+    repeat match goal with
+      | [ H: forall _, _ = _ |- _ ] => rewrite H
+      end.
+  all: firstorder using Nat.compare_antisym.
+  all: destruct compare_Term; simpl; reflexivity.
+Qed.
+
+Lemma compare_Term_antisym_iff: forall x y c, compare_Term x y = c <-> compare_Term y x = CompOpp c.
+Proof.
+  intros; rewrite compare_Term_antisym.
+  destruct compare_Term, c; simpl; intuition congruence.
+Qed.
+
+Lemma nat_compare_trans: forall x y z: nat,
+    x ?= y = Lt ->
+    y ?= z = Lt ->
+    x ?= z = Lt.
+Proof.
+  intros ???.
+  rewrite !Nat.compare_lt_iff.
+  apply Nat.lt_trans.
+Qed.
+
+Lemma compare_Term_lt_trans: forall x y z: Term,
+    compare_Term x y = Lt ->
+    compare_Term y z = Lt ->
+    compare_Term x z = Lt.
+Proof.
+  induction x; destruct y, z; simpl in *; try congruence;
+    repeat match goal with
+      | [ H: forall _, _ = _ |- _ ] => rewrite H
+      end.
+
+  all: firstorder using nat_compare_trans.
+  all: destruct (compare_Term x1) eqn:Hx1, (compare_Term x2) eqn:Hx2; try congruence.
+  all: destruct (compare_Term y1) eqn:Hy1; try congruence.
+
+  all: repeat match goal with
+         | [ H: _ = _ |- _ ] => rewrite H
+         | [ H: compare_Term _ _ = Eq |- _ ] => apply compare_Term_eq_iff in H; subst
+         | [  |- context[compare_Term ?x ?x] ] => rewrite compare_Term_refl
+         end.
+  all: erewrite ?IHx1 by eauto; eauto.
+Qed.
+
+Lemma compare_Term_trans: forall c x y z,
+    compare_Term x y = c ->
+    compare_Term y z = c ->
+    compare_Term x z = c.
+Proof.
+  destruct c; intros ???.
+  - rewrite !compare_Term_eq_iff; congruence.
+  - apply compare_Term_lt_trans.
+  - rewrite (compare_Term_antisym_iff x y), (compare_Term_antisym_iff y z), (compare_Term_antisym_iff x z).
+    simpl; eauto using compare_Term_lt_trans.
+Qed.
+
+Lemma compare_Term_eq_sym: forall x y: Term, compare_Term x y = Eq -> compare_Term y x = Eq.
+Proof.
+  intros * Heq; rewrite compare_Term_antisym, Heq; reflexivity.
+Qed.
+
+Lemma compare_Term_eq_trans: forall x y z: Term,
+    compare_Term x y = Eq ->
+    compare_Term y z = Eq ->
+    compare_Term x z = Eq.
+Proof.
+  eauto using compare_Term_trans.
 Qed.
 
 Definition compare_AnTerm (x y: AnTerm) : comparison :=
@@ -93,44 +152,103 @@ Definition compare_AnTerm (x y: AnTerm) : comparison :=
   | N, N => Eq
   end.
 
+Definition compare_Term_eq_impl :=
+  (fun x y => proj1 (compare_Term_eq_iff x y)).
 
-Module AnTermOrderedType <: OrderedType.
+Definition compare_Term_antisym_impl :=
+  (fun x y c => proj1 (compare_Term_antisym_iff x y c)).
+
+Hint Resolve compare_Term_refl compare_Term_antisym compare_Term_trans
+  compare_Term_antisym_impl compare_Term_eq_sym compare_Term_eq_trans compare_Term_eq_impl
+  : compare_Term.
+
+Ltac compare_AnTerm_t :=
+  repeat match goal with
+    | _ => progress (simpl; subst)
+    | [  |- forall _: AnTerm, _ ] => intros x; destruct x
+    | _ => intro
+    end;
+  congruence || eauto using f_equal with compare_Term.
+
+Lemma compare_AnTerm_refl: forall x: AnTerm, compare_AnTerm x x = Eq.
+Proof. compare_AnTerm_t. Qed.
+
+Lemma compare_AnTerm_eq: forall x y: AnTerm, compare_AnTerm x y = Eq -> x = y.
+Proof. compare_AnTerm_t. Qed.
+
+Lemma compare_AnTerm_antisym: forall x y: AnTerm, compare_AnTerm y x = CompOpp (compare_AnTerm x y).
+Proof. compare_AnTerm_t. Qed.
+
+Lemma compare_AnTerm_antisym_impl: forall x y c, compare_AnTerm x y = c -> compare_AnTerm y x = CompOpp c.
+Proof. compare_AnTerm_t. Qed.
+
+Lemma compare_AnTerm_trans: forall c x y z,
+    compare_AnTerm x y = c ->
+    compare_AnTerm y z = c ->
+    compare_AnTerm x z = c.
+Proof. compare_AnTerm_t. Qed.
+
+Lemma compare_AnTerm_eq_sym: forall x y: AnTerm, compare_AnTerm x y = Eq -> compare_AnTerm y x = Eq.
+Proof. compare_AnTerm_t. Qed.
+
+Lemma compare_AnTerm_eq_trans: forall x y z: AnTerm,
+    compare_AnTerm x y = Eq ->
+    compare_AnTerm y z = Eq ->
+    compare_AnTerm x z = Eq.
+Proof. compare_AnTerm_t. Qed.
+
+Require OrderedType OrderedTypeAlt.
+
+Module AnTerm_as_OTA <: OrderedTypeAlt.OrderedTypeAlt.
+  Definition t := AnTerm.
+  Definition compare := compare_AnTerm.
+  Definition compare_sym := compare_AnTerm_antisym.
+  Definition compare_trans := compare_AnTerm_trans.
+End AnTerm_as_OTA.
+
+(* Legacy interface, but direct implementation may be useful for performance? *)
+Module AnTerm_as_OT <: OrderedType.OrderedType.
   Definition t := AnTerm.
 
-  Definition compare (x y: AnTerm) : comparison := compare_AnTerm x y.
+  Definition eq (x y: AnTerm) := compare_AnTerm x y = Eq.
+  Definition lt (x y: AnTerm) := compare_AnTerm x y = Lt.
 
-  Definition eq (x y: AnTerm) := compare x y = Eq.
-  Definition lt (x y: AnTerm) := compare x y = Lt.
-
-  Theorem eq_refl : forall x : t, eq x x.
-  Proof.
-    intros x. destruct x; simpl. reflexivity.
-  Qed.
-
-  Theorem eq_sym : forall x y : t, eq x y -> eq y x.
-  Proof.
-    intros x y H. unfold eq in *. destruct (compare_AnTerm x y); destruct (compare_AnTerm y x); try reflexivity; inversion H.
-  Qed.
-
-  Theorem eq_trans : forall x y z : t, eq x y -> eq y z -> eq x z.
-  Proof.
-    intros x y z Hxy Hyz. unfold eq in *. destruct (compare_AnTerm x y); destruct (compare_AnTerm y z); try reflexivity; inversion Hxy; inversion Hyz.
-  Qed.
-
-  Theorem lt_trans : forall x y z : t, lt x y -> lt y z -> lt x z.
-  Proof.
-    intros x y z Hxy Hyz. unfold lt in *. destruct (compare_AnTerm x y); destruct (compare_AnTerm y z); try reflexivity; inversion Hxy; inversion Hyz.
-  Qed.
+  Definition eq_refl : forall x : t, eq x x := compare_AnTerm_refl.
+  Definition eq_sym : forall x y : t, eq x y -> eq y x := compare_AnTerm_eq_sym.
+  Definition eq_trans : forall x y z : t, eq x y -> eq y z -> eq x z := compare_AnTerm_eq_trans.
+  Definition lt_trans : forall x y z : t, lt x y -> lt y z -> lt x z := compare_AnTerm_trans Lt.
 
   Theorem lt_not_eq : forall x y : t, lt x y -> ~ eq x y.
+  Proof. unfold lt, eq; congruence. Qed.
+
+  Theorem compare : forall x y : t, OrderedType.Compare lt eq x y.
   Proof.
-    intros x y Hlt Heq. unfold lt, eq in *. destruct (compare_AnTerm x y); inversion Hlt; inversion Heq.
-  Qed.
-End AnTermOrderedType.
+    intros x y; destruct (compare_AnTerm x y) eqn:Hcmp;
+      [ | | apply compare_AnTerm_antisym_impl in Hcmp; simpl in Hcmp ].
+    all: econstructor; solve [unfold lt, eq; eassumption].
+  Defined.
 
-Print AnTerm.
+  Definition eq_dec : forall x y : t, {eq x y} + {~ eq x y}.
+  Proof.
+    intros x y; destruct (compare_AnTerm x y) eqn:Hcmp; [ left | right.. ].
+    all: unfold eq; congruence.
+  Defined.
+End AnTerm_as_OT.
 
-*)
+Require MSets MSetAVL MSetFacts.
+
+Module AnTerm_as_OOT := OrdersAlt.OT_from_Alt AnTerm_as_OTA.
+Module AnTermAVL := MSetAVL.Make AnTerm_as_OOT.
+Module AnTermPair_as_OOT := OrdersEx.PairOrderedType AnTerm_as_OOT AnTerm_as_OOT.
+Module AnTermPairAVL := MSetAVL.Make AnTermPair_as_OOT.
+Module AnTermPairAVLFacts := MSetFacts.Facts AnTermPairAVL.
+
+Require Import FMapAVL FMapFacts.
+Module AnTermPair_as_OT := OrderedTypeEx.PairOrderedType AnTerm_as_OT AnTerm_as_OT.
+(* Module AnTermPair_as_OOT := OrdersAlt.Update_OT AnTermPair_as_OT. *)
+(* Module AnTermPairAVL := MSetAVL.Make AnTermPair_as_OOT. *)
+Module AnTermPairAVLMap := FMapAVL.Make AnTermPair_as_OT.
+Module AnTermPairAVLMapFacts := FMapFacts.Facts AnTermPairAVLMap.
 
 Definition anSize (t: AnTerm) : nat := match t with
   | L t1 => 1 + termSize t1
@@ -221,65 +339,26 @@ Fixpoint decideOL_bool (fuel: nat) (g d: AnTerm) : bool :=
 
 Ltac recurse := simpl in *; lia.
 
+Hint Constructors OLProof squash : olproof.
+
+Hint Rewrite
+  Bool.orb_false_r
+  Bool.andb_true_iff Bool.orb_true_iff
+  Nat.eqb_eq : rw_bool.
+
 Theorem decideOLBoolCorrect : forall n g d, (decideOL_bool n g d) = true -> squash (OLProof (g, d)).
 Proof.
-  Ltac dest g := destruct g; try congruence.
-  Ltac swapNames g d := let q := fresh "q" in (rename g into q; rename d into g; rename q into d).
-
-  induction n.
-  - intros. unfold decideOL_bool in H. congruence.
-  - intros. simpl in H.
-    Ltac induct IHn H := apply IHn in H; inversion H; (try recurse). 
-      dest g; dest d; (try dest t0); (try dest t).
-
-    all: simpl in H. all: (repeat (rewrite Bool.orb_true_iff in H; simpl in H)).
-      all: repeat match goal with
-      | [ H: _ \/ _ |- _ ] =>  destruct H; (try congruence)
-      | _ => idtac
-      end.
-      all: match goal with
-      | [ H: (?n0 =? ?n1) = true |- _ ] =>  rewrite Nat.eqb_eq in H; subst; sq; (try apply Hyp); (apply Swap; apply Hyp)
-      | _ => idtac
-      end.
-      all: (match goal with 
-      | [ H: (_ && _) = true |- _ ] => (rewrite Bool.andb_true_iff in H; destruct H)
-      | _ => idtac
-      end).
-      all: repeat match goal with
-      | [ H: decideOL_bool _ _ _ = true |- _ ] => induct IHn H
-      | _ => idtac
-      end. 
-      all: try congruence.
-      all: sq. (*60 cases at this point, but many comes from the same match clause (wildcard).*)
-      all: (try (apply LeftOr; auto; fail)).
-      all: (try (apply RightAnd; auto; fail)).
-      all: (try (apply LeftNot; auto; fail)).
-      all: (try (apply RightNot; auto; fail)).
-      all: (try (apply Swap; apply Contract; apply RightOr1; apply Swap; apply RightOr2; auto)).
-      all: (try (apply Contract; apply LeftAnd2; apply Swap; apply LeftAnd1; auto)).
-      all: (try (apply Weaken; auto; fail)).
-      all: (try (apply LeftAnd1; auto; fail)).
-      all: (try (apply LeftAnd2; auto; fail)).
-      all: (try (apply RightOr1; auto; fail)).
-      all: (try (apply RightOr2; auto; fail)).
-      all: apply Swap.
-      all: (try (apply LeftOr; apply Swap; auto; fail)).
-      all: (try (apply RightAnd; apply Swap; auto; fail)).
-      all: (try (apply LeftNot; apply Swap; auto; fail)).
-      all: (try (apply RightNot; apply Swap; auto; fail)).
-      all: (try (apply Swap; apply Contract; apply RightOr1; apply Swap; apply RightOr2; auto)).
-      all: (try (apply Contract; apply LeftAnd2; apply Swap; apply LeftAnd1; auto)).
-      all: (try (apply Weaken; auto; fail)).
-      all: (try (apply LeftAnd1; auto; fail)).
-      all: (try (apply LeftAnd2; auto; fail)).
-      all: (try (apply RightOr1; auto; fail)).
-      all: (try (apply RightOr2; auto; fail)).
+  induction n; intros; simpl in *;
+    repeat match goal with
+           | _ => congruence
+           | [ H: _ /\ _ |- _ ] => destruct H
+           | [ H: _ \/ _ |- _ ] => destruct H
+           | [ H: context[match ?x with _ => _ end] |- _ ] => destruct x; simpl in H
+           | [ H: _ = _, IH: forall _ _, _ = _ -> squash _ |- _ ] => apply IHn in H; inversion_clear H
+           | _ => autorewrite with rw_bool in *; subst
+           end.
+  all: clear IHn; eauto 7 with olproof.
 Qed.
-
-
-
-
-
 
 (* Memoized version of the above algorithm. 
   O(e^n) => O(n^5). Optimal is O(n^2). 
@@ -291,7 +370,7 @@ Qed.
 
 Definition MemoKey := (AnTerm * AnTerm)%type.
 
-Definition MemoMap := list (MemoKey * bool).
+Definition MemoMap := AnTermPairAVLMap.t bool.
 
 Definition MemoMapBool := MemoMap -> (bool * MemoMap).
 
@@ -309,21 +388,18 @@ Definition Mbool b : MemoMapBool  := fun (memo: MemoMap) => (b, memo).
 Definition Mtrue := Mbool true.
 Definition Mfalse := Mbool false.
 
-Infix "|||" := OrMemo (at level 60).
-Infix "&&&" := AndMemo (at level 60).
+Infix "|||" := OrMemo (at level 50, left associativity).
+Infix "&&&" := AndMemo (at level 40, left associativity).
 
-Definition MemoKey_eqdec : forall (x y: MemoKey), {x = y} + {x <> y}.
-Proof. repeat decide equality. Defined.
+Module M := AnTermPairAVLMap.
+Module F := AnTermPairAVLMapFacts.
 
-
-Fixpoint find (x: MemoKey) (l: MemoMap) : option (MemoKey * bool) := match l with
-| [] => None
-| head :: tail => if MemoKey_eqdec x (fst head) then Some head else find x tail
-end.
+(* Module Import M := AnTermPairAVL. *)
+(* Module Import F := AnTermPairAVLFacts. *)
 
 Fixpoint decideOL_boolM (fuel: nat) (g d: AnTerm) (memo: MemoMap) : (bool * MemoMap) :=
-match find (g, d) memo with
-| Some (_, b) => (b, memo)
+match M.find (g, d) memo with
+| Some b => (b, memo)
 | None => let (b, m) :=
   (match fuel with
   | 0 => (false, memo)
@@ -390,21 +466,19 @@ match find (g, d) memo with
         end
         )))))))))
       end memo
-  end) in (b, ((g, d), b) :: m)
+  end) in (b, AnTermPairAVLMap.add (g, d) b m)
 end.
 
-
-Definition decideOL_boolMemo (g d: AnTerm): bool := fst (decideOL_boolM (anSize g + anSize d) g d []).
+Definition decideOL_boolMemo (g d: AnTerm): bool :=
+  fst (decideOL_boolM (anSize g + anSize d) g d (AnTermPairAVLMap.empty bool)).
 
 Definition decideOL_bool_simp (g d: AnTerm): bool := decideOL_bool (anSize g + anSize d) g d.
 
-
 Definition correctMemoMap (l: MemoMap) :=  forall g d, 
-  match find (g, d) l with
-  | Some (_, true) => forall n, (n >= anSize g + anSize d) -> (decideOL_bool n g d = true)
+  match M.find (g, d) l with
+  | Some true => forall n, (n >= anSize g + anSize d) -> (decideOL_bool n g d = true)
   | _ => True
   end.
-
 
 Require Import Coq.Logic.FunctionalExtensionality.
 
@@ -433,17 +507,6 @@ Proof.
   apply functional_extensionality. intro. cbv. auto.
 Qed.
 
-
-Lemma MemoKey_eqdec_refl T1 x y (A B: T1) : x = y -> (if MemoKey_eqdec x y then A else B) = A.
-Proof. 
-  intro. destruct (MemoKey_eqdec x y); congruence.
-Qed.
-
-Lemma MemoKey_eqdec_refl2 T1 x y (A B: T1) : x <> y -> (if MemoKey_eqdec y x then A else B) = B.
-Proof. 
-  intro. destruct (MemoKey_eqdec y x); congruence.
-Qed.
-
 Lemma SplitAndEq a b c d: a = c -> b = d -> (a && b = c && d).
 Proof.
   intros. subst. auto.
@@ -453,6 +516,8 @@ Lemma SplitOrEq a b c d: a = c -> b = d -> (a || b = c || d).
 Proof.
   intros. subst. auto.
 Qed.
+
+Ltac dest g := destruct g; try congruence.
 
 Theorem decideOL_bool_big_fuel  : forall n n0 g d, (n >= anSize g + anSize d) -> ( n0 >= anSize g + anSize d) -> decideOL_bool n g d = decideOL_bool n0 g d.
 Proof.
@@ -476,21 +541,23 @@ Qed.
 
 Lemma correctMemoMap_second_let : 
   forall (A: bool * MemoMap) g d,  
-  correctMemoMap ((g, d, fst A) :: (snd A)) ->
-  correctMemoMap (snd (let (b, m) := A in (b, (g, d, b) :: m))).
+  correctMemoMap (AnTermPairAVLMap.add (g, d) (fst A) (snd A)) ->
+  correctMemoMap (snd (let (b, m) := A in (b, AnTermPairAVLMap.add (g, d) b m))).
 Proof.
   intros. rewrite snd_let_simpl. auto.
 Qed.
 
+Lemma comparison_eq_decidable {c0 c1: comparison} : Decidable.decidable (c0 = c1).
+Proof. red; destruct c0, c1; intuition congruence. Qed.
+(* [Heq1 | Heq2]%(Decidable.not_and _ _ comparison_eq_decidable) *)
 
-
-Lemma correctMemoAdditionEq2 n g d l e : (n >= anSize g + anSize d) -> correctMemoMap l -> (e = true -> decideOL_bool n g d = true)  -> correctMemoMap ((g, d, e) :: l).
+Lemma correctMemoAdditionEq2 n g d l e : (n >= anSize g + anSize d) -> correctMemoMap l -> (e = true -> decideOL_bool n g d = true)  -> correctMemoMap (AnTermPairAVLMap.add (g, d) e l).
 Proof.
-  intros. unfold correctMemoMap. intros.
-  unfold find. fold find. destruct (MemoKey_eqdec (g0, d0) (fst (g, d, decideOL_bool n g d))).
-  - rewrite MemoKey_eqdec_refl; auto. destruct (decideOL_bool n g d) eqn: res; simpl in *. all:  destruct e; simpl in *; auto.
-    intros. simpl in *.  assert (g0 = g). congruence. assert (d0 = d). congruence. subst. auto. rewrite (decideOL_bool_big_fuel n0 n); auto. exfalso. auto with *.
-  - rewrite MemoKey_eqdec_refl2. 2: auto. apply H0.
+  unfold correctMemoMap; intros Hge Hok He *.
+  rewrite F.add_o; destruct F.eq_dec as [(Heq1%compare_AnTerm_eq, Heq2%compare_AnTerm_eq) | Hneq ];
+    simpl in *; subst.
+  - destruct e; intuition eauto using decideOL_bool_big_fuel.
+  - apply Hok.
 Qed.
 
 
@@ -516,16 +583,16 @@ Proof.
     + intros. dest g; dest d; simpl in *; lia.
   
     + simpl in *. unfold correctMemoMap in *. specialize (H0 g d).
-      destruct (find (g, d) l).
-      destruct p; simpl in *. destruct b. subst. specialize (H0 0 H). simpl in *. congruence. auto. auto.
+      destruct M.find.
+      destruct b. subst. specialize (H0 0 H). simpl in *. congruence. auto. auto.
 
 
   - intros. split.
     + simpl. pose proof H0. unfold correctMemoMap in H0.  specialize (H0 g d).
-      destruct (find (g, d) l) eqn: res; simpl in *. destruct p; simpl in *. auto.
+      destruct M.find eqn: res; simpl in *. auto.
       destSimp g; destSimp d; (try destSimp t0); (try destSimp t).
 
-      all: apply correctMemoMap_second_let.  all: repeat rewrite OrMemo_Mfalse_r; repeat rewrite OrMemo_Mfalse_l; repeat rewrite AndMemo_Mfalse_l. 
+      all: apply correctMemoMap_second_let.  all: rewrite ?OrMemo_Mfalse_r, ?OrMemo_Mfalse_l, ?AndMemo_Mfalse_l.
    
       Ltac rewriteOr x y l:= 
         assert ((x ||| y) l = let (b, m) := x l in if b then (true, m) else (y m) ) as rew_first_or; (only 1: reflexivity); rewrite rew_first_or in *; clear rew_first_or.
@@ -567,9 +634,9 @@ Proof.
           | _ => fail "unknown shape" rest
           end.
 
-      all: try (lazymatch goal with
+      all: (lazymatch goal with
       | [H : correctMemoMap ?l |- 
-          correctMemoMap ( (?g, ?d, fst (?rest ?l)) :: snd (?rest ?l)) ] => 
+          correctMemoMap (AnTermPairAVLMap.add (?g, ?d) (fst (?rest ?l)) (snd (?rest ?l))) ] =>
         apply (correctMemoAdditionEq2 (S n) g d); only 1: (simpl in *; lia);
         reduceAndOr rest IHn l H;
         idtac
@@ -578,7 +645,7 @@ Proof.
 
       (* Need to do the second half of the proof, which could be the same as the first *)
     + Opaque decideOL_bool. simpl. pose proof H0. unfold correctMemoMap in H0.  specialize (H0 g d).
-      destruct (find (g, d) l) eqn: res; simpl in *. destruct p; simpl in *. 
+      destruct (M.find (g, d) l) eqn: res; simpl in *.
       * destruct b eqn:b_eq; simpl in *; intro; auto; try congruence.
       * Transparent decideOL_bool. destSimp g; destSimp d; (try destSimp t0); (try destSimp t).
         all: rewrite fst_let_simpl; simpl in *; repeat rewrite Bool.orb_false_r; repeat rewrite OrMemo_Mfalse_r; repeat rewrite OrMemo_Mfalse_l.
