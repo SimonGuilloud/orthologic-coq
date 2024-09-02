@@ -262,7 +262,7 @@ Lemma anSizePositive : forall t, anSize t >= 1. Proof. intros. destruct t; simpl
 
 
 
-  (* Decision Algorithm for OL, using bool *)
+  (* Decision Algorithm for OL *)
 
 Fixpoint decideOL_bool (fuel: nat) (g d: AnTerm) : bool :=
   match fuel with
