@@ -345,7 +345,7 @@ Qed.
 Ltac solveOLMemo OL := 
   reify_goal OL; apply reduceToAlgoMemo; auto; vm_compute; (try reflexivity).
 
-
+export solveOlMemo.
 
 Example test1 {OL: Ortholattice} : forall a,  a <= a.
 Proof.

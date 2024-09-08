@@ -34,12 +34,6 @@ Fixpoint ForgetPointer (t: TermPointer) : Term :=
   end.
 
 
-
-
-
-
-
-
 Definition GetPointer (t: TermPointer) : Pointer :=
   match t with
   | VarP _ p => p
@@ -681,7 +675,7 @@ Ltac rewEqs := repeat rewrite Pos.eqb_refl in *; repeat rewrite Pos.eqb_eq in *.
 
 
 
-Theorem AddPointerCorrect2_1 (t: Term)  : 
+Theorem AddPointerCorrect_1 (t: Term)  : 
   forall p,
   (forall p0, GetPointer (func_of_AddPointer (fst (AddPointer t p)) p0) = p0).
 Proof.
@@ -1037,7 +1031,7 @@ Theorem FindTooSmall ta p t1 p1 tp:
 Proof.
   intros. 
   assert (forall r, (p1 <= GetPointer r)%positive -> In r (subtermsPointer t1) -> False).
-  - intro. pose proof (inListPointer ta p t1 p1 r H) as ILPintuition. intuition.
+  - intros. pose proof (inListPointer ta p t1 p1 r H H2) as ILPintuition. apply H1. apply Pos.lt_gt. auto.
   - apply find_classical; intros.
     destruct H2 as [r]. apply H1 with r. clear H1.
 
@@ -1045,12 +1039,12 @@ Proof.
       rewrite <- Pos.eqb_eq.
       eauto using (find_some_sat (fun x : TermPointer => (GetPointer x =? GetPointer tp)%positive) ).
     + eauto using find_some_in.
-Qed.
+Defined.
 
 
 
 
-Theorem AddPointerCorrect2_2 (t: Term) :
+Theorem AddPointerCorrect_2 (t: Term) :
   forall p ,
   forall tp,
   subterm (fst (AddPointer t p)) tp -> 
@@ -1125,19 +1119,19 @@ Proof.
 Qed. 
 
 
-Theorem AddPointerCorrect2_3 (t: Term) :
+Theorem AddPointerCorrect_3 (t: Term) :
   forall p ,
   forall tp,
   subterm (fst (AddPointer t p)) tp -> 
   func_of_AddPointer (fst (AddPointer t p)) (GetPointer tp) = tp.
 Proof.
-  intros. unfoldBoth. rewrite AddPointerCorrect2_2; auto.
+  intros. unfoldBoth. rewrite AddPointerCorrect_2; auto.
 Qed.
 
 
-  Ltac apc23 t p := pose proof (AddPointerCorrect2_3 t p (fst (AddPointer t p))) as H; simpl in *.
+  Ltac apc23 t p := pose proof (AddPointerCorrect_3 t p (fst (AddPointer t p))) as H; simpl in *.
 
-Theorem AddPointerCorrect2_4 (t: Term) :
+Theorem AddPointerCorrect_4 (t: Term) :
   forall p ,
   forall tp,
   subterm (fst (AddPointer t p)) tp -> 
@@ -1145,16 +1139,16 @@ Theorem AddPointerCorrect2_4 (t: Term) :
 Proof.
   induction tp as [ | tpa IHtpa tpb IHtpb  | tpa IHtpa tpb IHtpb  | tpa IHtpa]; intros; simpl in *; simpl in *;
   intros.
-  - intuition. pose proof (AddPointerCorrect2_3 t p (VarP n p0)). intuition.
+  - intuition. pose proof (AddPointerCorrect_3 t p (VarP n p0)). intuition.
   - intuition.
-    + pose proof (AddPointerCorrect2_3 t p (MeetP tpa tpb p0)). simpl in *. intuition.
+    + pose proof (AddPointerCorrect_3 t p (MeetP tpa tpb p0)). simpl in *. intuition.
     + apply IHtpa. eapply subterm_trans; eauto; simpl in *. right. left. apply subterm_refl.
     + apply IHtpb. eapply subterm_trans; eauto; simpl in *. right. right. apply subterm_refl.
   - intuition.
-    + pose proof (AddPointerCorrect2_3 t p (JoinP tpa tpb p0)). simpl in *. intuition.
+    + pose proof (AddPointerCorrect_3 t p (JoinP tpa tpb p0)). simpl in *. intuition.
     + apply IHtpa. eapply subterm_trans; eauto; simpl in *. right. left. apply subterm_refl.
     + apply IHtpb. eapply subterm_trans; eauto; simpl in *. right. right. apply subterm_refl.
-  - pose proof (AddPointerCorrect2_3 t p (NotP tpa p0)). simpl in *. intuition.
+  - pose proof (AddPointerCorrect_3 t p (NotP tpa p0)). simpl in *. intuition.
     apply IHtpa. eapply subterm_trans; eauto; simpl in *. right. apply subterm_refl.
 Qed.
 
@@ -1165,12 +1159,12 @@ Qed.
 
 
 
-Theorem AddPointerCorrect2_5 (t: Term) :
+Theorem AddPointerCorrect_5 (t: Term) :
   forall p,
   PointerCorrectnessTerm_inter (func_of_AddPointer (fst (AddPointer t p))) (fst (AddPointer t p)).
 Proof.
   intros.
-  apply (AddPointerCorrect2_4 t p (fst (AddPointer t p))). apply subterm_refl.
+  apply (AddPointerCorrect_4 t p (fst (AddPointer t p))). apply subterm_refl.
 Qed.
 
 
@@ -1203,7 +1197,7 @@ Definition func_of_AddAnPointerTwice (ant1 ant2: AnTerm) : (Pointer -> TermPoint
 Theorem func_to_RefMap (ant1 ant2: AnTerm) : RefMap.
 Proof.
   exists (func_of_AddAnPointerTwice ant1 ant2).
-  intros. apply AddPointerCorrect2_1.
+  intros. apply AddPointerCorrect_1.
 Defined.
   
 
@@ -1293,7 +1287,7 @@ Qed.
 
 
 (*
-Theorem AddPointerCorrect2_6 t d g p1 :
+Theorem AddPointerCorrect_6 t d g p1 :
   forall p,
   AddAnPointer g 1%positive = (NTP, p1) ->
   AddAnPointer d p1 = (LTP t, p) ->
@@ -1387,23 +1381,23 @@ Opaque subterm.
 
 Ltac solve_LL_LR_RL_RR tg td t:= 
   induction t as [ n p| t1 IHt1 t2 IHt2 | t1 IHt1 t2 IHt2 | t IHt]; intros; simpl in *;
-  try ( pose proof (AddPointerCorrect2_4 (Meet tg td) 1%positive (VarP n p)) as APC5; simpl in *;
+  try ( pose proof (AddPointerCorrect_4 (Meet tg td) 1%positive (VarP n p)) as APC5; simpl in *;
             unfold func_of_AddAnPointerTwice; simpl in *; repeat (rewrite fst_let_simpl; simpl);
             destruct (AddPointer tg 2%positive) as [t p0] eqn: eq_tg; simpl in *;
             destruct (AddPointer td p0) eqn: eq_td; simpl in *; intuition; fail);
-  try ( pose proof (AddPointerCorrect2_4 (Meet tg td) 1%positive (MeetP t1 t2 p)) as APC5; simpl in *;
+  try ( pose proof (AddPointerCorrect_4 (Meet tg td) 1%positive (MeetP t1 t2 p)) as APC5; simpl in *;
             unfold func_of_AddAnPointerTwice; simpl in *; repeat (rewrite fst_let_simpl; simpl);
             destruct (AddPointer tg 2%positive) as [t p0] eqn: eq_tg; simpl in *;
             destruct (AddPointer td p0) eqn: eq_td; simpl in *; intuition; 
             try (apply IHt1; auto; eapply subterm_trans; eauto using subtermMeetP_1);
             try (apply IHt2; auto; eapply subterm_trans; eauto using subtermMeetP_2); fail);
-  try ( pose proof (AddPointerCorrect2_4 (Meet tg td) 1%positive (JoinP t1 t2 p)) as APC5; simpl in *;
+  try ( pose proof (AddPointerCorrect_4 (Meet tg td) 1%positive (JoinP t1 t2 p)) as APC5; simpl in *;
             unfold func_of_AddAnPointerTwice; simpl in *; repeat (rewrite fst_let_simpl; simpl);
             destruct (AddPointer tg 2%positive) as [t p0] eqn: eq_tg; simpl in *;
             destruct (AddPointer td p0) eqn: eq_td; simpl in *; intuition;
             try (apply IHt1; auto; eapply subterm_trans; eauto using subtermJoinP_1);
             try (apply IHt2; auto; eapply subterm_trans; eauto using subtermJoinP_2); fail);
-      ( pose proof (AddPointerCorrect2_4 (Meet tg td) 1%positive (NotP t p)) as APC5; simpl in *;
+      ( pose proof (AddPointerCorrect_4 (Meet tg td) 1%positive (NotP t p)) as APC5; simpl in *;
             unfold func_of_AddAnPointerTwice; simpl in *; repeat (rewrite fst_let_simpl; simpl);
             destruct (AddPointer tg 2%positive) as [t1 p0] eqn: eq_tg; simpl in *;
             destruct (AddPointer td p0) eqn: eq_td; simpl in *; intuition;
@@ -1411,23 +1405,23 @@ Ltac solve_LL_LR_RL_RR tg td t:=
 
 Ltac solve_LN_RN tg t:= 
   induction t as [ n p| t1 IHt1 t2 IHt2 | t1 IHt1 t2 IHt2 | t IHt]; intros; simpl in *;
-  try ( pose proof (AddPointerCorrect2_4 (Not tg) 1%positive (VarP n p)) as APC5; simpl in *;
+  try ( pose proof (AddPointerCorrect_4 (Not tg) 1%positive (VarP n p)) as APC5; simpl in *;
             unfold func_of_AddAnPointerTwice; simpl in *; repeat (rewrite fst_let_simpl; simpl);
             destruct (AddPointer tg 2%positive) as [t p0] eqn: eq_tg; simpl in *;
             intuition; fail);
-  try ( pose proof (AddPointerCorrect2_4 (Not tg) 1%positive (MeetP t1 t2 p)) as APC5; simpl in *;
+  try ( pose proof (AddPointerCorrect_4 (Not tg) 1%positive (MeetP t1 t2 p)) as APC5; simpl in *;
             unfold func_of_AddAnPointerTwice; simpl in *; repeat (rewrite fst_let_simpl; simpl);
             destruct (AddPointer tg 2%positive) as [t p0] eqn: eq_tg; simpl in *;
             intuition; 
             try (apply IHt1; auto; eapply subterm_trans; eauto using subtermMeetP_1);
             try (apply IHt2; auto; eapply subterm_trans; eauto using subtermMeetP_2); fail);
-  try ( pose proof (AddPointerCorrect2_4 (Not tg) 1%positive (JoinP t1 t2 p)) as APC5; simpl in *;
+  try ( pose proof (AddPointerCorrect_4 (Not tg) 1%positive (JoinP t1 t2 p)) as APC5; simpl in *;
             unfold func_of_AddAnPointerTwice; simpl in *; repeat (rewrite fst_let_simpl; simpl);
             destruct (AddPointer tg 2%positive) as [t p0] eqn: eq_tg; simpl in *;
             intuition;
             try (apply IHt1; auto; eapply subterm_trans; eauto using subtermJoinP_1);
             try (apply IHt2; auto; eapply subterm_trans; eauto using subtermJoinP_2); fail);
-      ( pose proof (AddPointerCorrect2_4 (Not tg) 1%positive (NotP t p)) as APC5; simpl in *;
+      ( pose proof (AddPointerCorrect_4 (Not tg) 1%positive (NotP t p)) as APC5; simpl in *;
             unfold func_of_AddAnPointerTwice; simpl in *; repeat (rewrite fst_let_simpl; simpl);
             destruct (AddPointer tg 2%positive) as [t1 p0] eqn: eq_tg; simpl in *;
             intuition;
@@ -1510,7 +1504,7 @@ Qed.
 
 
 
-Theorem AddPointerCorrect2_6_g1 d g p1 p2 g1 d1 :
+Theorem AddPointerCorrect_6_g1 d g p1 p2 g1 d1 :
   AddAnPointer g 2%positive = (g1, p1) ->
   AddAnPointer d p1 = (d1, p2) ->
   PointerCorrectnessAnTerm (func_to_RefMap g d) g1.
@@ -1521,29 +1515,29 @@ Proof.
   all: destruct d1 eqn: dest_d1; destruct d eqn: dest_d; simpl in *; try congruence; auto.
   all: try destruct (AddPointer _ p1 ) eqn: dest_tp1; subst; simpl in *; try congruence; auto.
   all: repeat substAll; try congruence.
-  - pose proof (AddPointerCorrect2_5 t0 2%positive); apply pointco_inter_equivLN; simpl in *;
+  - pose proof (AddPointerCorrect_5 t0 2%positive); apply pointco_inter_equivLN; simpl in *;
     rewrite dest_t02 in *; simpl in *; auto using subtermNotP.
-  - pose proof (AddPointerCorrect2_4 t0 2%positive t).
+  - pose proof (AddPointerCorrect_4 t0 2%positive t).
     apply pointco_inter_equivLL; simpl in *.
     all: rewrite dest_t02 in *; simpl in *.
     all: destruct (AddPointer t3 p1) eqn: dest_t3; simpl in *; auto using subtermMeetP_1, subterm_refl.
-  - pose proof (AddPointerCorrect2_4 t0 2%positive t).
+  - pose proof (AddPointerCorrect_4 t0 2%positive t).
     apply pointco_inter_equivLR; simpl in *.
     all: rewrite dest_t02 in *; simpl in *.
     all: destruct (AddPointer t3 p1) eqn: dest_t3; simpl in *; auto using subtermMeetP_1, subterm_refl.
-  - pose proof (AddPointerCorrect2_5 t0 2%positive); apply pointco_inter_equivLN; simpl in *;
+  - pose proof (AddPointerCorrect_5 t0 2%positive); apply pointco_inter_equivLN; simpl in *;
     rewrite dest_t02 in *; simpl in *; auto using subtermNotP.
-  - pose proof (AddPointerCorrect2_4 t0 2%positive t).
+  - pose proof (AddPointerCorrect_4 t0 2%positive t).
     apply pointco_inter_equivLL; simpl in *.
     all: rewrite dest_t02 in *; simpl in *.
     all: destruct (AddPointer t3 p1) eqn: dest_t3; simpl in *; auto using subtermMeetP_1, subterm_refl.
-  - pose proof (AddPointerCorrect2_4 t0 2%positive t).
+  - pose proof (AddPointerCorrect_4 t0 2%positive t).
     apply pointco_inter_equivLR; simpl in *.
     all: rewrite dest_t02 in *; simpl in *.
     all: destruct (AddPointer t3 p1) eqn: dest_t3; simpl in *; auto using subtermMeetP_1, subterm_refl.
 Qed.
 
-Theorem AddPointerCorrect2_6_d1 d g p1 p2 g1 d1 :
+Theorem AddPointerCorrect_6_d1 d g p1 p2 g1 d1 :
   AddAnPointer g 2%positive = (g1, p1) ->
   AddAnPointer d p1 = (d1, p2) ->
   PointerCorrectnessAnTerm (func_to_RefMap g d) d1.
@@ -1554,26 +1548,26 @@ Proof.
   all: destruct d1 eqn: dest_d1; destruct d eqn: dest_d; simpl in *; try congruence; auto.
   all: try destruct (AddPointer _ p1 ) eqn: dest_tp1; subst; simpl in *; try congruence; auto.
   all: repeat substAll; try congruence.
-  - pose proof (AddPointerCorrect2_5 t0 2%positive); apply pointco_inter_equivNL; simpl in *;
+  - pose proof (AddPointerCorrect_5 t0 2%positive); apply pointco_inter_equivNL; simpl in *;
     rewrite dest_tp1 in *; simpl in *; auto using subtermNotP.
-  - pose proof (AddPointerCorrect2_5 t0 2%positive); apply pointco_inter_equivNR; simpl in *;
+  - pose proof (AddPointerCorrect_5 t0 2%positive); apply pointco_inter_equivNR; simpl in *;
     rewrite dest_tp1 in *; simpl in *; auto using subtermNotP.
-  - pose proof (AddPointerCorrect2_4 t3 p1 t2).
+  - pose proof (AddPointerCorrect_4 t3 p1 t2).
     apply pointco_inter_equivLL; simpl in *.
     all: rewrite dest_t02 in *; simpl in *.
     all: rewrite dest_tp1 in *; simpl in *.
     all: destruct (AddPointer t3 p1) eqn: dest_t3; simpl in *; auto using subtermMeetP_2, subterm_refl.
-  - pose proof (AddPointerCorrect2_4 t3 p1 t2).
+  - pose proof (AddPointerCorrect_4 t3 p1 t2).
     apply pointco_inter_equivLR; simpl in *.
     all: rewrite dest_t02 in *; simpl in *.
     all: rewrite dest_tp1 in *; simpl in *.
     all: destruct (AddPointer t3 p1) eqn: dest_t3; simpl in *; auto using subtermMeetP_2, subterm_refl.
-  - pose proof (AddPointerCorrect2_4 t3 p1 t2).
+  - pose proof (AddPointerCorrect_4 t3 p1 t2).
     apply pointco_inter_equivRL; simpl in *.
     all: rewrite dest_t02 in *; simpl in *.
     all: rewrite dest_tp1 in *; simpl in *.
     all: destruct (AddPointer t3 p1) eqn: dest_t3; simpl in *; auto using subtermMeetP_2, subterm_refl.
-  - pose proof (AddPointerCorrect2_4 t3 p1 t2).
+  - pose proof (AddPointerCorrect_4 t3 p1 t2).
     apply pointco_inter_equivRR; simpl in *.
     all: rewrite dest_t02 in *; simpl in *.
     all: rewrite dest_tp1 in *; simpl in *.
@@ -1609,8 +1603,8 @@ Proof.
     rewrite (anSize_eq_anPSize_Add g 2%positive) in H at 1. rewrite (anSize_eq_anPSize_Add d p1) in H at 1. simpl in *.
     rewrite eqg1 in H at 1. rewrite eqd1 in H at 1. simpl in *.
     Ltac simp a b := try simpl in a; simpl in b.
-    assert (PointerCorrectnessAnTerm refmap g1) as pcat_refmap_g; auto using (AddPointerCorrect2_6_g1 d g p1 p g1 d1).
-    assert (PointerCorrectnessAnTerm refmap d1) as pcat_refmap_d; auto using (AddPointerCorrect2_6_d1 d g p1 p g1 d1).
+    assert (PointerCorrectnessAnTerm refmap g1) as pcat_refmap_g; auto using (AddPointerCorrect_6_g1 d g p1 p g1 d1).
+    assert (PointerCorrectnessAnTerm refmap d1) as pcat_refmap_d; auto using (AddPointerCorrect_6_d1 d g p1 p g1 d1).
     assert (correctMemoMap refmap (AnPointerPairAVLMap.empty bool)). unfold correctMemoMap. simpl in *. auto.
 
     destruct g1 eqn: dest_g1; destruct g eqn: dest_g; simpl in eqg1, eqd1; try congruence. 
@@ -1624,7 +1618,7 @@ Proof.
     + apply H; auto. simpl; simpl in eq; rewrite eq; simpl; auto.
     + assert (func_of_AddAnPointerTwice (ForgetAnPointer NTP) (ForgetAnPointer (LTP t)) (GetPointer t) = t).
       * Transparent ForgetAnPointer.
-        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect2_3 _ 1%positive). simpl.
+        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect_3 _ 1%positive). simpl.
         destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl; auto.  
         repeat substAll. right. apply subterm_refl_eq.
         pose proof (ForgetAddInverse t0 2%positive) as fai. rewrite dest_tp1 in fai; simpl in fai; subst. congruence.
@@ -1636,7 +1630,7 @@ Proof.
         destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl in *. rewrite eq; simpl; auto.
     + assert (func_of_AddAnPointerTwice (ForgetAnPointer NTP) (ForgetAnPointer (RTP t)) (GetPointer t) = t).
       * Transparent ForgetAnPointer.
-        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect2_3 _ 1%positive). simpl.
+        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect_3 _ 1%positive). simpl.
         destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl; auto.  
         repeat substAll. right. apply subterm_refl_eq.
         pose proof (ForgetAddInverse t0 2%positive) as fai. rewrite dest_tp1 in fai; simpl in fai; subst. congruence.
@@ -1649,7 +1643,7 @@ Proof.
     (* g is L *)
     + assert (func_of_AddAnPointerTwice (ForgetAnPointer (LTP t)) (ForgetAnPointer NTP) (GetPointer t) = t).
       * Transparent ForgetAnPointer.
-        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect2_3 _ 1%positive). simpl.
+        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect_3 _ 1%positive). simpl.
         destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl; auto.  
         repeat substAll. right. apply subterm_refl_eq.
         pose proof (ForgetAddInverse t0 2%positive) as fai. rewrite dest_t02 in fai; simpl in fai; subst. congruence.
@@ -1660,13 +1654,13 @@ Proof.
         rewrite fst_let_simpl in *.
         destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl in *. rewrite eq; simpl; auto.
     + assert (func_of_AddAnPointerTwice (ForgetAnPointer (LTP t)) (ForgetAnPointer (LTP t2)) (GetPointer t) = t).
-        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect2_3 _ 1%positive). simpl.
+        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect_3 _ 1%positive). simpl.
         destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl; auto.  
         destruct (AddPointer (ForgetPointer t2) p3) eqn: dest_t2; simpl; auto.  
         repeat substAll. right. left. apply subterm_refl_eq.
         pose proof (ForgetAddInverse t0 2%positive) as fai. rewrite dest_t02 in fai. simpl in fai. subst. congruence.
       assert (func_of_AddAnPointerTwice (ForgetAnPointer (LTP t)) (ForgetAnPointer (LTP t2)) (GetPointer t2) = t2).
-        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect2_3 _ 1%positive). simpl.
+        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect_3 _ 1%positive). simpl.
         destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl; auto.  
         destruct (AddPointer (ForgetPointer t2) p3) eqn: dest_t2; simpl; auto.  
         repeat substAll. right. right. apply subterm_refl_eq.
@@ -1680,13 +1674,13 @@ Proof.
         unfold func_of_AddAnPointerTwice in *;  simpl in *. 
         rewrite dest_t02 in *; rewrite fst_let_simpl in *; rewrite eq; simpl; auto.
     + assert (func_of_AddAnPointerTwice (ForgetAnPointer (LTP t)) (ForgetAnPointer (RTP t2)) (GetPointer t) = t).
-        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect2_3 _ 1%positive). simpl.
+        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect_3 _ 1%positive). simpl.
         destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl; auto.  
         destruct (AddPointer (ForgetPointer t2) p3) eqn: dest_t2; simpl; auto.  
         repeat substAll. right. left. apply subterm_refl_eq.
         pose proof (ForgetAddInverse t0 2%positive) as fai. rewrite dest_t02 in fai. simpl in fai. subst. congruence.
       assert (func_of_AddAnPointerTwice (ForgetAnPointer (LTP t)) (ForgetAnPointer (RTP t2)) (GetPointer t2) = t2).
-        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect2_3 _ 1%positive). simpl.
+        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect_3 _ 1%positive). simpl.
         destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl; auto.  
         destruct (AddPointer (ForgetPointer t2) p3) eqn: dest_t2; simpl; auto.  
         repeat substAll. right. right. apply subterm_refl_eq.
@@ -1702,7 +1696,7 @@ Proof.
     (* g is R *)
     + assert (func_of_AddAnPointerTwice (ForgetAnPointer (RTP t)) (ForgetAnPointer NTP) (GetPointer t) = t).
       * Transparent ForgetAnPointer.
-        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect2_3 _ 1%positive). simpl.
+        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect_3 _ 1%positive). simpl.
         destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl; auto.  
         repeat substAll. right. apply subterm_refl_eq.
         pose proof (ForgetAddInverse t0 2%positive) as fai. rewrite dest_t02 in fai; simpl in fai; subst. congruence.
@@ -1713,13 +1707,13 @@ Proof.
         rewrite fst_let_simpl in *.
         destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl in *. rewrite eq; simpl; auto.
     + assert (func_of_AddAnPointerTwice (ForgetAnPointer (RTP t)) (ForgetAnPointer (LTP t2)) (GetPointer t) = t).
-        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect2_3 _ 1%positive). simpl.
+        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect_3 _ 1%positive). simpl.
         destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl; auto.  
         destruct (AddPointer (ForgetPointer t2) p3) eqn: dest_t2; simpl; auto.  
         repeat substAll. right. left. apply subterm_refl_eq.
         pose proof (ForgetAddInverse t0 2%positive) as fai. rewrite dest_t02 in fai. simpl in fai. subst. congruence.
       assert (func_of_AddAnPointerTwice (ForgetAnPointer (RTP t)) (ForgetAnPointer (LTP t2)) (GetPointer t2) = t2).
-        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect2_3 _ 1%positive). simpl.
+        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect_3 _ 1%positive). simpl.
         destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl; auto.  
         destruct (AddPointer (ForgetPointer t2) p3) eqn: dest_t2; simpl; auto.  
         repeat substAll. right. right. apply subterm_refl_eq.
@@ -1733,13 +1727,13 @@ Proof.
         unfold func_of_AddAnPointerTwice in *;  simpl in *. 
         rewrite dest_t02 in *; rewrite fst_let_simpl in *; rewrite eq; simpl; auto.
     + assert (func_of_AddAnPointerTwice (ForgetAnPointer (RTP t)) (ForgetAnPointer (RTP t2)) (GetPointer t) = t).
-        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect2_3 _ 1%positive). simpl.
+        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect_3 _ 1%positive). simpl.
         destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl; auto.  
         destruct (AddPointer (ForgetPointer t2) p3) eqn: dest_t2; simpl; auto.  
         repeat substAll. right. left. apply subterm_refl_eq.
         pose proof (ForgetAddInverse t0 2%positive) as fai. rewrite dest_t02 in fai. simpl in fai. subst. congruence.
       assert (func_of_AddAnPointerTwice (ForgetAnPointer (RTP t)) (ForgetAnPointer (RTP t2)) (GetPointer t2) = t2).
-        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect2_3 _ 1%positive). simpl.
+        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect_3 _ 1%positive). simpl.
         destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl; auto.  
         destruct (AddPointer (ForgetPointer t2) p3) eqn: dest_t2; simpl; auto.  
         repeat substAll. right. right. apply subterm_refl_eq.
@@ -1757,32 +1751,33 @@ Proof.
 Qed.
 
 
-Theorem reduceToAlgoFmap {OL: Ortholattice} : forall t1 t2 f, (decideOL_boolMemo (L t1) (R t2)) = true -> ((eval t1 f) <= (eval t2 f)).
+Theorem reduceToAlgoPointers {OL: Ortholattice} : forall t1 t2 f, (decideOL_pointer_at (L t1) (R t2)) = true -> ((eval t1 f) <= (eval t2 f)).
 Proof.
-  intros. assert (AnLeq  (L t1) (R t2)). all: auto using decideOLBoolFmapCorrect2.
+  intros. assert (AnLeq  (L t1) (R t2)). all: auto using decideOLPointerATCorrect.
 Qed.
 
-Ltac solveOLFmap OL := 
-  reify_goal OL; apply reduceToAlgoFmap; auto; vm_compute; (try reflexivity).
+Ltac solveOLPointers OL := 
+  reify_goal OL; apply reduceToAlgoPointers; auto; vm_compute; (try reflexivity).
 
+export solveOlPointers.
 
 Example test1 {OL: Ortholattice} : forall a,  a <= a.
 Proof.
   intro. 
-  solveOLFmap OL.
+  solveOLPointers OL.
 Qed.
 
 Example test2 {OL: Ortholattice} : forall a,  a == (a ∩ a).
 Proof.
   intro. 
-  solveOLFmap OL.
+  solveOLPointers OL.
 Qed.
 
 Example test3 {OL: Ortholattice} a b c: 
   ¬(b ∪ ¬(c ∩ ¬b) ∪ a) <= (¬a ∪ ¬(b ∩ ¬a)).
 Proof.
   intros. 
-  solveOLFmap OL.
+  solveOLPointers OL.
 Qed.
 
 
@@ -1790,7 +1785,7 @@ Qed.
 Example test4 : forall a: (@A BoolOL),  a <= (a || a).
 Proof.
   intro.
-  solveOLFmap BoolOL.
+  solveOLPointers BoolOL.
 Qed.
 
 
@@ -1798,26 +1793,26 @@ Qed.
 Example test5 : forall a: (@A BoolOL), Bool.le a (andb a a).
 Proof.
   intro. 
-  solveOLFmap BoolOL.
+  solveOLPointers BoolOL.
 Qed.
 
 
 Example test6 : forall a b : bool,   ( a ∩ (neg a)) <= b.
 Proof.
   intros.
-  solveOLFmap BoolOL.
+  solveOLPointers BoolOL.
 Qed.
 
 
 Example test7 : forall a b : bool,  Bool.le (andb a (negb a)) b.
 Proof.
   intros. 
-  solveOLFmap BoolOL.
+  solveOLPointers BoolOL.
 Qed.
 
 
 Example test8 : forall a b c: bool,  (a ∩ (negb a)) <= (a || (b && c)).
 Proof.
   intros. 
-  solveOLFmap BoolOL.
+  solveOLPointers BoolOL.
 Qed.
