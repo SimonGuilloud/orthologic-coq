@@ -5,12 +5,21 @@ import scala.util.Random
 
 object Main {
   def main(args: Array[String]): Unit = {
+    var index = 0
+    def i(): Int = 
+      index += 1
+      index
 
     //generate_reductions_random(0, 10, 0.8, 30, 15).foreach(printPair)
-    //printPair(generate_distributive_swap(50))
-    printCoqTest(generate_long_cnf(25), 3, 25)
+    printCoqTest(generate_long_cnf(20), i(), 20)
+    printCoqTest(generate_long_cnf(25), i(), 25)
+    printCoqTest(generate_long_cnf(30), i(), 30)
+    printCoqTest(generate_long_cnf(35), i(), 35)
+    printCoqTest(generate_long_cnf(40), i(), 40)
+    printCoqTest(generate_long_cnf(45), i(), 45)
+    generate_reductions_random(0, 3, 0.7, 60, 20).foreach(p => printCoqTest(p, i(), 20))
   }
-
+    
   def printPair(p: (Formula, Formula)): Unit = {
     print(Console.RED + prettyCoq(p._1) + "\n" + "  =" + "\n" + Console.BLUE + prettyCoq(p._2) + "\n")
     println("")
@@ -20,28 +29,27 @@ object Main {
 
   def prettyCoq(f: Formula): String = f match {
     case Variable(id) => s"x$id"
-    case Neg(child) => s"${prettyCoq(child)}"
+    case Neg(child) => s"!${prettyCoq(child)}"
     case Or(children) => "(" + children.map(prettyCoq).reduce(_ + "||" + _) + ")"
     case And(children) => "(" + children.map(prettyCoq).reduce(_ + "&&" + _) + ")"
-    case Literal(b) => if b then "T" else "F"
+    case Literal(b) => if b then "x1||!x1" else "x1&&!x1"
   }
 
   def printCoqTest(p: (Formula, Formula), no: Int, upvars: Int): Unit = {
     val (f1, f2) = p
     println(Console.BLUE + 
-s"""Theorem test${no}_solveOL (${(0 to upvars).map("x"+_).reduce(_ + " " + _)}: bool) :
+s"""Theorem test${no} (${(0 to upvars).map("x"+_).reduce(_ + " " + _)}: bool) :
   ${prettyCoq(f1)} 
     = 
   ${prettyCoq(f2)}
-. Proof. timeout 10 (solveOL BoolOL). Qed.
-
-Theorem test${no}_btauto (${(0 to upvars).map("x"+_).reduce(_ + " " + _)}: bool) :
-  ${prettyCoq(f1)} 
-    = 
-  ${prettyCoq(f2)}
-. Proof. timeout 10 (btauto). Qed."""
-
-
+. Proof. match goal with | |- ?goal => (assert (goal /\\ goal /\\ goal /\\ goal /\\ goal); intuition) end.
+  timeout 10 (solveOLBase BoolOL).
+  timeout 10 (solveOLMemo BoolOL).
+  timeout 10 (solveOLFmap BoolOL).
+  timeout 10 (solveOLPointers BoolOL).
+  timeout 10 (btauto).
+Admitted.
+""" + Console.RESET
     )
   }
 
