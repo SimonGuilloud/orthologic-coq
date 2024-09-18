@@ -21,7 +21,7 @@ Ltac solveOL OL thm reduction :=
 Tactic Notation "run1" tactic(t) :=
   idtac;
   first
-    [ timeout 60
+    [ timeout 30
         first[ assert_succeeds (idtac; solve[t]); idtac "solved"
              | fail 2 "not solved" ]
     | idtac "timeout" ].
@@ -45,24 +45,28 @@ Tactic Notation "bench1" uconstr(id) constr(thm) constr(reduction)  :=
                   end in
   time (run1 (solveOL BoolOL thm reduction)).
 
-Tactic Notation "benchAll" uconstr(id) :=
-  (* do 1 (bench1 id OL_Reflection_1_base.reduceToAlgo none); *)
-  (* do 1 (bench1 id OL_Reflection_1_base.reduceToAlgo lazy); *)
-  (* do 1 (bench1 id OL_Reflection_1_base.reduceToAlgo vm_compute); *)
+Tactic Notation "benchFast" uconstr(id) :=
+  do 5 (bench1 id OL_Reflection_3_fmap.reduceToAlgoFmap lazy);
+  do 5 (bench1 id OL_Reflection_3_fmap.reduceToAlgoFmap vm_compute);
 
-  (* do 1 (bench1 id OL_Reflection_2_memo.reduceToAlgoMemo none); *)
-  do 1 (bench1 id OL_Reflection_2_memo.reduceToAlgoMemo lazy);
-  do 1 (bench1 id OL_Reflection_2_memo.reduceToAlgoMemo vm_compute);
+  do 5 (bench1 id OL_Reflection_4_pointers.reduceToAlgoPointers lazy);
+  do 5 (bench1 id OL_Reflection_4_pointers.reduceToAlgoPointers vm_compute);
+  idtac.
 
-  (* do 1 (bench1 id OL_Reflection_3_fmap.reduceToAlgoFmap none); *)
-  do 1 (bench1 id OL_Reflection_3_fmap.reduceToAlgoFmap lazy);
-  do 1 (bench1 id OL_Reflection_3_fmap.reduceToAlgoFmap vm_compute);
+Tactic Notation "bench" uconstr(id) :=
+  do 5 (bench1 id OL_Reflection_2_memo.reduceToAlgoMemo lazy);
+  do 5 (bench1 id OL_Reflection_2_memo.reduceToAlgoMemo vm_compute);
 
-  (* do 1 (bench1 id OL_Reflection_4_pointers.reduceToAlgoPointers none); *)
-  do 1 (bench1 id OL_Reflection_4_pointers.reduceToAlgoPointers lazy);
-  do 1 (bench1 id OL_Reflection_4_pointers.reduceToAlgoPointers vm_compute);
+  benchFast id;
 
-  (* do 1 (header id "btauto" "btauto"; time (run1 (btauto))); *)
+  do 5 (header id "btauto" "none"; time (run1 (btauto)));
+  idtac.
+
+Tactic Notation "benchSlow" uconstr(id) :=
+  do 5 (bench1 id OL_Reflection_1_base.reduceToAlgo lazy);
+  do 5 (bench1 id OL_Reflection_1_base.reduceToAlgo vm_compute);
+
+  bench id;
   idtac.
 
 Notation "! a" := (negb a) (at level 9).
