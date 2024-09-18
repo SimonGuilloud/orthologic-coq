@@ -45,7 +45,7 @@ Tactic Notation "bench1" uconstr(id) constr(thm) constr(reduction)  :=
                   end in
   time (run1 (solveOL BoolOL thm reduction)).
 
-Tactic Notation "benchFast" uconstr(id) :=
+Tactic Notation "benchfast" uconstr(id) :=
   do 5 (bench1 id OL_Reflection_3_fmap.reduceToAlgoFmap lazy);
   do 5 (bench1 id OL_Reflection_3_fmap.reduceToAlgoFmap vm_compute);
 
@@ -57,12 +57,12 @@ Tactic Notation "bench" uconstr(id) :=
   do 5 (bench1 id OL_Reflection_2_memo.reduceToAlgoMemo lazy);
   do 5 (bench1 id OL_Reflection_2_memo.reduceToAlgoMemo vm_compute);
 
-  benchFast id;
+  benchfast id;
 
   do 5 (header id "btauto" "none"; time (run1 (btauto)));
   idtac.
 
-Tactic Notation "benchSlow" uconstr(id) :=
+Tactic Notation "benchslow" uconstr(id) :=
   do 5 (bench1 id OL_Reflection_1_base.reduceToAlgo lazy);
   do 5 (bench1 id OL_Reflection_1_base.reduceToAlgo vm_compute);
 
