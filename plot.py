@@ -53,6 +53,9 @@ def parse_log(contents: str) -> pd.DataFrame:
     df["system"] = pd.to_numeric(df["system"])
     return df
 
+def parse_logs(contents: list[str]) -> pd.DataFrame:
+    return pd.concat(parse_log(l) for l in contents)
+
 def plot(df):
     plt.figure(figsize=(12, 8))
 
@@ -78,13 +81,13 @@ def plot(df):
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Plot Coq-OL benchmark results.')
-    parser.add_argument("infile", type=argparse.FileType("r"),
+    parser.add_argument("infile", nargs='+', type=argparse.FileType("r"),
                         help="File to read benchmarks from.")
     return parser.parse_args()
 
 def main():
     args = parse_arguments()
-    plot(parse_log(args.infile.read()))
+    plot(parse_logs([f.read() for f in args.infile]))
 
 if __name__ == '__main__':
     main()
