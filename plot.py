@@ -35,7 +35,6 @@ REDUCTION_RENAME = {
     "lazy": "+lz",
     "compute": "+c",
     "vm_compute": "+vm",
-    "btauto": ""
 }
 
 def parse_log(contents: str) -> pd.DataFrame:
@@ -44,10 +43,10 @@ def parse_log(contents: str) -> pd.DataFrame:
         if entry_contents.strip()
         if (entry := parse_entry(entry_contents))
     )
-    # df["solver"] = df["solver"].map(SOLVER_RENAME) # type: ignore
-    df["solver"] = df["solver"].map(SOLVER_RENAME)
-    df = df[~df["solver"].isin(("OL", "OL+l",))]
-    df["solver"] = df["solver"] + df["reduction"].map(REDUCTION_RENAME) # type: ignore
+    df["solver"] = df["solver"].map(SOLVER_RENAME) # type: ignore
+    df["solver+reduction"] = df["solver"] + df["reduction"].map(REDUCTION_RENAME) # type: ignore
+    df[["experiment", "size"]] = df["experiment"].str.split("(?=[0-9])", n=1, expand=True)
+    df["size"] = pd.to_numeric(df["size"])
     df["wall"] = pd.to_numeric(df["wall"])
     df["user"] = pd.to_numeric(df["user"])
     df["system"] = pd.to_numeric(df["system"])
@@ -64,7 +63,8 @@ def plot(df):
     # ax = sns.violinplot(
     # ax = sns.barplot(errorbar="ci",
     ax = sns.lineplot(marker="o",
-        data=df, x='experiment', y='wall', hue='solver',
+        data=df, x='size', y='wall', hue='solver',
+        style='reduction',
     )
     # ax.set_yscale('log')
 
