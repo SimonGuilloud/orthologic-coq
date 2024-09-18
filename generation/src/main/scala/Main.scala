@@ -4,18 +4,37 @@ import algorithms.{OLAlgorithm, OcbslAlgorithm, Printer}
 import algorithms.Datastructures.*
 import scala.util.Random
 
+import java.nio.file.{Files, Paths}
+import java.nio.charset.StandardCharsets
+
+
 object Main {
   def main(args: Array[String]): Unit = {
-    for i <- 4 to 30 step 2 do
-      printCoqTest(generate_long_cnf(i), f"swaps${i}", i)
+    for i <- 1 to 30 do {
+      val txt = (getBenchFile(2*i))
+      val path = Paths.get(s"../bench/test${2*i}.v")
+      Files.createDirectories(path.getParent)
+      Files.write(path, txt.getBytes(StandardCharsets.UTF_8))
+    }
+  }
 
-    generate_reductions_random(0, 3, 0.7, 60, 20).zipWithIndex.foreach((p, i) => printCoqTest(p, f"random${i}", 20))
+
+
+  def getBenchFile(i:Int): String = {
+    val (f1, f2) = generate_long_cnf(i)
+
+    s"""Require Import OL_Bench.
+
+Theorem test${i} (${(0 to i).map("x"+_).reduce(_ + " " + _)}: bool) :
+  ${prettyCoq(f1)} 
+    = 
+  ${prettyCoq(f2)}
+. Proof.
+    ${if (i>40) then "benchFast" else if (i>16) "bench" else "benchslow"} "test$i".
+Admitted.
+"""
   }
-    
-  def printPair(p: (Formula, Formula)): Unit = {
-    print(Console.RED + prettyCoq(p._1) + "\n" + "  =" + "\n" + Console.BLUE + prettyCoq(p._2) + "\n")
-    println("")
-  }
+
 
 
 
