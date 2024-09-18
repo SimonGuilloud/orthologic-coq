@@ -1,23 +1,15 @@
 //import `lattices-algorithms-build`.* 
+
 import algorithms.{OLAlgorithm, OcbslAlgorithm, Printer}
 import algorithms.Datastructures.*
 import scala.util.Random
 
 object Main {
   def main(args: Array[String]): Unit = {
-    var index = 0
-    def i(): Int = 
-      index += 1
-      index
+    for i <- 4 to 30 step 2 do
+      printCoqTest(generate_long_cnf(i), f"swaps${i}", i)
 
-    //generate_reductions_random(0, 10, 0.8, 30, 15).foreach(printPair)
-    printCoqTest(generate_long_cnf(20), i(), 20)
-    printCoqTest(generate_long_cnf(25), i(), 25)
-    printCoqTest(generate_long_cnf(30), i(), 30)
-    printCoqTest(generate_long_cnf(35), i(), 35)
-    printCoqTest(generate_long_cnf(40), i(), 40)
-    printCoqTest(generate_long_cnf(45), i(), 45)
-    generate_reductions_random(0, 3, 0.7, 60, 20).foreach(p => printCoqTest(p, i(), 20))
+    generate_reductions_random(0, 3, 0.7, 60, 20).zipWithIndex.foreach((p, i) => printCoqTest(p, f"random${i}", 20))
   }
     
   def printPair(p: (Formula, Formula)): Unit = {
@@ -35,10 +27,10 @@ object Main {
     case Literal(b) => if b then "x1||!x1" else "x1&&!x1"
   }
 
-  def printCoqTest(p: (Formula, Formula), no: Int, upvars: Int): Unit = {
+  def printCoqTest(p: (Formula, Formula), name: String, upvars: Int): Unit = {
     val (f1, f2) = p
     println(Console.BLUE + 
-s"""Theorem test${no} (${(0 to upvars).map("x"+_).reduce(_ + " " + _)}: bool) :
+s"""Theorem ${name} (${(0 to upvars).map("x"+_).reduce(_ + " " + _)}: bool) :
   ${prettyCoq(f1)} 
     = 
   ${prettyCoq(f2)}
