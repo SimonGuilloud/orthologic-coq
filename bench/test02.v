@@ -5,5 +5,5 @@ Theorem test2 (x0 x1 x2: bool) :
     = 
   (x1||x0)
 . Proof.
-    benchslow "test2".
+    benchslow "test02".
 Admitted.
