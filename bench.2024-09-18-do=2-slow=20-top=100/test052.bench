@@ -1,0 +1,32 @@
+--------------------------------------------------------------------------------
+:: "test52" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: lazy
+solved
+Tactic call ran for 2.55 secs (2.531u,0.018s) (success)
+--------------------------------------------------------------------------------
+:: "test52" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: lazy
+solved
+Tactic call ran for 2.359 secs (2.35u,0.008s) (success)
+--------------------------------------------------------------------------------
+:: "test52" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: vm_compute
+solved
+Tactic call ran for 0.222 secs (0.22u,0.001s) (success)
+--------------------------------------------------------------------------------
+:: "test52" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: vm_compute
+solved
+Tactic call ran for 0.22 secs (0.219u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test52" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+solved
+Tactic call ran for 4.949 secs (4.938u,0.01s) (success)
+--------------------------------------------------------------------------------
+:: "test52" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+solved
+Tactic call ran for 4.958 secs (4.95u,0.007s) (success)
+--------------------------------------------------------------------------------
+:: "test52" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+solved
+Tactic call ran for 0.322 secs (0.322u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test52" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+solved
+Tactic call ran for 0.325 secs (0.324u,0.s) (success)
