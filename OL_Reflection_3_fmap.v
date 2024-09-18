@@ -1,3 +1,4 @@
+Require Import NArith.
 Require Import OL_Theory.
 
 
@@ -6,7 +7,6 @@ Require Import OL_Reflection_1_base.
 Require Import Setoid Morphisms.
 Require Import Lia.
 Require Import Coq.Arith.Bool_nat.
-Require Import Coq.Arith.PeanoNat.
 
 
 Open Scope bool_scope.
@@ -19,7 +19,7 @@ Import ListNotations.
 
 Fixpoint compare_Term (x y : Term): comparison :=
   match x, y with
-  | Var n1, Var n2 => Nat.compare n1 n2
+  | Var n1, Var n2 => Pos.compare n1 n2
   | Var _, Meet _ _ => Lt
   | Var _, Join _ _ => Lt
   | Var _, Not _ => Lt
@@ -53,7 +53,7 @@ Proof.
     repeat match goal with
       | [ H: _ = _ |- _ ] => rewrite H
       end.
-  all: firstorder using Nat.compare_eq_iff.
+  all: firstorder using Pos.compare_eq_iff.
 Qed.
 
 Lemma compare_Term_eq_iff: forall x y: Term, compare_Term x y = Eq <-> x = y.
@@ -63,7 +63,7 @@ Proof.
     repeat match goal with
       | [ H: forall _, _ = _ |- _ ] => rewrite H
       end.
-  all: firstorder using Nat.compare_eq_iff, Nat.compare_antisym.
+  all: firstorder (try congruence) using Pos.compare_eq_iff, Pos.compare_antisym; auto using xH. (* TODO *)
   all: destruct compare_Term eqn:Hx; try congruence; simpl; f_equal; intuition.
 Qed.
 
@@ -73,7 +73,7 @@ Proof.
     repeat match goal with
       | [ H: forall _, _ = _ |- _ ] => rewrite H
       end.
-  all: firstorder using Nat.compare_antisym.
+  all: firstorder using Pos.compare_antisym.
   all: destruct compare_Term; simpl; reflexivity.
 Qed.
 
@@ -83,14 +83,14 @@ Proof.
   destruct compare_Term, c; simpl; intuition congruence.
 Qed.
 
-Lemma nat_compare_trans: forall x y z: nat,
-    x ?= y = Lt ->
-    y ?= z = Lt ->
-    x ?= z = Lt.
+Lemma nat_compare_trans: forall x y z: positive,
+    (x ?= y = Lt)%positive ->
+    (y ?= z = Lt)%positive ->
+    (x ?= z = Lt)%positive.
 Proof.
   intros ???.
-  rewrite !Nat.compare_lt_iff.
-  apply Nat.lt_trans.
+  rewrite !Pos.compare_lt_iff.
+  apply Pos.lt_trans.
 Qed.
 
 Lemma compare_Term_lt_trans: forall x y z: Term,
@@ -289,7 +289,7 @@ match M.find (g, d) memo with
   | S n =>
     (* Guaranteed sufficent cases. *)
       match (g, d) with 
-      | (L (Var a), R (Var b) )  => Mbool (Nat.eqb a b) (* Hyp *)
+      | (L (Var a), R (Var b) )  => Mbool (Pos.eqb a b) (* Hyp *)
       | (L (Meet a b), N) => decideOL_boolM n (L a) (L b) (* LeftAnd1-2 *)
       | (N, R (Join a b)) => decideOL_boolM n (R a) (R b) (* RightOr1-2 *)
       | (L (Join a b), _) => (decideOL_boolM n (L a) d) &&& (decideOL_boolM n (L b) d) (* LeftOr *)
@@ -297,7 +297,7 @@ match M.find (g, d) memo with
       | (_, R (Meet a b)) => (decideOL_boolM n g (R a)) &&& (decideOL_boolM n g (R b)) (* RightAnd *)
       | (_, R (Not a)) => decideOL_boolM n g (L a) (* RightNot *)
           (* Swap cases *)
-      | (R (Var a), L (Var b) )  => Mbool (Nat.eqb b a) (* Hyp *)
+      | (R (Var a), L (Var b) )  => Mbool (Pos.eqb b a) (* Hyp *)
       | (N, L (Meet a b)) => decideOL_boolM n (L a) (L b) (* LeftAnd1-2 *)
       | (R (Join a b), N) => decideOL_boolM n (R a) (R b) (* RightOr1-2 *)
       | (_, L (Join a b)) => (decideOL_boolM n g (L a)) &&& (decideOL_boolM n g (L b)) (* LeftOr *)
