@@ -1,0 +1,28 @@
+--------------------------------------------------------------------------------
+:: "test06" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+solved
+Tactic call ran for 0.019 secs (0.019u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test06" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+solved
+Tactic call ran for 0.004 secs (0.004u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test06" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: lazy
+solved
+Tactic call ran for 0.028 secs (0.024u,0.003s) (success)
+--------------------------------------------------------------------------------
+:: "test06" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: vm_compute
+solved
+Tactic call ran for 0.004 secs (0.004u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test06" ::: "btauto" ::: "none"
+solved
+Tactic call ran for 0. secs (0.u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test06" ::: OL_Reflection_1_base.reduceToAlgo ::: lazy
+solved
+Tactic call ran for 0.004 secs (0.004u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test06" ::: OL_Reflection_1_base.reduceToAlgo ::: vm_compute
+solved
+Tactic call ran for 0.004 secs (0.004u,0.s) (success)

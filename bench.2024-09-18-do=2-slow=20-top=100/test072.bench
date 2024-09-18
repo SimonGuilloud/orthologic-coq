@@ -1,0 +1,16 @@
+--------------------------------------------------------------------------------
+:: "test72" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: vm_compute
+solved
+Tactic call ran for 0.569 secs (0.564u,0.004s) (success)
+--------------------------------------------------------------------------------
+:: "test72" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: vm_compute
+solved
+Tactic call ran for 0.552 secs (0.549u,0.003s) (success)
+--------------------------------------------------------------------------------
+:: "test72" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+solved
+Tactic call ran for 0.791 secs (0.79u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test72" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+solved
+Tactic call ran for 0.774 secs (0.769u,0.005s) (success)
