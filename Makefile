@@ -27,6 +27,9 @@ bench/%.bench: bench/%.v OL_Bench.vo
 bench: $(ALL_BENCH) FORCE
 	echo $(ALL_BENCH)
 
+bench-clean:
+	rm -f $(ALL_BENCH)
+
 FORCE:
 
 %.vo: %.v
