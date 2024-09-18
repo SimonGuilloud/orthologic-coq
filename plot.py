@@ -31,8 +31,10 @@ SOLVER_RENAME = {
 }
 
 REDUCTION_RENAME = {
-    "vm_compute": "+vm",
     "none": "",
+    "lazy": "+lz",
+    "compute": "+c",
+    "vm_compute": "+vm",
     "btauto": ""
 }
 
@@ -42,8 +44,10 @@ def parse_log(contents: str) -> pd.DataFrame:
         if entry_contents.strip()
         if (entry := parse_entry(entry_contents))
     )
-    df["solver"] = df["solver"].map(SOLVER_RENAME) # type: ignore
-    # df["solver"] = df["solver"].map(SOLVER_RENAME) + df["reduction"].map(REDUCTION_RENAME) # type: ignore
+    # df["solver"] = df["solver"].map(SOLVER_RENAME) # type: ignore
+    df["solver"] = df["solver"].map(SOLVER_RENAME)
+    df = df[~df["solver"].isin(("OL", "OL+l",))]
+    df["solver"] = df["solver"] + df["reduction"].map(REDUCTION_RENAME) # type: ignore
     df["wall"] = pd.to_numeric(df["wall"])
     df["user"] = pd.to_numeric(df["user"])
     df["system"] = pd.to_numeric(df["system"])
@@ -55,11 +59,11 @@ def plot(df):
     # df = df[df["reduction"].isin(("btauto", "vm_compute"))]
     df = df[df["status"] == "solved"]
     # ax = sns.violinplot(
-    ax = sns.barplot(errorbar="ci",
-    # ax = sns.lineplot(marker="o",
+    # ax = sns.barplot(errorbar="ci",
+    ax = sns.lineplot(marker="o",
         data=df, x='experiment', y='wall', hue='solver',
     )
-    ax.set_yscale('log')
+    # ax.set_yscale('log')
 
     # plt.xticks(rotation=45, ha='right')
     # plt.title('Wall time')

@@ -1,3 +1,4 @@
+Require Import NArith.
 Require Import OL_Theory.
 
 
@@ -20,7 +21,7 @@ Require Import Coq.PArith.BinPos.
 Definition Pointer:= positive.
 
 Inductive TermPointer : Set :=
-  | VarP : nat -> Pointer -> TermPointer
+  | VarP : positive -> Pointer -> TermPointer
   | MeetP : TermPointer -> TermPointer -> Pointer -> TermPointer
   | JoinP : TermPointer -> TermPointer -> Pointer -> TermPointer
   | NotP : TermPointer -> Pointer -> TermPointer.
@@ -253,7 +254,7 @@ match M.find ([[g]], [[d]]) memo with
   | S n =>
     (* Guaranteed sufficent cases. *)
       match (g, d) with 
-      | (LTP (VarP a _), RTP (VarP b _) )  => Mbool (Nat.eqb a b) (* Hyp *)
+      | (LTP (VarP a _), RTP (VarP b _) )  => Mbool (Pos.eqb a b) (* Hyp *)
       | (LTP (MeetP a b _), NTP) => decideOL_pointer_atp n (LTP a) (LTP b) (* LeftAnd1-2 *)
       | (NTP, RTP (JoinP a b _)) => decideOL_pointer_atp n (RTP a) (RTP b) (* RightOr1-2 *)
       | (LTP (JoinP a b _), _) => (decideOL_pointer_atp n (LTP a) d) &&& (decideOL_pointer_atp n (LTP b) d) (* LeftOr *)
@@ -261,7 +262,7 @@ match M.find ([[g]], [[d]]) memo with
       | (_, RTP (MeetP a b _)) => (decideOL_pointer_atp n g (RTP a)) &&& (decideOL_pointer_atp n g (RTP b)) (* RightAnd *)
       | (_, RTP (NotP a _)) => decideOL_pointer_atp n g (LTP a) (* RightNot *)
           (* Swap cases *)
-      | (RTP (VarP a _), LTP (VarP b _) )  => Mbool (Nat.eqb b a) (* Hyp *)
+      | (RTP (VarP a _), LTP (VarP b _) )  => Mbool (Pos.eqb b a) (* Hyp *)
       | (NTP, LTP (MeetP a b _)) => decideOL_pointer_atp n (LTP a) (LTP b) (* LeftAnd1-2 *)
       | (RTP (JoinP a b _), NTP) => decideOL_pointer_atp n (RTP a) (RTP b) (* RightOr1-2 *)
       | (_, LTP (JoinP a b _)) => (decideOL_pointer_atp n g (LTP a)) &&& (decideOL_pointer_atp n g (LTP b)) (* LeftOr *)
@@ -645,7 +646,7 @@ Fixpoint subtermsPointer (t: TermPointer) : list TermPointer :=
 Definition func_of_list (l: list TermPointer) : (Pointer -> TermPointer) := fun p =>
   match find (fun x => Pos.eqb (GetPointer x) p) l with
   | Some x => x
-  | None => VarP 0 p
+  | None => VarP xH p
   end.
 
 Definition func_of_AddPointer (t: TermPointer) : (Pointer -> TermPointer) := 
@@ -680,10 +681,8 @@ Theorem AddPointerCorrect_1 (t: Term)  :
   (forall p0, GetPointer (func_of_AddPointer (fst (AddPointer t p)) p0) = p0).
 Proof.
   intros. unfold func_of_AddPointer; unfold func_of_list; simpl in *. induction (subtermsPointer (fst (AddPointer t p))); simpl in *; auto.
-  destruct a; simpl in *; destruct (p1 =? p0)%positive eqn: equals; simpl in *; repeat rewrite Pos.eqb_eq in *; auto.
+  destruct a; simpl in *; destruct Pos.eqb eqn: equals; simpl in *; repeat rewrite Pos.eqb_eq in *; auto.
 Qed.
-
-
 
 (* func_of_AddPointer (fst (AddPointer t p)) *)
 
@@ -1053,7 +1052,7 @@ Proof.
 
   induction t as [ | ta IHta tb IHtb  | ta IHta tb IHtb  | ta IHta].
   - simpl in *. intros; intuition; subst; simpl in *. unfoldBoth; auto; intuition. 
-    destruct (p =? p)%positive eqn: equal; auto. rewrite Pos.eqb_refl in equal; subst; congruence.
+    destruct Pos.eqb%positive eqn: equal; auto. rewrite Pos.eqb_refl in equal; subst; congruence.
   - intros ?? H_st. simpl in *. 
     destruct (AddPointer ta (Pos.succ p)) as [t1 p1] eqn: eqt; simpl in *.
     destruct (AddPointer tb p1) as [t2 p2] eqn: eqt2; simpl in *.
@@ -1139,7 +1138,7 @@ Theorem AddPointerCorrect_4 (t: Term) :
 Proof.
   induction tp as [ | tpa IHtpa tpb IHtpb  | tpa IHtpa tpb IHtpb  | tpa IHtpa]; intros; simpl in *; simpl in *;
   intros.
-  - intuition. pose proof (AddPointerCorrect_3 t p (VarP n p0)). intuition.
+  - intuition. pose proof (AddPointerCorrect_3 t p (VarP p0 p1)). intuition.
   - intuition.
     + pose proof (AddPointerCorrect_3 t p (MeetP tpa tpb p0)). simpl in *. intuition.
     + apply IHtpa. eapply subterm_trans; eauto; simpl in *. right. left. apply subterm_refl.
@@ -1188,7 +1187,7 @@ Definition pairAnTerm_to_Term (ant1 ant2: AnTerm) : Term :=
   | (OL_Theory.N, R t2) => Not t2
   | (L t1, OL_Theory.N) => Not t1
   | (R t1, OL_Theory.N) => Not t1
-  | (OL_Theory.N, OL_Theory.N) => Var 0
+  | (OL_Theory.N, OL_Theory.N) => Var xH
   end.
 
 Definition func_of_AddAnPointerTwice (ant1 ant2: AnTerm) : (Pointer -> TermPointer) :=

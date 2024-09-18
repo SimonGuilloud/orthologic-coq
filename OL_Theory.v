@@ -146,19 +146,21 @@ Lemma V9' {OL: Ortholattice} x y : x ∩ (x ∪ y) == x. Proof. withman. Qed.
 
   (* Term Algebra *)
 
+Require Import NArith.
+
 Inductive Term : Set :=
-  | Var : nat -> Term
+  | Var : positive -> Term
   | Meet : Term -> Term -> Term
   | Join : Term -> Term -> Term
   | Not : Term -> Term.
 
-Definition Zero := Meet (Var 0) (Not (Var 0)).
-Definition One := Join (Var 0) (Not (Var 0)).
+Definition Zero := Meet (Var xH) (Not (Var xH)).
+Definition One := Join (Var xH) (Not (Var xH)).
 
 
   (* Evaluation of a term in an arbitrary ortholattice *)
 
-Fixpoint eval {OL: Ortholattice} (t: Term) (f: nat -> A) : A :=
+Fixpoint eval {OL: Ortholattice} (t: Term) (f: positive -> A) : A :=
   match t with
   | Var n => f n
   | Meet t1 t2 => (eval t1 f) ∩ (eval t2 f)
@@ -168,7 +170,7 @@ Fixpoint eval {OL: Ortholattice} (t: Term) (f: nat -> A) : A :=
 
 
 Definition Leq (t1 t2: Term) : Prop := forall (OL: Ortholattice), 
-  forall f: nat -> A, eval t1 f <= eval t2 f.
+  forall f: positive -> A, eval t1 f <= eval t2 f.
 
 Declare Instance Proper_eval {OL: Ortholattice}: Proper (eq ==> eq ==> eq) eval.
 

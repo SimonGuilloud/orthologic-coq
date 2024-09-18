@@ -1,3 +1,5 @@
+
+Require Import NArith.
 Require Import OL_Theory.
 
 Require Import Setoid Morphisms.
@@ -11,6 +13,7 @@ Import List.
 Import ListNotations.
   (* Decision Algorithm for OL *)
 
+
 Fixpoint decideOL_bool (fuel: nat) (g d: AnTerm) : bool :=
   match fuel with
   | 0 => false
@@ -18,7 +21,7 @@ Fixpoint decideOL_bool (fuel: nat) (g d: AnTerm) : bool :=
      
     (* Guaranteed sufficent cases. Not in a disjunction because if they evaluate to false, there is no need to compute the others. *)
     match (g, d) with 
-    | (L (Var a), R (Var b) )  => (Nat.eqb a b) (* Hyp *)
+    | (L (Var a), R (Var b) )  => (Pos.eqb a b) (* Hyp *)
     | (L (Meet a b), N) => decideOL_bool n (L a) (L b) (* LeftAnd1-2 *)
     | (N, R (Join a b)) => decideOL_bool n (R a) (R b) (* RightOr1-2 *)
     | (L (Join a b), _) => (decideOL_bool n (L a) d) && (decideOL_bool n (L b) d) (* LeftOr *)
@@ -26,7 +29,7 @@ Fixpoint decideOL_bool (fuel: nat) (g d: AnTerm) : bool :=
     | (_, R (Meet a b)) => (decideOL_bool n g (R a)) && (decideOL_bool n g (R b)) (* RightAnd *)
     | (_, R (Not a)) => decideOL_bool n g (L a) (* RightNot *)
     (* Swap cases *)
-    | (R (Var a), L (Var b) )  => (Nat.eqb b a) (* Hyp *)
+    | (R (Var a), L (Var b) )  => (Pos.eqb b a) (* Hyp *)
     | (N, L (Meet a b)) => decideOL_bool n (L a) (L b) (* LeftAnd1-2 *)
     | (R (Join a b), N) => decideOL_bool n (R a) (R b) (* RightOr1-2 *)
     | (_, L (Join a b)) => (decideOL_bool n g (L a)) && (decideOL_bool n g (L b)) (* LeftOr *)
@@ -91,7 +94,7 @@ Hint Constructors OLProof squash : olproof.
 Hint Rewrite
   Bool.orb_false_r
   Bool.andb_true_iff Bool.orb_true_iff
-  Nat.eqb_eq : rw_bool.
+  Pos.eqb_eq Nat.eqb_eq : rw_bool.
 
 Theorem decideOLBoolCorrect : forall n g d, (decideOL_bool n g d) = true -> squash (OLProof (g, d)).
 Proof.
@@ -150,8 +153,8 @@ Ltac addIfNotExists x l :=
 
 Ltac indexOf x l :=
   match l with
-  | x :: ?tail => O
-  | _ :: ?tail => let r := (indexOf x tail) in constr:(S r)
+  | x :: ?tail => xH
+  | _ :: ?tail => let r := (indexOf x tail) in constr:(Pos.succ r)
   | _ => fail "element not found. x:" x "l:" l
   end.
 
@@ -198,12 +201,10 @@ Ltac reify_leq OL S T :=
       n := (eval simpl in (@neg OL)) in
   let l1 := leaves AA m j n (@nil AA) S in
   let l2 := leaves AA m j n l1 T in
-  let S' := (eval simpl in S) with
-      T' := (eval simpl in T) in
-  let t1' := (reify_term OL S' l2) with
-      t2' := (reify_term OL T' l2) in
+  let t1' := (reify_term OL S l2) with
+      t2' := (reify_term OL T l2) in
   let h := head_tac l2 in
-  let env := constr:(fun k:nat => nth k l2 h ) in
+  let env := constr:(fun k:positive => nth (pred (Pos.to_nat k)) l2 h ) in
       change ((@eval OL t1' env) <= (@eval OL t2' env)).
 
 
@@ -246,7 +247,6 @@ Qed.
 Example test3 {OL: Ortholattice} a b c: 
   ¬(b ∪ ¬(c ∩ ¬b) ∪ a) <= (¬a ∪ ¬(b ∩ ¬a)).
 Proof.
-  intros. 
   solveOL OL.
 Qed.
 

@@ -1,3 +1,4 @@
+Require Import NArith.
 Require Import OL_Theory.
 
 Require Import OL_Reflection_1_base.
@@ -55,7 +56,7 @@ match find (g, d) memo with
   | S n =>
     (* Guaranteed sufficent cases. *)
       match (g, d) with 
-      | (L (Var a), R (Var b) )  => Mbool (Nat.eqb a b) (* Hyp *)
+      | (L (Var a), R (Var b) )  => Mbool (Pos.eqb a b) (* Hyp *)
       | (L (Meet a b), N) => decideOL_boolM n (L a) (L b) (* LeftAnd1-2 *)
       | (N, R (Join a b)) => decideOL_boolM n (R a) (R b) (* RightOr1-2 *)
       | (L (Join a b), _) => (decideOL_boolM n (L a) d) &&& (decideOL_boolM n (L b) d) (* LeftOr *)
@@ -63,7 +64,7 @@ match find (g, d) memo with
       | (_, R (Meet a b)) => (decideOL_boolM n g (R a)) &&& (decideOL_boolM n g (R b)) (* RightAnd *)
       | (_, R (Not a)) => decideOL_boolM n g (L a) (* RightNot *)
           (* Swap cases *)
-      | (R (Var a), L (Var b) )  => Mbool (Nat.eqb b a) (* Hyp *)
+      | (R (Var a), L (Var b) )  => Mbool (Pos.eqb b a) (* Hyp *)
       | (N, L (Meet a b)) => decideOL_boolM n (L a) (L b) (* LeftAnd1-2 *)
       | (R (Join a b), N) => decideOL_boolM n (R a) (R b) (* RightOr1-2 *)
       | (_, L (Join a b)) => (decideOL_boolM n g (L a)) &&& (decideOL_boolM n g (L b)) (* LeftOr *)
