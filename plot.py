@@ -3,6 +3,7 @@
 import argparse
 import re
 from typing import Any
+from pathlib import Path
 
 import seaborn as sns
 from matplotlib import pyplot as plt
@@ -50,6 +51,7 @@ def parse_log(contents: str) -> pd.DataFrame:
     df["wall"] = pd.to_numeric(df["wall"])
     df["user"] = pd.to_numeric(df["user"])
     df["system"] = pd.to_numeric(df["system"])
+    print(df)
     return df
 
 def parse_logs(contents: list[str]) -> pd.DataFrame:
@@ -59,7 +61,7 @@ def plot(df):
     plt.figure(figsize=(12, 8))
 
     # df = df[df["reduction"].isin(("btauto", "vm_compute"))]
-    df = df[df["status"] == "solved"]
+    # df = df[df["status"] == "solved"]
     # ax = sns.violinplot(
     # ax = sns.barplot(errorbar="ci",
     ax = sns.lineplot(marker="o",
@@ -67,6 +69,7 @@ def plot(df):
         style='reduction',
     )
     # ax.set_yscale('log')
+    ax.set_ylim(0, 20)
 
     # plt.xticks(rotation=45, ha='right')
     # plt.title('Wall time')
@@ -81,13 +84,13 @@ def plot(df):
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Plot Coq-OL benchmark results.')
-    parser.add_argument("infile", nargs='+', type=argparse.FileType("r"),
+    parser.add_argument("infile", nargs='+', type=Path,
                         help="File to read benchmarks from.")
     return parser.parse_args()
 
 def main():
     args = parse_arguments()
-    plot(parse_logs([f.read() for f in args.infile]))
+    plot(parse_logs([f.read_text() for f in args.infile]))
 
 if __name__ == '__main__':
     main()
