@@ -556,9 +556,6 @@ Qed.
 Ltac solveOLFmap OL := 
   reify_goal OL; apply reduceToAlgoFmap; auto; vm_compute; (try reflexivity).
 
-export solveOlFmap.
-
-
 Example test1 {OL: Ortholattice} : forall a,  a <= a.
 Proof.
   intro. 

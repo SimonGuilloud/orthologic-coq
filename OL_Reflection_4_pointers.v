@@ -1759,8 +1759,6 @@ Qed.
 Ltac solveOLPointers OL := 
   reify_goal OL; apply reduceToAlgoPointers; auto; vm_compute; (try reflexivity).
 
-export solveOlPointers.
-
 Example test1 {OL: Ortholattice} : forall a,  a <= a.
 Proof.
   intro. 
