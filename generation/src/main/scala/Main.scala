@@ -12,7 +12,7 @@ object Main {
   def main(args: Array[String]): Unit = {
     for i <- 1 to 50 do {
       val txt = (getBenchFile(2*i))
-      val path = Paths.get(s"../bench/test${f"${2 * i}%02d"}.v")
+      val path = Paths.get(s"../bench/test${f"${2 * i}%03d"}.v")
       Files.createDirectories(path.getParent)
       Files.write(path, txt.getBytes(StandardCharsets.UTF_8))
     }
@@ -25,7 +25,7 @@ object Main {
 
     s"""Require Import OL_Bench.
 
-Theorem test${f"${i}%02d"} (${(0 to i).map("x"+_).reduce(_ + " " + _)}: bool) :
+Theorem test${f"${i}%03d"} (${(0 to i).map("x"+_).reduce(_ + " " + _)}: bool) :
   ${prettyCoq(f1)} 
     = 
   ${prettyCoq(f2)}
