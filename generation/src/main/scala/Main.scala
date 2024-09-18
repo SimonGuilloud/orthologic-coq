@@ -30,7 +30,7 @@ Theorem test${i} (${(0 to i).map("x"+_).reduce(_ + " " + _)}: bool) :
     = 
   ${prettyCoq(f2)}
 . Proof.
-    ${if (i>40) then "benchFast" else if (i>16) "bench" else "benchslow"} "test$i".
+    ${if (i>40) then "benchFast" else if (i>16) "bench" else "benchSlow"} "test$i".
 Admitted.
 """
   }
