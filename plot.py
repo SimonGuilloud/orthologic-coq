@@ -58,7 +58,7 @@ def parse_logs(contents: list[str]) -> pd.DataFrame:
     return pd.concat(parse_log(l) for l in contents)
 
 def plot(df):
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(6, 4))
 
     # df = df[df["reduction"].isin(("btauto", "vm_compute"))]
     # df = df[df["status"] == "solved"]
@@ -69,13 +69,14 @@ def plot(df):
         style='reduction',
     )
     # ax.set_yscale('log')
-    ax.set_ylim(0, 20)
+    ax.set_xlim(0, 60)
+    ax.set_ylim(0, 3)
 
     # plt.xticks(rotation=45, ha='right')
     # plt.title('Wall time')
-    plt.xlabel('Experiment')
-    plt.ylabel('Wall clock time (seconds, log scale)')
-    plt.legend(title='Solver')
+    plt.xlabel('Formula size')
+    plt.ylabel('Wall clock time (seconds)')
+    # plt.legend(title='Solver')
     plt.tight_layout()
 
     # Show plot
@@ -90,7 +91,11 @@ def parse_arguments():
 
 def main():
     args = parse_arguments()
-    plot(parse_logs([f.read_text() for f in args.infile]))
+    df = parse_logs([f.read_text() for f in args.infile])
+    print(df[(df["size"] == 30) &
+             (df["reduction"].isin(("vm_compute", "none")))].groupby(["solver+reduction", "size"])[["wall"]].agg(("mean", "std")).round(3))
+    plot(df)
+
 
 if __name__ == '__main__':
     main()
