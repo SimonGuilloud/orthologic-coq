@@ -21,7 +21,7 @@ Ltac solveOL OL thm reduction :=
 Tactic Notation "run1" tactic(t) :=
   idtac;
   first
-    [ timeout 30
+    [ timeout 90
         first[ assert_succeeds (idtac; solve[t]); idtac "solved"
              | fail 2 "not solved" ]
     | idtac "timeout" ].
