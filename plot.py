@@ -2,11 +2,13 @@
 
 import argparse
 import re
-from typing import Any
+from typing import Any, Callable, Tuple
 from pathlib import Path
+from dataclasses import dataclass
 
 import seaborn as sns
 from matplotlib import pyplot as plt
+import numpy as np
 import pandas as pd
 
 BENCHMARK_ENTRY = re.compile(
@@ -51,7 +53,7 @@ def parse_log(contents: str) -> pd.DataFrame:
     df["wall"] = pd.to_numeric(df["wall"])
     df["user"] = pd.to_numeric(df["user"])
     df["system"] = pd.to_numeric(df["system"])
-    print(df)
+    # print(df)
     return df
 
 def parse_logs(contents: list[str]) -> pd.DataFrame:
@@ -69,8 +71,8 @@ def plot(df):
         style='reduction',
     )
     # ax.set_yscale('log')
-    ax.set_xlim(0, 60)
-    ax.set_ylim(0, 3)
+    ax.set_xlim(0, 100)
+    ax.set_ylim(0, 28)
 
     # plt.xticks(rotation=45, ha='right')
     # plt.title('Wall time')
@@ -89,9 +91,102 @@ def parse_arguments():
                         help="File to read benchmarks from.")
     return parser.parse_args()
 
+@dataclass
+class Fit:
+    label: str
+    xdata: Any
+    ydata: Any
+    fn: Any
+    fn_str: Callable[..., str]
+    bounds: tuple[Any, ...]
+
+    def __post_init__(self):
+        from scipy.optimize import curve_fit
+        from sklearn.metrics import r2_score
+
+        self.popt, self.pcov = curve_fit(self.fn, self.xdata, self.ydata, bounds=self.bounds)
+        self.y_pred = self.fn(self.xdata, *self.popt)
+        self.r2 = r2_score(self.ydata, self.y_pred)
+        self.cond = np.linalg.cond(self.pcov)
+
+    @property
+    def descr(self):
+        return self.fn_str(*self.popt)
+
+    @property
+    def title(self):
+        return f"{self.label} ≈ {self.descr}: r2={self.r2:.3f}, cond={self.cond:.2g}"
+
+    def plot(self):
+        ax = sns.lineplot(
+            marker="o",
+            data=(pd
+                  .DataFrame({"size": self.xdata, self.label: self.ydata, self.descr: self.y_pred})
+                  .melt('size', var_name='kind', value_name='wall')),
+            x='size', y='wall', hue='kind')
+        plt.title(self.title)
+        plt.show()
+
+class PolyFit(Fit):
+    def __init__(self, label: str, xdata, ydata, n):
+        fn = lambda x, a, b: a * x**n + b
+        fn_str = lambda a, b: f"{a:.2g} * x**{n} + {b:.2g}"
+        bounds = ((0, 0), (np.inf, np.inf))
+        super().__init__(label, xdata, ydata, fn, fn_str, bounds)
+
+class PolyFullFit(Fit):
+    def __init__(self, label: str, xdata, ydata):
+        fn = lambda x, a, b, c: a * x**b + c
+        fn_str = lambda a, b, c: f"{a:.2g} * x**{b:.2g} + {c:.2g}"
+        bounds = ((0, 0, 0), (np.inf, np.inf, np.inf))
+        super().__init__(label, xdata, ydata, fn, fn_str, bounds)
+
+class PolyLogFit(Fit):
+    def __init__(self, label: str, xdata, ydata, n, nlog):
+        fn = lambda x, a, b: a * x**n * np.log2(x)**nlog + b
+        fn_str = lambda a, b: f"{a:.2g} * x**{n} * np.log2(x)**{nlog} + {b:.2g}"
+        bounds = ((0, 0), (np.inf, np.inf))
+        super().__init__(label, xdata, ydata, fn, fn_str, bounds)
+
+class ExpFit(Fit):
+    def __init__(self, label: str, xdata, ydata):
+        fn = lambda x, a, b, c: a * np.exp(b * x) + c
+        fn_str = lambda a, b, c: f"{a:.2g} * np.exp({b:.2g} * x) + {c:.2g}"
+        bounds = ((0, 0, 0), (np.inf, np.inf, np.inf))
+        super().__init__(label, xdata, ydata, fn, fn_str, bounds)
+
+def fit(df):
+    df = df[df["wall"] < 20] # Remove timeouts
+    stats = df.groupby(["solver+reduction", "size"])[["wall"]].agg(("mean", "std"))
+    for (algorithm, plot) in sorted(stats.groupby("solver+reduction")):
+        plot = plot.reset_index()
+        # print(plot.reset_index())
+        # print(plot.reset_index().columns)
+        xdata, ydata, sigma = plot["size"], plot[("wall", "mean")], plot[("wall", "std")]
+        fits = [
+            *[ExpFit(algorithm, xdata, ydata)],
+            # *[PolyFullFit(algorithm, xdata, ydata)],
+            *[PolyFit(algorithm, xdata, ydata, n) for n in range(1, 7)],
+            # *[PolyLogFit(algorithm, xdata, ydata, n, m) for n in range(1, 7) for m in range(1, 3)],
+        ]
+
+        for ft in sorted(fits, reverse=True, key=lambda ft: ft.r2): #[:3]:
+            if ft.r2 >= 0.995:
+                print(ft.title)
+        # best_fit = max(fits, key=lambda ft: ft.r2)
+        # print(best_fit.title)
+        # print(np.diag(best_fit.pcov))
+
+        # best_fit.plot()
+        print()
+
+def read_df(infiles: list[Path]):
+    return parse_logs([f.read_text() for f in infiles])
+
 def main():
     args = parse_arguments()
-    df = parse_logs([f.read_text() for f in args.infile])
+    df = read_df(args.infile)
+    fit(df)
     print(df[(df["size"] == 30) &
              (df["reduction"].isin(("vm_compute", "none")))].groupby(["solver+reduction", "size"])[["wall"]].agg(("mean", "std")).round(3))
     plot(df)
