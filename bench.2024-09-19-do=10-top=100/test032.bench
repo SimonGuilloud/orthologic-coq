@@ -1,0 +1,360 @@
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_1_base.reduceToAlgo ::: lazy
+solved
+Tactic call ran for 32.821 secs (32.81u,0.009s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_1_base.reduceToAlgo ::: lazy
+solved
+Tactic call ran for 32.657 secs (32.644u,0.011s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_1_base.reduceToAlgo ::: lazy
+solved
+Tactic call ran for 32.511 secs (32.493u,0.016s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_1_base.reduceToAlgo ::: lazy
+solved
+Tactic call ran for 32.509 secs (32.49u,0.016s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_1_base.reduceToAlgo ::: lazy
+solved
+Tactic call ran for 32.509 secs (32.498u,0.008s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_1_base.reduceToAlgo ::: lazy
+solved
+Tactic call ran for 32.495 secs (32.481u,0.011s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_1_base.reduceToAlgo ::: lazy
+solved
+Tactic call ran for 32.557 secs (32.552u,0.002s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_1_base.reduceToAlgo ::: lazy
+solved
+Tactic call ran for 32.586 secs (32.564u,0.019s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_1_base.reduceToAlgo ::: lazy
+solved
+Tactic call ran for 32.544 secs (32.527u,0.014s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_1_base.reduceToAlgo ::: lazy
+solved
+Tactic call ran for 32.543 secs (32.542u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_1_base.reduceToAlgo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.997u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_1_base.reduceToAlgo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.997u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_1_base.reduceToAlgo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.997u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_1_base.reduceToAlgo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.997u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_1_base.reduceToAlgo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.997u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_1_base.reduceToAlgo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.997u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_1_base.reduceToAlgo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.997u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_1_base.reduceToAlgo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.997u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_1_base.reduceToAlgo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.996u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_1_base.reduceToAlgo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.995u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: lazy
+solved
+Tactic call ran for 17.166 secs (17.165u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: lazy
+solved
+Tactic call ran for 17.059 secs (17.058u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: lazy
+solved
+Tactic call ran for 17.103 secs (17.102u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: lazy
+solved
+Tactic call ran for 17.116 secs (17.115u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: lazy
+solved
+Tactic call ran for 17.066 secs (17.066u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: lazy
+solved
+Tactic call ran for 17.073 secs (17.073u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: lazy
+solved
+Tactic call ran for 17.115 secs (17.114u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: lazy
+solved
+Tactic call ran for 17.055 secs (17.054u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: lazy
+solved
+Tactic call ran for 17.049 secs (17.049u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: lazy
+solved
+Tactic call ran for 17.1 secs (17.099u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: vm_compute
+solved
+Tactic call ran for 2.167 secs (2.167u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: vm_compute
+solved
+Tactic call ran for 2.171 secs (2.17u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: vm_compute
+solved
+Tactic call ran for 2.17 secs (2.17u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: vm_compute
+solved
+Tactic call ran for 2.168 secs (2.168u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: vm_compute
+solved
+Tactic call ran for 2.155 secs (2.155u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: vm_compute
+solved
+Tactic call ran for 2.162 secs (2.162u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: vm_compute
+solved
+Tactic call ran for 2.15 secs (2.15u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: vm_compute
+solved
+Tactic call ran for 2.173 secs (2.173u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: vm_compute
+solved
+Tactic call ran for 2.168 secs (2.168u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: vm_compute
+solved
+Tactic call ran for 2.164 secs (2.164u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+solved
+Tactic call ran for 1.18 secs (1.18u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+solved
+Tactic call ran for 1.182 secs (1.182u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+solved
+Tactic call ran for 1.163 secs (1.163u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+solved
+Tactic call ran for 1.174 secs (1.174u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+solved
+Tactic call ran for 1.163 secs (1.163u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+solved
+Tactic call ran for 1.167 secs (1.167u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+solved
+Tactic call ran for 1.182 secs (1.182u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+solved
+Tactic call ran for 1.173 secs (1.173u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+solved
+Tactic call ran for 1.173 secs (1.173u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+solved
+Tactic call ran for 1.182 secs (1.182u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+solved
+Tactic call ran for 0.095 secs (0.095u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+solved
+Tactic call ran for 0.094 secs (0.094u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+solved
+Tactic call ran for 0.096 secs (0.096u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+solved
+Tactic call ran for 0.095 secs (0.095u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+solved
+Tactic call ran for 0.094 secs (0.094u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+solved
+Tactic call ran for 0.094 secs (0.094u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+solved
+Tactic call ran for 0.093 secs (0.093u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+solved
+Tactic call ran for 0.094 secs (0.094u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+solved
+Tactic call ran for 0.094 secs (0.094u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+solved
+Tactic call ran for 0.103 secs (0.103u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: lazy
+solved
+Tactic call ran for 0.712 secs (0.712u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: lazy
+solved
+Tactic call ran for 0.716 secs (0.716u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: lazy
+solved
+Tactic call ran for 0.711 secs (0.711u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: lazy
+solved
+Tactic call ran for 0.718 secs (0.718u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: lazy
+solved
+Tactic call ran for 0.721 secs (0.721u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: lazy
+solved
+Tactic call ran for 0.724 secs (0.724u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: lazy
+solved
+Tactic call ran for 0.723 secs (0.722u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: lazy
+solved
+Tactic call ran for 0.72 secs (0.72u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: lazy
+solved
+Tactic call ran for 0.712 secs (0.707u,0.004s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: lazy
+solved
+Tactic call ran for 0.721 secs (0.721u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: vm_compute
+solved
+Tactic call ran for 0.076 secs (0.076u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: vm_compute
+solved
+Tactic call ran for 0.076 secs (0.076u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: vm_compute
+solved
+Tactic call ran for 0.076 secs (0.076u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: vm_compute
+solved
+Tactic call ran for 0.076 secs (0.076u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: vm_compute
+solved
+Tactic call ran for 0.076 secs (0.076u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: vm_compute
+solved
+Tactic call ran for 0.076 secs (0.076u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: vm_compute
+solved
+Tactic call ran for 0.077 secs (0.077u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: vm_compute
+solved
+Tactic call ran for 0.076 secs (0.076u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: vm_compute
+solved
+Tactic call ran for 0.076 secs (0.076u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: vm_compute
+solved
+Tactic call ran for 0.079 secs (0.079u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: "btauto" ::: "none"
+solved
+Tactic call ran for 53.878 secs (52.522u,1.353s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: "btauto" ::: "none"
+solved
+Tactic call ran for 53.908 secs (53.67u,0.235s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: "btauto" ::: "none"
+solved
+Tactic call ran for 52.878 secs (52.617u,0.258s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: "btauto" ::: "none"
+solved
+Tactic call ran for 56.77 secs (55.904u,0.862s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: "btauto" ::: "none"
+solved
+Tactic call ran for 54.269 secs (53.555u,0.712s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: "btauto" ::: "none"
+solved
+Tactic call ran for 54.132 secs (54.056u,0.073s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: "btauto" ::: "none"
+solved
+Tactic call ran for 54.074 secs (54.072u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: "btauto" ::: "none"
+solved
+Tactic call ran for 58.309 secs (58.164u,0.142s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: "btauto" ::: "none"
+solved
+Tactic call ran for 53.815 secs (52.366u,1.445s) (success)
+--------------------------------------------------------------------------------
+:: "test32" ::: "btauto" ::: "none"
+solved
+Tactic call ran for 58.415 secs (58.013u,0.398s) (success)

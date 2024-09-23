@@ -1,0 +1,360 @@
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_1_base.reduceToAlgo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.95u,0.044s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_1_base.reduceToAlgo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.974u,0.021s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_1_base.reduceToAlgo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.967u,0.027s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_1_base.reduceToAlgo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.98u,0.015s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_1_base.reduceToAlgo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.987u,0.007s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_1_base.reduceToAlgo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.995u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_1_base.reduceToAlgo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.995u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_1_base.reduceToAlgo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.996u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_1_base.reduceToAlgo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.995u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_1_base.reduceToAlgo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.995u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_1_base.reduceToAlgo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.996u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_1_base.reduceToAlgo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.996u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_1_base.reduceToAlgo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.997u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_1_base.reduceToAlgo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.996u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_1_base.reduceToAlgo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.996u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_1_base.reduceToAlgo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.996u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_1_base.reduceToAlgo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.996u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_1_base.reduceToAlgo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.997u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_1_base.reduceToAlgo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.997u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_1_base.reduceToAlgo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.996u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.996u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.996u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.996u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.996u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.995u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.996u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.996u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.996u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.996u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.996u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: vm_compute
+solved
+Tactic call ran for 62.896 secs (62.893u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: vm_compute
+solved
+Tactic call ran for 62.766 secs (62.764u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: vm_compute
+solved
+Tactic call ran for 62.838 secs (62.835u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: vm_compute
+solved
+Tactic call ran for 62.706 secs (62.703u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: vm_compute
+solved
+Tactic call ran for 62.816 secs (62.813u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: vm_compute
+solved
+Tactic call ran for 62.729 secs (62.727u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: vm_compute
+solved
+Tactic call ran for 62.954 secs (62.951u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: vm_compute
+solved
+Tactic call ran for 63.012 secs (63.009u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: vm_compute
+solved
+Tactic call ran for 63.058 secs (63.054u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: vm_compute
+solved
+Tactic call ran for 62.785 secs (62.782u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+solved
+Tactic call ran for 10.781 secs (10.78u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+solved
+Tactic call ran for 10.804 secs (10.804u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+solved
+Tactic call ran for 10.775 secs (10.764u,0.009s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+solved
+Tactic call ran for 10.789 secs (10.783u,0.005s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+solved
+Tactic call ran for 10.777 secs (10.773u,0.003s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+solved
+Tactic call ran for 10.778 secs (10.777u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+solved
+Tactic call ran for 10.862 secs (10.862u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+solved
+Tactic call ran for 10.805 secs (10.805u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+solved
+Tactic call ran for 10.788 secs (10.788u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+solved
+Tactic call ran for 10.785 secs (10.784u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+solved
+Tactic call ran for 0.642 secs (0.642u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+solved
+Tactic call ran for 0.641 secs (0.641u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+solved
+Tactic call ran for 0.639 secs (0.639u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+solved
+Tactic call ran for 0.652 secs (0.652u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+solved
+Tactic call ran for 0.621 secs (0.621u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+solved
+Tactic call ran for 0.634 secs (0.634u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+solved
+Tactic call ran for 0.631 secs (0.631u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+solved
+Tactic call ran for 0.626 secs (0.626u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+solved
+Tactic call ran for 0.633 secs (0.633u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+solved
+Tactic call ran for 0.63 secs (0.629u,0.001s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: lazy
+solved
+Tactic call ran for 4.235 secs (4.234u,0.001s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: lazy
+solved
+Tactic call ran for 4.225 secs (4.225u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: lazy
+solved
+Tactic call ran for 4.231 secs (4.231u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: lazy
+solved
+Tactic call ran for 4.205 secs (4.205u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: lazy
+solved
+Tactic call ran for 4.217 secs (4.217u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: lazy
+solved
+Tactic call ran for 4.226 secs (4.226u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: lazy
+solved
+Tactic call ran for 4.214 secs (4.214u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: lazy
+solved
+Tactic call ran for 4.241 secs (4.241u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: lazy
+solved
+Tactic call ran for 4.238 secs (4.238u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: lazy
+solved
+Tactic call ran for 4.237 secs (4.237u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: vm_compute
+solved
+Tactic call ran for 0.375 secs (0.375u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: vm_compute
+solved
+Tactic call ran for 0.38 secs (0.38u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: vm_compute
+solved
+Tactic call ran for 0.378 secs (0.378u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: vm_compute
+solved
+Tactic call ran for 0.377 secs (0.377u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: vm_compute
+solved
+Tactic call ran for 0.384 secs (0.384u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: vm_compute
+solved
+Tactic call ran for 0.377 secs (0.377u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: vm_compute
+solved
+Tactic call ran for 0.386 secs (0.386u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: vm_compute
+solved
+Tactic call ran for 0.384 secs (0.384u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: vm_compute
+solved
+Tactic call ran for 0.38 secs (0.38u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: OL_Reflection_4_pointers.reduceToAlgoPointers ::: vm_compute
+solved
+Tactic call ran for 0.392 secs (0.392u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: "btauto" ::: "none"
+timeout
+Tactic call ran for 90. secs (87.887u,2.107s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: "btauto" ::: "none"
+timeout
+Tactic call ran for 90. secs (89.064u,0.93s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: "btauto" ::: "none"
+timeout
+Tactic call ran for 90. secs (89.429u,0.566s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: "btauto" ::: "none"
+timeout
+Tactic call ran for 90. secs (89.905u,0.09s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: "btauto" ::: "none"
+timeout
+Tactic call ran for 90. secs (89.268u,0.726s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: "btauto" ::: "none"
+timeout
+Tactic call ran for 90.031 secs (87.681u,2.345s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: "btauto" ::: "none"
+timeout
+Tactic call ran for 90.01 secs (89.194u,0.811s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: "btauto" ::: "none"
+timeout
+Tactic call ran for 90. secs (87.95u,2.045s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: "btauto" ::: "none"
+timeout
+Tactic call ran for 90. secs (87.488u,2.506s) (success)
+--------------------------------------------------------------------------------
+:: "test68" ::: "btauto" ::: "none"
+timeout
+Tactic call ran for 90.022 secs (89.194u,0.823s) (success)
