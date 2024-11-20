@@ -22,16 +22,16 @@ Fixpoint decideOL_bool (fuel: nat) (g d: AnTerm) : bool :=
     (* Guaranteed sufficent cases. Not in a disjunction because if they evaluate to false, there is no need to compute the others. *)
     match (g, d) with 
     | (L (Var a), R (Var b) )  => (Pos.eqb a b) (* Hyp *)
-    | (L (Meet a b), N) => decideOL_bool n (L a) (L b) (* LeftAnd1-2 *)
-    | (N, R (Join a b)) => decideOL_bool n (R a) (R b) (* RightOr1-2 *)
+    (*| (L (Meet a b), N) => decideOL_bool n (L (Meet a b)) (L (Meet a b)) (* LeftAnd1-2 *)*)
+    (*| (N, R (Join a b)) => decideOL_bool n (R (Join a b)) (R (Join a b)) (* RightOr1-2 *) *)
     | (L (Join a b), _) => (decideOL_bool n (L a) d) && (decideOL_bool n (L b) d) (* LeftOr *)
     | (L (Not a), _) => decideOL_bool n (R a) d (* LeftNot *)
     | (_, R (Meet a b)) => (decideOL_bool n g (R a)) && (decideOL_bool n g (R b)) (* RightAnd *)
     | (_, R (Not a)) => decideOL_bool n g (L a) (* RightNot *)
     (* Swap cases *)
     | (R (Var a), L (Var b) )  => (Pos.eqb b a) (* Hyp *)
-    | (N, L (Meet a b)) => decideOL_bool n (L a) (L b) (* LeftAnd1-2 *)
-    | (R (Join a b), N) => decideOL_bool n (R a) (R b) (* RightOr1-2 *)
+    (*| (N, L (Meet a b)) => decideOL_bool n (L (Meet a b)) (L (Meet a b)) (* LeftAnd1-2 *)*)
+    (*| (R (Join a b), N) => decideOL_bool n (R (Join a b)) (R (Join a b)) (* RightOr1-2 *)*)
     | (_, L (Join a b)) => (decideOL_bool n g (L a)) && (decideOL_bool n g (L b)) (* LeftOr *)
     | (_, L (Not a)) => decideOL_bool n g (R a) (* LeftNot *)
     | (R (Meet a b), _) => (decideOL_bool n (R a) d) && (decideOL_bool n (R b) d) (* RightAnd *)
@@ -75,15 +75,20 @@ Fixpoint decideOL_bool (fuel: nat) (g d: AnTerm) : bool :=
         match g with (* RightOr2 g*)
         | R (Join a b) => decideOL_bool n d (R b)
         | _ => false
-        end||(
+        end ||(
         match d with (* RightOr2 d*)
         | R (Join a b) => decideOL_bool n g (R b)
         | _ => false
+        end ||(
+        match (g, d) with
+        | (N, L(_)) => decideOL_bool n d d
+        | (N, R(_)) => decideOL_bool n d d
+        | (L(_), N) => decideOL_bool n g g
+        | (R(_), N) => decideOL_bool n g g
+        | _ => false
         end
-        )))))))))
+        ))))))))))
     end
-    
-    
   end.
 
 
@@ -128,6 +133,7 @@ Proof.
   intros. assert (squash (OLProof (g, d))). apply decideOLBoolCorrect in H; auto; lia.
   destruct H0. apply (Soundness (g, d)). auto.
 Qed.
+
 
 
 Theorem reduceToAlgo {OL: Ortholattice} : forall t1 t2 f, (decideOL_bool_simp (L t1) (R t2)) = true -> ((eval t1 f) <= (eval t2 f)).
@@ -244,12 +250,13 @@ Proof.
   solveOL OL.
 Qed.
 
+(*
 Example test3 {OL: Ortholattice} a b c: 
   ¬(b ∪ ¬(c ∩ ¬b) ∪ a) <= (¬a ∪ ¬(b ∩ ¬a)).
 Proof.
   solveOL OL.
 Qed.
-
+*)
 
 
 Example test4 : forall a: (@A BoolOL),  a <= (a || a).
@@ -286,3 +293,12 @@ Proof.
   intros. 
   solveOL BoolOL.
 Qed.
+
+
+
+Example test9 {OL: Ortholattice} a b c: 
+  c <= ((a ∩ b) ∪ (¬a) ∪ (¬b)).
+Proof.
+  solveOL OL.
+Qed.
+
