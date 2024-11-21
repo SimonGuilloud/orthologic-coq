@@ -314,24 +314,9 @@ Proof.
       end. all: apply (IHn2 n1); try lia; auto.
 Qed.
 
-(*
-Theorem decideOL_bool_M_safe_false n g d g1 d1 l:
-  fst (decideOL_boolM n g d ((g1, d1, false) :: l)) = true ->
-  fst (decideOL_boolM n g d l) = true.
-Proof.
-  intros. Opaque find. destruct n; simpl in *.
-  - eapply find_irrelevant. eauto.
-  - destruct g; try destruct t; destruct d as [ | t0 | t0 ]; try destruct t0;simpl in *.
-     all: repeat rewrite OrMemo_Mfalse_r in *; repeat rewrite OrMemo_Mfalse_l in *.
-      rewrite eapply find_irrelevant. eauto.
-
-  
-   simpl in *. 
-*)
 
 Theorem decideOLBoolMemoCorrect : 
   forall n g d l, 
-  (*(n >= anSize g + anSize d) -> *)
   (correctMemoMap l) -> 
   (correctMemoMap (snd (decideOL_boolM n g d l))) /\
   (((fst (decideOL_boolM n g d l)) = true) ->  exists n0, (decideOL_bool n0 g d) = true).

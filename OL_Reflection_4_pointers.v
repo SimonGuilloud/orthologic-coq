@@ -248,29 +248,24 @@ Notation "[[ x ]]" := (AnTermPointer_to_AnPointer x) (at level 0).
 Fixpoint decideOL_pointer_atp (fuel: nat) (g d: AnTermPointer) (memo: MemoMap) : (bool * MemoMap) :=
 match M.find ([[g]], [[d]]) memo with
 | Some b => (b, memo)
-| None => let (b, m) :=
-  (match fuel with
+| None => (match fuel with
   | 0 => (false, memo)
-  | S n =>
+  | S n => let (b, m) :=
     (* Guaranteed sufficent cases. *)
       match (g, d) with 
       | (LTP (VarP a _), RTP (VarP b _) )  => Mbool (Pos.eqb a b) (* Hyp *)
-      | (LTP (MeetP a b _), NTP) => decideOL_pointer_atp n (LTP a) (LTP b) (* LeftAnd1-2 *)
-      | (NTP, RTP (JoinP a b _)) => decideOL_pointer_atp n (RTP a) (RTP b) (* RightOr1-2 *)
       | (LTP (JoinP a b _), _) => (decideOL_pointer_atp n (LTP a) d) &&& (decideOL_pointer_atp n (LTP b) d) (* LeftOr *)
       | (LTP (NotP a _), _) => decideOL_pointer_atp n (RTP a) d (* LeftNot *)
       | (_, RTP (MeetP a b _)) => (decideOL_pointer_atp n g (RTP a)) &&& (decideOL_pointer_atp n g (RTP b)) (* RightAnd *)
       | (_, RTP (NotP a _)) => decideOL_pointer_atp n g (LTP a) (* RightNot *)
           (* Swap cases *)
       | (RTP (VarP a _), LTP (VarP b _) )  => Mbool (Pos.eqb b a) (* Hyp *)
-      | (NTP, LTP (MeetP a b _)) => decideOL_pointer_atp n (LTP a) (LTP b) (* LeftAnd1-2 *)
-      | (RTP (JoinP a b _), NTP) => decideOL_pointer_atp n (RTP a) (RTP b) (* RightOr1-2 *)
       | (_, LTP (JoinP a b _)) => (decideOL_pointer_atp n g (LTP a)) &&& (decideOL_pointer_atp n g (LTP b)) (* LeftOr *)
       | (_, LTP (NotP a _)) => decideOL_pointer_atp n g (RTP a) (* LeftNot *)
       | (RTP (MeetP a b _), _) => (decideOL_pointer_atp n (RTP a) d) &&& (decideOL_pointer_atp n (RTP b) d) (* RightAnd *)
       | (RTP (NotP a _), _) => decideOL_pointer_atp n (LTP a) d (* RightNot *)
       | _ => 
-                match d with (* Weaken g*)
+        match d with (* Weaken g*)
         | LTP a => decideOL_pointer_atp n g NTP 
         | RTP a => decideOL_pointer_atp n g NTP 
         | NTP => Mfalse
@@ -307,14 +302,21 @@ match M.find ([[g]], [[d]]) memo with
         match g with (* RightOr2 g*)
         | RTP (JoinP a b _) => decideOL_pointer_atp n d (RTP b)
         | _ => Mfalse
-        end|||(
+        end |||(
         match d with (* RightOr2 d*)
         | RTP (JoinP a b _) => decideOL_pointer_atp n g (RTP b)
         | _ => Mfalse
+        end |||(
+        match (g, d) with
+        | (NTP, LTP _) => decideOL_pointer_atp n d d
+        | (NTP, RTP _) => decideOL_pointer_atp n d d
+        | (LTP _, NTP) => decideOL_pointer_atp n g g
+        | (RTP _, NTP) => decideOL_pointer_atp n g g
+        | _ => Mfalse
         end
-        )))))))))
-      end memo
-  end) in (b, AnPointerPairAVLMap.add ([[g]], [[d]]) b m)
+        ))))))))))
+      end (AnPointerPairAVLMap.add ([[g]], [[d]]) false memo)
+   in (b, AnPointerPairAVLMap.add ([[g]], [[d]]) b m) end)
 end.
 
 
@@ -375,7 +377,7 @@ Definition correctMemoMap (reverseRef : RefMap) (l: MemoMap) :=  forall pg pd,
   | Some true => 
       let liftedReverseRef := LiftReverseRef reverseRef in
       let g := liftedReverseRef pg in let d := liftedReverseRef pd in
-      forall n, (n >= anPSize g + anPSize d) -> (decideOL_bool n (ForgetAnPointer g) (ForgetAnPointer d) = true)
+      exists n, (decideOL_bool n (ForgetAnPointer g) (ForgetAnPointer d) = true)
   | _ => True
   end.
 
@@ -428,19 +430,17 @@ Proof. induction p; simpl; lia. Qed.
 Theorem anPSize_eq_anSize (p: AnTermPointer) : anPSize p = anSize (ForgetAnPointer p).
 Proof. destruct p; simpl; eauto using termPSize_eq_termSize. Qed.
 
-Lemma correctMemoAdditionEq2 (reverseRef : RefMap)  n pg pd l e : 
+Lemma correctMemoAdditionEq2 (reverseRef : RefMap) pg pd l e : 
   let liftedReverseRef := LiftReverseRef reverseRef in
   let g := liftedReverseRef pg in let d := liftedReverseRef pd in
-  (n >= anPSize g + anPSize d) -> 
   correctMemoMap reverseRef l -> 
-  (e = true -> decideOL_bool n (ForgetAnPointer g) (ForgetAnPointer d) = true) -> 
+  (e = true -> exists n, decideOL_bool n (ForgetAnPointer g) (ForgetAnPointer d) = true) -> 
   correctMemoMap reverseRef (AnPointerPairAVLMap.add (pg, pd) e l).
 Proof.
-  unfold correctMemoMap; intros Hge Hok He *.
+  unfold correctMemoMap; intros Hok He *.
   rewrite F.add_o; destruct F.eq_dec as [(Heq1%compare_AnPointer_eq, Heq2%compare_AnPointer_eq) | Hneq ];
     simpl in *; subst.
-  - destruct e eqn: eq; intuition. erewrite OL_Reflection_3_fmap.decideOL_bool_big_fuel; eauto;
-    rewrite <- !anPSize_eq_anSize; auto.
+  - destruct e; auto.
   - apply Hok.
 Qed.
 
@@ -477,32 +477,43 @@ Proof.
    destruct a; simpl in *; auto; destruct t; simpl in *; intuition; rewrite H0; auto.
 Qed.
 
+Lemma correctMemoMap_false (reverseRef : RefMap) pg pd l: correctMemoMap reverseRef l -> correctMemoMap reverseRef (AnPointerPairAVLMap.add (pg, pd) false l).
+Proof.
+  intros. unfold correctMemoMap. intros. rewrite F.add_o; destruct F.eq_dec as [(Heq1%compare_AnPointer_eq, Heq2%compare_AnPointer_eq) | Hneq ]; auto.
+  simpl in *. apply H.
+Qed.
+
 Theorem decideOLPointerATPCorrect (reverseRef : RefMap) : 
   forall n pg pd l, 
   let liftedReverseRef := LiftReverseRef reverseRef in
   let g := liftedReverseRef pg in let d := liftedReverseRef pd in
-  (n >= anPSize g + anPSize d) -> 
   (correctMemoMap reverseRef l) -> 
   PointerCorrectnessAnTerm reverseRef g ->
   PointerCorrectnessAnTerm reverseRef d ->
   (correctMemoMap reverseRef (snd (decideOL_pointer_atp n g d l))) /\
-  (((fst (decideOL_pointer_atp n g d l)) = true) ->  (decideOL_bool n (ForgetAnPointer g) (ForgetAnPointer d)) = true).
+  (((fst (decideOL_pointer_atp n g d l)) = true) ->  exists n, (decideOL_bool n (ForgetAnPointer g) (ForgetAnPointer d)) = true).
 Proof.
   induction n.
   - intros. split. 
-    + intros. dest g; dest d; simpl in *; lia.
+    + intros. pose proof (H pg pd). simpl in *. 
+      subst g d liftedReverseRef. rewrite !(lifted_project_anPointer).
+      destruct M.find; simpl in *; auto.
   
-    + simpl in *. unfold correctMemoMap in *. specialize (H0 pg pd).
-      subst g d liftedReverseRef.
-      rewrite  !(lifted_project_anPointer).
-      destruct M.find.
-      destruct b. subst. specialize (H0 0 H). simpl in *. congruence. auto. auto.
+    + intros. pose proof (H pg pd). simpl in *. 
+      subst g d liftedReverseRef. rewrite !(lifted_project_anPointer) in *.
+      destruct M.find; intros; simpl in *; subst; congruence.
 
 
   - intros. split.
-    + simpl. pose proof H0. unfold correctMemoMap in H0. specialize (H0 pg pd).
-      unfold g. unfold d. unfold liftedReverseRef. rewrite  !(lifted_project_anPointer).
+    + simpl. pose proof (H pg pd). 
+      unfold g, d, liftedReverseRef. rewrite  !(lifted_project_anPointer) in *.
       destruct M.find eqn: res; simpl in *. auto.
+      fold liftedReverseRef; fold g d;
+      rewrite <- (lifted_project_anPointer reverseRef pg);  rewrite <- (lifted_project_anPointer reverseRef pd);
+      subst liftedReverseRef; fold g d.
+      destSimp g ; destSimp d; (try destSimp t0); (try destSimp t);
+      apply correctMemoMap_second_let; 
+      rewrite ?OrMemo_Mfalse_r, ?OrMemo_Mfalse_l, ?AndMemo_Mfalse_l.
 
     Ltac rewriteOr x y l:= 
       assert ((x ||| y) l = let (b, m) := x l in if b then (true, m) else (y m) ) as rew_first_or; (only 1: reflexivity); rewrite rew_first_or in *; clear rew_first_or.
@@ -518,10 +529,8 @@ Proof.
       *)
 
       Ltac niceSimpl := simpl fst in *; simpl snd in *; simpl andb in *; simpl orb in *; simpl decideOL_bool in *.
-
-      Ltac repRewSize := (repeat (rewrite anPSize_eq_anSize in *; auto)).
       Ltac repRewRev := (repeat (rewrite forget_rev_equal; auto)); do 2 (try (rewrite forget_rev_equal in *; try (niceSimpl; simpl PointerCorrectnessAnTerm in *; auto; fail))).
-      Ltac repRew := (repeat (rewrite anPSize_eq_anSize in *; auto)); (repeat (rewrite forget_rev_equal; auto)).
+      Ltac repRew := (repeat (rewrite forget_rev_equal; auto)).
       Ltac splitConj := repeat match goal with
       | [H: _ /\ _ |- _] => destruct H
       end.
@@ -529,77 +538,118 @@ Proof.
 
       Ltac reduceAndOr rest IHn l H :=
         let IHn_ := (fresh "IHn") in let IHn_snd := (fresh "IHn_snd") in 
-        let IHn_fst := (fresh "IHn_fst") in let HS_ := (fresh "HS") in 
+        let IHn_fst := (fresh "IHn_fst") in let n0 := (fresh "n0") in  
         let b_ := (fresh "b") in let l_ := (fresh "l") in
         let A_ := (fresh "A") in let B_ := (fresh "B") in
           lazymatch rest with 
-          | ?op (decideOL_pointer_atp ?n ?g ?d) ?rest2 => 
+          | (decideOL_pointer_atp ?n ?g ?d) ||| ?rest2 => 
             lazymatch goal with
             | [H1: PointerCorrectnessAnTerm ?rev ?g1,
               H2: PointerCorrectnessAnTerm ?rev ?d1 |- _ ] =>
-
               try rewriteOr (decideOL_pointer_atp n g d) rest2 l;
-              try rewriteAnd (decideOL_pointer_atp n g d) rest2 l;
-              pose proof IHn as IHn_; specialize (IHn_ [[g]] [[d]] l); 
+              specialize (IHn [[g]] [[d]] l H) as IHn_; 
               pose proof H1; pose proof H2;
               pose proof H1; pose proof H2; simpl in  H1; simpl in H2; splitConj;
               do 2 (try (rewrite forget_rev_equal in *; auto;  try (intuition; fail)));
-              assert (n >= anPSize g + anPSize d) as HS_; try (simpl in *; lia); 
-              specialize (IHn_ HS_ H); destruct IHn_ as [IHn_snd IHn_fst]; auto;
+              destruct IHn_ as [IHn_snd IHn_fst]; auto; repRew;
               destruct (decideOL_pointer_atp n g d l)  as [ b_ l_];
               destruct b_; niceSimpl; auto; try congruence;
               intros;
+              try(destruct IHn_fst as [n0 IHn_fst]; auto; exists (S n0); niceSimpl; eauto);
               repeat rewrite Bool.orb_false_r;  
               repeat rewrite OL_Reflection_3_fmap.OrMemo_Mfalse_r; 
               repeat rewrite OL_Reflection_3_fmap.OrMemo_Mfalse_l; 
               repeat rewrite OL_Reflection_3_fmap.AndMemo_Mfalse_l;
               match goal with | [ |- (_ -> _) ] => intro  | _ => idtac end;
+              try congruence;
               try (rewrite IHn_fst; simpl; repeat rewrite Bool.orb_true_r; auto;  fail);
+              try (apply Bool.orb_true_iff; left; congruence);
               try (apply Bool.orb_true_iff; right);
               try (apply Bool.andb_true_iff; split);
               try (eapply IHn; simpl in *; eauto; lia); 
               try (eapply IHn_fst; simpl in *; eauto; lia); 
+              try (rewrite IHn_fst; simpl; repeat rewrite Bool.orb_true_r; auto; fail);
               reduceAndOr rest2 IHn l_ IHn_snd;
               idtac
             | _ => fail "did not find H1 and H2"
-
             end
+          | (decideOL_pointer_atp ?n ?g ?d) &&& ?rest2 => 
+            lazymatch goal with
+            | [H1: PointerCorrectnessAnTerm ?rev ?g1,
+              H2: PointerCorrectnessAnTerm ?rev ?d1 |- _ ] =>
+              try rewriteAnd (decideOL_pointer_atp n g d) rest2 l;
+              specialize (IHn [[g]] [[d]] l H) as IHn_; 
+              pose proof H1; pose proof H2;
+              pose proof H1; pose proof H2; simpl in  H1; simpl in H2; splitConj;
+              do 2 (try (rewrite forget_rev_equal in *; auto;  try (intuition; fail)));
+              destruct IHn_ as [IHn_snd IHn_fst]; auto; repRew;
+              destruct (decideOL_pointer_atp n g d l)  as [ b_ l_];
+              destruct b_; niceSimpl; auto; try congruence;
+              intros;
+              match goal with
+              | [ HH: true = true -> _ |- _ ]=> destruct IHn_fst as [n0 IHn_fst]; auto; idtac
+              | [ HH: false = true -> _ |- _ ]=> clear IHn_fst
+              | _ => idtac
+              end;
+              try congruence;
+              repeat rewrite Bool.orb_false_r;  
+              repeat rewrite OL_Reflection_3_fmap.OrMemo_Mfalse_r; 
+              repeat rewrite OL_Reflection_3_fmap.OrMemo_Mfalse_l; 
+              repeat rewrite OL_Reflection_3_fmap.AndMemo_Mfalse_l;
+              try (rewrite IHn_fst; simpl; repeat rewrite Bool.orb_true_r; auto;  fail);
+              try (apply Bool.andb_true_iff; split);
+              try (eapply IHn; simpl in *; eauto; lia); 
+              try (eapply IHn_fst; simpl in *; eauto; lia); 
+              try (rewrite IHn_fst; simpl; repeat rewrite Bool.orb_true_r; auto; fail);
+              reduceAndOr rest2 IHn l_ IHn_snd;
+              idtac
+            | _ => fail "did not find H1 and H2"
+            end
+
           | (decideOL_pointer_atp ?n ?g ?d ) => 
-            try (simpl in *; lia);
-            repRew; niceSimpl; simpl PointerCorrectnessAnTerm in *; repeat rewrite Bool.orb_false_r; auto; intuition;
-            specialize (IHn [[g]] [[d]] l) as IHn_; destruct IHn_ as [A_ B_]; auto; repRew; try (simpl in *; lia); 
+            repRew; niceSimpl; simpl in *;
+            repeat rewrite Bool.orb_false_r; simpl in *; auto; intuition; intros; try congruence;
+            try (apply IHn; simpl in *; eauto; congruence);
+            specialize (IHn [[g]] [[d]] l H) as IHn_; destruct IHn_ as [IHn_snd IHn_fst]; auto; repRew; 
+            
             try (niceSimpl; simpl PointerCorrectnessAnTerm in *;  intuition; fail);
             repRewRev;
-            try (simpl in *; rewrite <- !termPSize_eq_termSize; simpl in *; lia)
-          
-          | _ => 
-          repRewSize; repRewRev; simpl in *; repeat rewrite Bool.orb_false_r; auto;
+            destruct IHn_fst as [n0 IHn_fst]; auto;
+            lazymatch goal with
+            | [ J1: decideOL_bool ?m1 _ _ = true, J2: decideOL_bool ?m2 _ _ = true |- _ ] => 
+                exists (S (Nat.max m1 m2)); simpl; apply Bool.andb_true_iff; split; 
+                only 1: (apply (OL_Reflection_3_fmap.decideOL_bool_monotonic (Nat.max m1 m2) m1); try lia); 
+                only 2: (apply (OL_Reflection_3_fmap.decideOL_bool_monotonic (Nat.max m1 m2) m2); try lia);
+                idtac
+            | [ J1: decideOL_bool ?m1 _ _ = true |- _ ] =>  exists (S m1); niceSimpl; auto
+            | _ => idtac
+            end;
+            repeat rewrite Bool.orb_false_r;
+            repeat (apply Bool.orb_true_iff; right); eauto;
+            idtac
+          | Mfalse => simpl in *; auto; intros; congruence; 
+            repRewRev; simpl in *; repeat rewrite Bool.orb_false_r; auto;
             simpl in *; eauto; (try lia);
-          (fail "failed on shape:" rest)
-          end.
+            idtac
+          | (Mbool _) => 
+            intros; try (simpl in *; auto; fail); exists 1; repRewRev; simpl; auto;
+            idtac
+          | _ => fail "unknown shape" rest
+          end. 
 
-      fold liftedReverseRef; fold g d;
-      rewrite <- (lifted_project_anPointer reverseRef pg);  rewrite <- (lifted_project_anPointer reverseRef pd);
-      subst liftedReverseRef; fold g d.
-
-
-      destSimp g ; destSimp d; (try destSimp t0); (try destSimp t);
-      apply correctMemoMap_second_let; 
-      rewrite ?OrMemo_Mfalse_r, ?OrMemo_Mfalse_l, ?AndMemo_Mfalse_l.
-      all: (try (lazymatch goal with
-      | [H : correctMemoMap ?rev ?l |- 
-          correctMemoMap ?rev (AnPointerPairAVLMap.add (?g, ?d) (fst (?rest ?l)) (snd (?rest ?l))) ] =>
-        apply (correctMemoAdditionEq2 rev (S n) g d);
-        only 1: (try (repRewSize; repRewRev; simpl in *; lia; fail));
-        reduceAndOr rest IHn l H;
+      all: try (lazymatch goal with
+      | [H : correctMemoMap ?revref ?l |- 
+        correctMemoMap ?revref (_ (?g, ?d) (fst (?rest (_ ?k ?v ?l))) (snd (?rest (_ ?k ?v ?l)))) ] =>
+        apply (correctMemoAdditionEq2 revref g d);
+        let H0 := (fresh "H0") in
+        pose proof (correctMemoMap_false revref g d l H) as H0;
+        reduceAndOr rest IHn (AnPointerPairAVLMap.add k v l) H0;
         idtac
-      | _ => idtac
-      end; fail)).
-
-
+      | _ => fail "unknown shape"
+      end; fail). 
 
       (* Need to do the second half of the proof, which could be the same as the first *)
-    + Opaque decideOL_bool. simpl. pose proof H0. unfold correctMemoMap in H0.  specialize (H0 [[g]] [[d]]).
+    + Opaque decideOL_bool. simpl. pose proof (H [[g]] [[d]]) as H2. unfold correctMemoMap in H2. 
       destruct (M.find ([[g]], [[d]]) l) eqn: res; simpl in *.
       * destruct b eqn:b_eq; simpl in *; intro; auto; repRewRev; try congruence.
       * Transparent decideOL_bool. destSimp g; destSimp d; (try destSimp t0); (try destSimp t).
@@ -610,11 +660,15 @@ Proof.
 
         all: try ( apply IHn; auto; simpl in *; lia).
         all: try (lazymatch goal with
-            | [H : correctMemoMap ?rev ?l |- 
-                fst (?rest ?l) = true -> _ ] => 
-              reduceAndOr rest IHn l H
-            | _ => idtac
-            end).
+          | [H : correctMemoMap ?revref ?l |- 
+            (fst (?rest (_ ?k ?v ?l))) = true -> _ ] => 
+            let H0 := (fresh "H0") in
+            epose proof (correctMemoMap_false revref _ _ l H) as H0;
+            reduceAndOr rest IHn (AnPointerPairAVLMap.add k v l) H0
+          | [H : correctMemoMap ?revref ?l |- ?inner = true -> _ ] => 
+            reduceAndOr (Mbool inner) IHn l H
+          | _ => fail "unknown shape"
+          end; fail).
 Qed.
 
 
@@ -1205,7 +1259,7 @@ Definition AddAnPointerTwice (t1 t2: AnTerm) (p: Pointer): (AnTermPointer * AnTe
 
 Definition decideOL_pointer_at (g d: AnTerm): bool :=
   let (gd,  _) := AddAnPointerTwice g d 2%positive in let (g1, d1) := gd in 
-  fst (decideOL_pointer_atp (anSize g + anSize d) g1 d1 (AnPointerPairAVLMap.empty bool)).
+  fst (decideOL_pointer_atp (anSize g * anSize d + 4) g1 d1 (AnPointerPairAVLMap.empty bool)).
 
 
 
@@ -1585,167 +1639,31 @@ Qed.
 
 Theorem decideOLPointerATCorrect : forall g d, (decideOL_pointer_at g d) = true -> AnLeq g d.
 Proof. 
-  intros. assert (squash (OLProof (g, d))). apply decideOLBoolCorrect with (anSize g + anSize d).
+  intros. assert (squash (OLProof (g, d))). 
   - 
     unfold decideOL_pointer_at in H. simpl in *. destruct (AddAnPointerTwice g d 2%positive) as [gd p] eqn: eqgd.
-    destruct gd as [g1 d1]. simpl in *. destruct (decideOL_pointer_atp (anSize g + anSize d) g1 d1 (AnPointerPairAVLMap.empty bool)) eqn: eq.
+    destruct gd as [g1 d1]. simpl in *. destruct (decideOL_pointer_atp (anSize g * anSize d + 4) g1 d1 (AnPointerPairAVLMap.empty bool)) eqn: eq.
     simpl in *; subst.
     unfold AddAnPointerTwice in eqgd. simpl in *. 
     destruct (AddAnPointer g 2%positive) as [t1 p1] eqn: eqg1. destruct (AddAnPointer d p1) as [t2 p2] eqn: eqd1.
     assert (t1 = g1); try congruence. assert (t2 = d1); try congruence. assert (p2 = p); try congruence. subst.
     pose proof decideOLPointerATPCorrect. simpl in *.
-    pose (func_to_RefMap g d) as refmap. specialize (H refmap). simpl in *.
-    rewrite <- (AnForgetAddInverse g 2%positive ) at 2. rewrite <- (AnForgetAddInverse d p1) at 2. rewrite eqg1 in *; rewrite eqd1 in *; simpl in *.
-    specialize (H (anSize g + anSize d)). simpl in *.
-    Opaque ForgetAnPointer. Opaque anPSize.
+    pose (func_to_RefMap g d) as refmap. specialize (H refmap (anSize g * anSize d + 4)). simpl in *.
     specialize (H [[g1]] [[d1]] (AnPointerPairAVLMap.empty bool)). simpl in *.
     rewrite (anSize_eq_anPSize_Add g 2%positive) in H at 1. rewrite (anSize_eq_anPSize_Add d p1) in H at 1. simpl in *.
     rewrite eqg1 in H at 1. rewrite eqd1 in H at 1. simpl in *.
+    Opaque ForgetAnPointer. Opaque anPSize.
     Ltac simp a b := try simpl in a; simpl in b.
     assert (PointerCorrectnessAnTerm refmap g1) as pcat_refmap_g; auto using (AddPointerCorrect_6_g1 d g p1 p g1 d1).
     assert (PointerCorrectnessAnTerm refmap d1) as pcat_refmap_d; auto using (AddPointerCorrect_6_d1 d g p1 p g1 d1).
-    assert (correctMemoMap refmap (AnPointerPairAVLMap.empty bool)). unfold correctMemoMap. simpl in *. auto.
-
-    destruct g1 eqn: dest_g1; destruct g eqn: dest_g; simpl in eqg1, eqd1; try congruence. 
-    all: try destruct (AddPointer t 2%positive ) eqn: dest_t2; simp eqg1 eqd1; try congruence.
-    all: try destruct (AddPointer t0 2%positive ) eqn: dest_t02; simp eqg1 eqd1; try congruence.
-    all: destruct d1 eqn: dest_d1; destruct d eqn: dest_d; simp eqg1 eqd1; try congruence.
-    all: try destruct (AddPointer _ p1 ) eqn: dest_tp1; simp eqg1 eqd1; try congruence.
-    Opaque decideOL_bool. Opaque decideOL_pointer_atp.
-
-    (* g is N *)
-    + apply H; auto. simpl; simpl in eq; rewrite eq; simpl; auto.
-    + assert (func_of_AddAnPointerTwice (ForgetAnPointer NTP) (ForgetAnPointer (LTP t)) (GetPointer t) = t).
-      * Transparent ForgetAnPointer.
-        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect_3 _ 1%positive). simpl.
-        destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl; auto.  
-        repeat substAll. right. apply subterm_refl_eq.
-        pose proof (ForgetAddInverse t0 2%positive) as fai. rewrite dest_tp1 in fai; simpl in fai; subst. congruence.
-      * simpl in *. repeat substAll.
-        assert (ForgetPointer t = t0) as t_t0. pose proof (ForgetAddInverse t0 2%positive). rewrite dest_tp1 in *; simpl in *; congruence.
-        rewrite t_t0 in H1. rewrite H1 in H. apply H; auto.
-        unfold func_of_AddAnPointerTwice in *;  simpl in *. 
-        rewrite fst_let_simpl in *.
-        destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl in *. rewrite eq; simpl; auto.
-    + assert (func_of_AddAnPointerTwice (ForgetAnPointer NTP) (ForgetAnPointer (RTP t)) (GetPointer t) = t).
-      * Transparent ForgetAnPointer.
-        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect_3 _ 1%positive). simpl.
-        destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl; auto.  
-        repeat substAll. right. apply subterm_refl_eq.
-        pose proof (ForgetAddInverse t0 2%positive) as fai. rewrite dest_tp1 in fai; simpl in fai; subst. congruence.
-      * simpl in *. repeat substAll.
-        assert (ForgetPointer t = t0) as t_t0. pose proof (ForgetAddInverse t0 2%positive). rewrite dest_tp1 in *; simpl in *; congruence.
-        rewrite t_t0 in H1. rewrite H1 in H. apply H; auto.
-        unfold func_of_AddAnPointerTwice in *;  simpl in *. 
-        rewrite fst_let_simpl in *.
-        destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl in *. rewrite eq; simpl; auto.
-    (* g is L *)
-    + assert (func_of_AddAnPointerTwice (ForgetAnPointer (LTP t)) (ForgetAnPointer NTP) (GetPointer t) = t).
-      * Transparent ForgetAnPointer.
-        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect_3 _ 1%positive). simpl.
-        destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl; auto.  
-        repeat substAll. right. apply subterm_refl_eq.
-        pose proof (ForgetAddInverse t0 2%positive) as fai. rewrite dest_t02 in fai; simpl in fai; subst. congruence.
-      * simpl in *. repeat substAll.
-        assert (ForgetPointer t = t0) as t_t0. pose proof (ForgetAddInverse t0 2%positive). rewrite dest_t02 in *; simpl in *; congruence.
-        rewrite t_t0 in H1. rewrite H1 in H. apply H; auto.
-        unfold func_of_AddAnPointerTwice in *;  simpl in *. 
-        rewrite fst_let_simpl in *.
-        destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl in *. rewrite eq; simpl; auto.
-    + assert (func_of_AddAnPointerTwice (ForgetAnPointer (LTP t)) (ForgetAnPointer (LTP t2)) (GetPointer t) = t).
-        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect_3 _ 1%positive). simpl.
-        destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl; auto.  
-        destruct (AddPointer (ForgetPointer t2) p3) eqn: dest_t2; simpl; auto.  
-        repeat substAll. right. left. apply subterm_refl_eq.
-        pose proof (ForgetAddInverse t0 2%positive) as fai. rewrite dest_t02 in fai. simpl in fai. subst. congruence.
-      assert (func_of_AddAnPointerTwice (ForgetAnPointer (LTP t)) (ForgetAnPointer (LTP t2)) (GetPointer t2) = t2).
-        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect_3 _ 1%positive). simpl.
-        destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl; auto.  
-        destruct (AddPointer (ForgetPointer t2) p3) eqn: dest_t2; simpl; auto.  
-        repeat substAll. right. right. apply subterm_refl_eq.
-        pose proof (ForgetAddInverse t0 2%positive) as fai. rewrite dest_t02 in fai; simpl in fai.
-        assert (t=t5); try congruence. assert (p1 = p3); try congruence. subst. 
-        pose proof (ForgetAddInverse t3 p3) as fai. rewrite dest_tp1 in fai; simpl in fai; subst. congruence.
-      * simpl in *. repeat substAll.
-        assert (ForgetPointer t = t0) as t_t0. pose proof (ForgetAddInverse t0 2%positive). rewrite dest_t02 in *; simpl in *; congruence.
-        assert (ForgetPointer t2 = t3) as t_t2. pose proof (ForgetAddInverse t3 p1). rewrite dest_tp1 in *; simpl in *; congruence.
-        rewrite t_t0 in H1, H2. rewrite t_t2 in H1, H2. repeat rewrite H1, H2 in H.  apply H; auto.
-        unfold func_of_AddAnPointerTwice in *;  simpl in *. 
-        rewrite dest_t02 in *; rewrite fst_let_simpl in *; rewrite eq; simpl; auto.
-    + assert (func_of_AddAnPointerTwice (ForgetAnPointer (LTP t)) (ForgetAnPointer (RTP t2)) (GetPointer t) = t).
-        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect_3 _ 1%positive). simpl.
-        destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl; auto.  
-        destruct (AddPointer (ForgetPointer t2) p3) eqn: dest_t2; simpl; auto.  
-        repeat substAll. right. left. apply subterm_refl_eq.
-        pose proof (ForgetAddInverse t0 2%positive) as fai. rewrite dest_t02 in fai. simpl in fai. subst. congruence.
-      assert (func_of_AddAnPointerTwice (ForgetAnPointer (LTP t)) (ForgetAnPointer (RTP t2)) (GetPointer t2) = t2).
-        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect_3 _ 1%positive). simpl.
-        destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl; auto.  
-        destruct (AddPointer (ForgetPointer t2) p3) eqn: dest_t2; simpl; auto.  
-        repeat substAll. right. right. apply subterm_refl_eq.
-        pose proof (ForgetAddInverse t0 2%positive) as fai. rewrite dest_t02 in fai; simpl in fai.
-        assert (t=t5); try congruence. assert (p1 = p3); try congruence. subst. 
-        pose proof (ForgetAddInverse t3 p3) as fai. rewrite dest_tp1 in fai; simpl in fai; subst. congruence.
-      * simpl in *. repeat substAll.
-        assert (ForgetPointer t = t0) as t_t0. pose proof (ForgetAddInverse t0 2%positive). rewrite dest_t02 in *; simpl in *; congruence.
-        assert (ForgetPointer t2 = t3) as t_t2. pose proof (ForgetAddInverse t3 p1). rewrite dest_tp1 in *; simpl in *; congruence.
-        rewrite t_t0 in H1, H2. rewrite t_t2 in H1, H2. repeat rewrite H1, H2 in H.  apply H; auto.
-        unfold func_of_AddAnPointerTwice in *;  simpl in *. 
-        rewrite dest_t02 in *; rewrite fst_let_simpl in *; rewrite eq; simpl; auto.
-    (* g is R *)
-    + assert (func_of_AddAnPointerTwice (ForgetAnPointer (RTP t)) (ForgetAnPointer NTP) (GetPointer t) = t).
-      * Transparent ForgetAnPointer.
-        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect_3 _ 1%positive). simpl.
-        destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl; auto.  
-        repeat substAll. right. apply subterm_refl_eq.
-        pose proof (ForgetAddInverse t0 2%positive) as fai. rewrite dest_t02 in fai; simpl in fai; subst. congruence.
-      * simpl in *. repeat substAll.
-        assert (ForgetPointer t = t0) as t_t0. pose proof (ForgetAddInverse t0 2%positive). rewrite dest_t02 in *; simpl in *; congruence.
-        rewrite t_t0 in H1. rewrite H1 in H. apply H; auto.
-        unfold func_of_AddAnPointerTwice in *;  simpl in *. 
-        rewrite fst_let_simpl in *.
-        destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl in *. rewrite eq; simpl; auto.
-    + assert (func_of_AddAnPointerTwice (ForgetAnPointer (RTP t)) (ForgetAnPointer (LTP t2)) (GetPointer t) = t).
-        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect_3 _ 1%positive). simpl.
-        destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl; auto.  
-        destruct (AddPointer (ForgetPointer t2) p3) eqn: dest_t2; simpl; auto.  
-        repeat substAll. right. left. apply subterm_refl_eq.
-        pose proof (ForgetAddInverse t0 2%positive) as fai. rewrite dest_t02 in fai. simpl in fai. subst. congruence.
-      assert (func_of_AddAnPointerTwice (ForgetAnPointer (RTP t)) (ForgetAnPointer (LTP t2)) (GetPointer t2) = t2).
-        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect_3 _ 1%positive). simpl.
-        destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl; auto.  
-        destruct (AddPointer (ForgetPointer t2) p3) eqn: dest_t2; simpl; auto.  
-        repeat substAll. right. right. apply subterm_refl_eq.
-        pose proof (ForgetAddInverse t0 2%positive) as fai. rewrite dest_t02 in fai; simpl in fai.
-        assert (t=t5); try congruence. assert (p1 = p3); try congruence. subst. 
-        pose proof (ForgetAddInverse t3 p3) as fai. rewrite dest_tp1 in fai; simpl in fai; subst. congruence.
-      * simpl in *. repeat substAll.
-        assert (ForgetPointer t = t0) as t_t0. pose proof (ForgetAddInverse t0 2%positive). rewrite dest_t02 in *; simpl in *; congruence.
-        assert (ForgetPointer t2 = t3) as t_t2. pose proof (ForgetAddInverse t3 p1). rewrite dest_tp1 in *; simpl in *; congruence.
-        rewrite t_t0 in H1, H2. rewrite t_t2 in H1, H2. repeat rewrite H1, H2 in H.  apply H; auto.
-        unfold func_of_AddAnPointerTwice in *;  simpl in *. 
-        rewrite dest_t02 in *; rewrite fst_let_simpl in *; rewrite eq; simpl; auto.
-    + assert (func_of_AddAnPointerTwice (ForgetAnPointer (RTP t)) (ForgetAnPointer (RTP t2)) (GetPointer t) = t).
-        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect_3 _ 1%positive). simpl.
-        destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl; auto.  
-        destruct (AddPointer (ForgetPointer t2) p3) eqn: dest_t2; simpl; auto.  
-        repeat substAll. right. left. apply subterm_refl_eq.
-        pose proof (ForgetAddInverse t0 2%positive) as fai. rewrite dest_t02 in fai. simpl in fai. subst. congruence.
-      assert (func_of_AddAnPointerTwice (ForgetAnPointer (RTP t)) (ForgetAnPointer (RTP t2)) (GetPointer t2) = t2).
-        unfold func_of_AddAnPointerTwice. apply (AddPointerCorrect_3 _ 1%positive). simpl.
-        destruct (AddPointer (ForgetPointer t) 2%positive) eqn: dest_t; simpl; auto.  
-        destruct (AddPointer (ForgetPointer t2) p3) eqn: dest_t2; simpl; auto.  
-        repeat substAll. right. right. apply subterm_refl_eq.
-        pose proof (ForgetAddInverse t0 2%positive) as fai. rewrite dest_t02 in fai; simpl in fai.
-        assert (t=t5); try congruence. assert (p1 = p3); try congruence. subst. 
-        pose proof (ForgetAddInverse t3 p3) as fai. rewrite dest_tp1 in fai; simpl in fai; subst. congruence.
-      * simpl in *. repeat substAll.
-        assert (ForgetPointer t = t0) as t_t0. pose proof (ForgetAddInverse t0 2%positive). rewrite dest_t02 in *; simpl in *; congruence.
-        assert (ForgetPointer t2 = t3) as t_t2. pose proof (ForgetAddInverse t3 p1). rewrite dest_tp1 in *; simpl in *; congruence.
-        rewrite t_t0 in H1, H2. rewrite t_t2 in H1, H2. repeat rewrite H1, H2 in H.  apply H; auto.
-        unfold func_of_AddAnPointerTwice in *;  simpl in *. 
-        rewrite dest_t02 in *; rewrite fst_let_simpl in *; rewrite eq; simpl; auto.
-
+    assert (correctMemoMap refmap (AnPointerPairAVLMap.empty bool)).
+    unfold correctMemoMap; simpl in *; intros; auto.
+    destruct H; auto. all: rewrite ?forget_rev_equal; auto.
+    destruct H1 as [n0 H1]; auto. rewrite ?forget_rev_equal; auto.  rewrite eq. simpl. reflexivity.
+    apply (decideOLBoolCorrect n0). rewrite ?forget_rev_equal in *; auto.
+    assert (g1 = fst (AddAnPointer g 2%positive)). rewrite eqg1; simpl; auto.
+    assert (d1 = fst (AddAnPointer d p1)). rewrite eqd1; simpl; auto. rewrite H2, H3 in H1.
+    rewrite !AnForgetAddInverse in H1. auto.
   - destruct H0. apply (Soundness (g, d)). auto.
 Qed.
 
