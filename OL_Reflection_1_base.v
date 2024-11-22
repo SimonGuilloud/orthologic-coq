@@ -14,7 +14,7 @@ Import ListNotations.
   (* Decision Algorithm for OL *)
 
 
-Fixpoint decideOL_bool (fuel: nat) (g d: AnTerm) : bool :=
+Fixpoint decideOL_base (fuel: nat) (g d: AnTerm) : bool :=
   match fuel with
   | 0 => false
   | S n =>
@@ -22,69 +22,69 @@ Fixpoint decideOL_bool (fuel: nat) (g d: AnTerm) : bool :=
     (* Guaranteed sufficent cases. Not in a disjunction because if they evaluate to false, there is no need to compute the others. *)
     match (g, d) with 
     | (L (Var a), R (Var b) )  => (Pos.eqb a b) (* Hyp *)
-    (*| (L (Meet a b), N) => decideOL_bool n (L (Meet a b)) (L (Meet a b)) (* LeftAnd1-2 *)*)
-    (*| (N, R (Join a b)) => decideOL_bool n (R (Join a b)) (R (Join a b)) (* RightOr1-2 *) *)
-    | (L (Join a b), _) => (decideOL_bool n (L a) d) && (decideOL_bool n (L b) d) (* LeftOr *)
-    | (L (Not a), _) => decideOL_bool n (R a) d (* LeftNot *)
-    | (_, R (Meet a b)) => (decideOL_bool n g (R a)) && (decideOL_bool n g (R b)) (* RightAnd *)
-    | (_, R (Not a)) => decideOL_bool n g (L a) (* RightNot *)
+    (*| (L (Meet a b), N) => decideOL_base n (L (Meet a b)) (L (Meet a b)) (* LeftAnd1-2 *)*)
+    (*| (N, R (Join a b)) => decideOL_base n (R (Join a b)) (R (Join a b)) (* RightOr1-2 *) *)
+    | (L (Join a b), _) => (decideOL_base n (L a) d) && (decideOL_base n (L b) d) (* LeftOr *)
+    | (L (Not a), _) => decideOL_base n (R a) d (* LeftNot *)
+    | (_, R (Meet a b)) => (decideOL_base n g (R a)) && (decideOL_base n g (R b)) (* RightAnd *)
+    | (_, R (Not a)) => decideOL_base n g (L a) (* RightNot *)
     (* Swap cases *)
     | (R (Var a), L (Var b) )  => (Pos.eqb b a) (* Hyp *)
-    (*| (N, L (Meet a b)) => decideOL_bool n (L (Meet a b)) (L (Meet a b)) (* LeftAnd1-2 *)*)
-    (*| (R (Join a b), N) => decideOL_bool n (R (Join a b)) (R (Join a b)) (* RightOr1-2 *)*)
-    | (_, L (Join a b)) => (decideOL_bool n g (L a)) && (decideOL_bool n g (L b)) (* LeftOr *)
-    | (_, L (Not a)) => decideOL_bool n g (R a) (* LeftNot *)
-    | (R (Meet a b), _) => (decideOL_bool n (R a) d) && (decideOL_bool n (R b) d) (* RightAnd *)
-    | (R (Not a), _) => decideOL_bool n (L a) d (* RightNot *)
+    (*| (N, L (Meet a b)) => decideOL_base n (L (Meet a b)) (L (Meet a b)) (* LeftAnd1-2 *)*)
+    (*| (R (Join a b), N) => decideOL_base n (R (Join a b)) (R (Join a b)) (* RightOr1-2 *)*)
+    | (_, L (Join a b)) => (decideOL_base n g (L a)) && (decideOL_base n g (L b)) (* LeftOr *)
+    | (_, L (Not a)) => decideOL_base n g (R a) (* LeftNot *)
+    | (R (Meet a b), _) => (decideOL_base n (R a) d) && (decideOL_base n (R b) d) (* RightAnd *)
+    | (R (Not a), _) => decideOL_base n (L a) d (* RightNot *)
     | _ => 
       (* Other cases, if none of the above apply. Thos need to be disjunctively tried if multiple apply *)
         match d with (* Weaken g*)
-        | L a => decideOL_bool n g N 
-        | R a => decideOL_bool n g N 
+        | L a => decideOL_base n g N 
+        | R a => decideOL_base n g N 
         | N => false
         end ||(
         match g with (* Weaken d*)
-        | L a => decideOL_bool n d N 
-        | R a => decideOL_bool n d N 
+        | L a => decideOL_base n d N 
+        | R a => decideOL_base n d N 
         | N => false
         end ||(
         match g with (* LeftAnd1 g*)
-        | L (Meet a b) => decideOL_bool n (L a) d
+        | L (Meet a b) => decideOL_base n (L a) d
         | _ => false
         end ||(
         match d with (* LeftAnd1 d*)
-        | L (Meet a b) => decideOL_bool n (L a) g
+        | L (Meet a b) => decideOL_base n (L a) g
         | _ => false
         end ||(
         match g with (* LeftAnd2 g*)
-        | L (Meet a b) => decideOL_bool n (L b) d
+        | L (Meet a b) => decideOL_base n (L b) d
         | _ => false
         end ||(
         match d with (* LeftAnd2 d*)
-        | L (Meet a b) => decideOL_bool n (L b) g
+        | L (Meet a b) => decideOL_base n (L b) g
         | _ => false
         end ||(
         match g with (* RightOr1 g*)
-        | R (Join a b) => decideOL_bool n d (R a)
+        | R (Join a b) => decideOL_base n d (R a)
         | _ => false
         end ||(
         match d with (* RightOr1 d*)
-        | R (Join a b) => decideOL_bool n g (R a)
+        | R (Join a b) => decideOL_base n g (R a)
         | _ => false
         end ||(
         match g with (* RightOr2 g*)
-        | R (Join a b) => decideOL_bool n d (R b)
+        | R (Join a b) => decideOL_base n d (R b)
         | _ => false
         end ||(
         match d with (* RightOr2 d*)
-        | R (Join a b) => decideOL_bool n g (R b)
+        | R (Join a b) => decideOL_base n g (R b)
         | _ => false
         end ||(
         match (g, d) with
-        | (N, L(_)) => decideOL_bool n d d
-        | (N, R(_)) => decideOL_bool n d d
-        | (L(_), N) => decideOL_bool n g g
-        | (R(_), N) => decideOL_bool n g g
+        | (N, L(_)) => decideOL_base n d d
+        | (N, R(_)) => decideOL_base n d d
+        | (L(_), N) => decideOL_base n g g
+        | (R(_), N) => decideOL_base n g g
         | _ => false
         end
         ))))))))))
@@ -101,7 +101,7 @@ Hint Rewrite
   Bool.andb_true_iff Bool.orb_true_iff
   Pos.eqb_eq Nat.eqb_eq : rw_bool.
 
-Theorem decideOLBoolCorrect : forall n g d, (decideOL_bool n g d) = true -> squash (OLProof (g, d)).
+Theorem decideOL_base_correct : forall n g d, (decideOL_base n g d) = true -> squash (OLProof (g, d)).
 Proof.
   induction n; intros; simpl in *;
     repeat match goal with
@@ -115,6 +115,22 @@ Proof.
   all: clear IHn; eauto 7 with olproof.
 Qed.
 
+Lemma decideOL_base_monotonic : forall (n2 n1: nat) g d, n2 >= n1 -> decideOL_base n1 g d = true -> decideOL_base n2 g d = true.
+Proof.
+  induction n2.
+  - intros. simpl in *. assert (n1 = 0). lia. subst. simpl in *. congruence.
+  - intros. destruct n1. simpl in *; congruence. destruct g as [ | t | t ]; try destruct t.
+    all: try destruct d as [ | t0 | t0 ]; try destruct t0; simpl; simpl in H0.
+      all: repeat rewrite Bool.orb_false_r in *; repeat rewrite Bool.orb_true_iff in *; repeat rewrite Bool.andb_true_iff in *; auto.
+      all: repeat match goal with
+      | [H: _ \/ _ |- _] => destruct H; only 1: left; only 2: right
+      | [H: _ /\ _ |- _] => destruct H; split
+      | _ => idtac
+      end. all: apply (IHn2 n1); try lia; auto.
+Qed.
+
+
+
 Definition anSize (t: AnTerm) : nat := match t with
   | L t1 => 1 + termSize t1
   | R t1 => 1 + termSize t1
@@ -123,22 +139,22 @@ end.
 
 Theorem anSizePositive : forall t, anSize t >= 1. Proof. intros. destruct t; simpl; lia. Qed.
 
-Definition decideOL_bool_simp (g d: AnTerm): bool := decideOL_bool (anSize g + anSize d) g d.
+Definition decideOL_base_simp (g d: AnTerm): bool := decideOL_base (anSize g + anSize d) g d.
 
   (* Reflection: solve goals using the algorithm in arbitrary Ortholattice *)
 
 
-Theorem decideOLBoolSimpCorrect : forall g d, (decideOL_bool_simp g d) = true -> AnLeq g d.
+Theorem decideOL_base_SimpCorrect : forall g d, (decideOL_base_simp g d) = true -> AnLeq g d.
 Proof.
-  intros. assert (squash (OLProof (g, d))). apply decideOLBoolCorrect in H; auto; lia.
+  intros. assert (squash (OLProof (g, d))). apply decideOL_base_correct in H; auto; lia.
   destruct H0. apply (Soundness (g, d)). auto.
 Qed.
 
 
 
-Theorem reduceToAlgo {OL: Ortholattice} : forall t1 t2 f, (decideOL_bool_simp (L t1) (R t2)) = true -> ((eval t1 f) <= (eval t2 f)).
+Theorem reduceToAlgo {OL: Ortholattice} : forall t1 t2 f, (decideOL_base_simp (L t1) (R t2)) = true -> ((eval t1 f) <= (eval t2 f)).
 Proof.
-  intros. assert (AnLeq  (L t1) (R t2)). all: auto using decideOLBoolSimpCorrect.
+  intros. assert (AnLeq  (L t1) (R t2)). all: auto using decideOL_base_SimpCorrect.
 Qed.
 
 
