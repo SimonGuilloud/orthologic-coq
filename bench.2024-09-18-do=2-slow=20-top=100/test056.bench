@@ -15,18 +15,18 @@ Tactic call ran for 0.257 secs (0.255u,0.001s) (success)
 solved
 Tactic call ran for 0.253 secs (0.253u,0.s) (success)
 --------------------------------------------------------------------------------
-:: "test56" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+:: "test56" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: lazy
 solved
 Tactic call ran for 6.124 secs (6.111u,0.011s) (success)
 --------------------------------------------------------------------------------
-:: "test56" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+:: "test56" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: lazy
 solved
 Tactic call ran for 6.136 secs (6.119u,0.016s) (success)
 --------------------------------------------------------------------------------
-:: "test56" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+:: "test56" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: vm_compute
 solved
 Tactic call ran for 0.39 secs (0.389u,0.s) (success)
 --------------------------------------------------------------------------------
-:: "test56" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+:: "test56" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: vm_compute
 solved
 Tactic call ran for 0.397 secs (0.396u,0.s) (success)

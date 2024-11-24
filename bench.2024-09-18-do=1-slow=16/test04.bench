@@ -1,9 +1,9 @@
 --------------------------------------------------------------------------------
-:: "test04" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+:: "test04" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: lazy
 solved
 Tactic call ran for 0.011 secs (0.011u,0.s) (success)
 --------------------------------------------------------------------------------
-:: "test04" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+:: "test04" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: vm_compute
 solved
 Tactic call ran for 0.002 secs (0.002u,0.s) (success)
 --------------------------------------------------------------------------------
@@ -19,10 +19,10 @@ Tactic call ran for 0.002 secs (0.002u,0.s) (success)
 solved
 Tactic call ran for 0. secs (0.u,0.s) (success)
 --------------------------------------------------------------------------------
-:: "test04" ::: OL_Reflection_1_base.reduceToAlgo ::: lazy
+:: "test04" ::: OL_Reflection_1_base.reduce_to_decideOL ::: lazy
 solved
 Tactic call ran for 0.002 secs (0.002u,0.s) (success)
 --------------------------------------------------------------------------------
-:: "test04" ::: OL_Reflection_1_base.reduceToAlgo ::: vm_compute
+:: "test04" ::: OL_Reflection_1_base.reduce_to_decideOL ::: vm_compute
 solved
 Tactic call ran for 0.018 secs (0.012u,0.006s) (success)

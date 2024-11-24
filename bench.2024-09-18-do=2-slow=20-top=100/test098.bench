@@ -7,10 +7,10 @@ Tactic call ran for 1.04 secs (1.036u,0.004s) (success)
 solved
 Tactic call ran for 0.848 secs (0.837u,0.01s) (success)
 --------------------------------------------------------------------------------
-:: "test98" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+:: "test98" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: vm_compute
 solved
 Tactic call ran for 1.737 secs (1.73u,0.007s) (success)
 --------------------------------------------------------------------------------
-:: "test98" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+:: "test98" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: vm_compute
 solved
 Tactic call ran for 1.77 secs (1.767u,0.002s) (success)

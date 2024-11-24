@@ -101,6 +101,7 @@ Hint Rewrite
   Bool.andb_true_iff Bool.orb_true_iff
   Pos.eqb_eq Nat.eqb_eq : rw_bool.
 
+
 Theorem decideOL_base_correct : forall n g d, (decideOL_base n g d) = true -> squash (OLProof (g, d)).
 Proof.
   induction n; intros; simpl in *;
@@ -114,6 +115,7 @@ Proof.
            end.
   all: clear IHn; eauto 7 with olproof.
 Qed.
+
 
 Lemma decideOL_base_monotonic : forall (n2 n1: nat) g d, n2 >= n1 -> decideOL_base n1 g d = true -> decideOL_base n2 g d = true.
 Proof.
@@ -130,31 +132,31 @@ Proof.
 Qed.
 
 
-
-Definition anSize (t: AnTerm) : nat := match t with
-  | L t1 => 1 + termSize t1
-  | R t1 => 1 + termSize t1
+Definition anterm_size (t: AnTerm) : nat := match t with
+  | L t1 => 1 + term_size t1
+  | R t1 => 1 + term_size t1
   | N => 1
 end.
 
-Theorem anSizePositive : forall t, anSize t >= 1. Proof. intros. destruct t; simpl; lia. Qed.
 
-Definition decideOL_base_simp (g d: AnTerm): bool := decideOL_base (anSize g + anSize d) g d.
+Theorem anterm_size_positive : forall t, anterm_size t >= 1. Proof. intros. destruct t; simpl; lia. Qed.
+
+
+Definition decideOL_base_simp (g d: AnTerm): bool := decideOL_base (anterm_size g + anterm_size d) g d.
 
   (* Reflection: solve goals using the algorithm in arbitrary Ortholattice *)
 
 
-Theorem decideOL_base_SimpCorrect : forall g d, (decideOL_base_simp g d) = true -> AnLeq g d.
+Theorem decideOL_base_simp_correct : forall g d, (decideOL_base_simp g d) = true -> anTerm_leq g d.
 Proof.
   intros. assert (squash (OLProof (g, d))). apply decideOL_base_correct in H; auto; lia.
-  destruct H0. apply (Soundness (g, d)). auto.
+  destruct H0. apply (soundness (g, d)). auto.
 Qed.
 
 
-
-Theorem reduceToAlgo {OL: Ortholattice} : forall t1 t2 f, (decideOL_base_simp (L t1) (R t2)) = true -> ((eval t1 f) <= (eval t2 f)).
+Theorem reduce_to_decideOL {OL: Ortholattice} : forall t1 t2 f, (decideOL_base_simp (L t1) (R t2)) = true -> ((eval t1 f) <= (eval t2 f)).
 Proof.
-  intros. assert (AnLeq  (L t1) (R t2)). all: auto using decideOL_base_SimpCorrect.
+  intros. assert (anTerm_leq  (L t1) (R t2)). all: auto using decideOL_base_simp_correct.
 Qed.
 
 
@@ -165,7 +167,7 @@ Ltac contains x l :=
   | _ => false
   end.
 
-Ltac addIfNotExists x l :=
+Ltac add_if_not_exists x l :=
   
   let cont := contains x l in 
   match cont with
@@ -173,10 +175,10 @@ Ltac addIfNotExists x l :=
   | false => constr:(x :: l)
   end.
 
-Ltac indexOf x l :=
+Ltac index_of x l :=
   match l with
   | x :: ?tail => xH
-  | _ :: ?tail => let r := (indexOf x tail) in constr:(Pos.succ r)
+  | _ :: ?tail => let r := (index_of x tail) in constr:(Pos.succ r)
   | _ => fail "element not found. x:" x "l:" l
   end.
 
@@ -193,7 +195,7 @@ Ltac leaves AA m j n l exp :=
                  let l2 := leaves AA m j n l1 X2 in
                  constr:(l2)
   | (?op ?X1) => let __ := convertible op n in leaves AA m j n l X1
-  | ?X1 => addIfNotExists X1 l
+  | ?X1 => add_if_not_exists X1 l
   end.
 
 
@@ -206,7 +208,7 @@ Ltac reify_term OL t env := match t with
                     constr:(Join r1 r2)
   | (?op ?X1) => let __ := convertible op (@neg OL)  in let r1 := reify_term OL X1 env in
                     constr:(Not r1)
-  | ?X1 => let j := indexOf X1 env in constr:(Var j)
+  | ?X1 => let j := index_of X1 env in constr:(Var j)
 end.
 
 (* get the head of a list, if there is one (and there always is). Used in nth, to transform the list into a function nat -> A.*)
@@ -246,10 +248,8 @@ Ltac reify_goal OL :=
   | _ => fail "Should not happen"
   end.
 
-Ltac solveOL OL := 
-  reify_goal OL; apply reduceToAlgo; auto; vm_compute; (try reflexivity).
-
-
+Ltac solve_OL OL := 
+  reify_goal OL; apply reduce_to_decideOL; auto; vm_compute; (try reflexivity).
 
 
 (* Small tests *)
@@ -257,20 +257,20 @@ Ltac solveOL OL :=
 Example test1 {OL: Ortholattice} : forall a,  a <= a.
 Proof.
   intro. 
-  solveOL OL.
+  solve_OL OL.
 Qed.
 
 Example test2 {OL: Ortholattice} : forall a,  a == (a ∩ a).
 Proof.
   intro. 
-  solveOL OL.
+  solve_OL OL.
 Qed.
 
 (*
 Example test3 {OL: Ortholattice} a b c: 
   ¬(b ∪ ¬(c ∩ ¬b) ∪ a) <= (¬a ∪ ¬(b ∩ ¬a)).
 Proof.
-  solveOL OL.
+  solve_OL OL.
 Qed.
 *)
 
@@ -278,43 +278,41 @@ Qed.
 Example test4 : forall a: (@A BoolOL),  a <= (a || a).
 Proof.
   intro.
-  solveOL BoolOL.
+  solve_OL BoolOL.
 Qed.
-
 
 
 Example test5 : forall a: (@A BoolOL), Bool.le a (andb a a).
 Proof.
   intro. 
-  solveOL BoolOL.
+  solve_OL BoolOL.
 Qed.
 
 
 Example test6 : forall a b : bool,   ( a ∩ (neg a)) <= b.
 Proof.
   intros.
-  solveOL BoolOL.
+  solve_OL BoolOL.
 Qed.
 
 
 Example test7 : forall a b : bool,  Bool.le (andb a (negb a)) b.
 Proof.
   intros. 
-  solveOL BoolOL.
+  solve_OL BoolOL.
 Qed.
 
 
 Example test8 : forall a b c: bool,  (a ∩ (negb a)) <= (a || (b && c)).
 Proof.
   intros. 
-  solveOL BoolOL.
+  solve_OL BoolOL.
 Qed.
-
 
 
 Example test9 {OL: Ortholattice} a b c: 
   c <= ((a ∩ b) ∪ (¬a) ∪ (¬b)).
 Proof.
-  solveOL OL.
+  solve_OL OL.
 Qed.
 

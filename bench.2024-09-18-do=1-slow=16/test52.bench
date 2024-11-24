@@ -1,9 +1,9 @@
 --------------------------------------------------------------------------------
-:: "test52" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+:: "test52" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: lazy
 solved
 Tactic call ran for 5.098 secs (5.08u,0.018s) (success)
 --------------------------------------------------------------------------------
-:: "test52" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+:: "test52" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: vm_compute
 solved
 Tactic call ran for 0.32 secs (0.319u,0.s) (success)
 --------------------------------------------------------------------------------

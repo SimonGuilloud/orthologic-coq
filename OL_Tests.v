@@ -1,5 +1,6 @@
 Require Import OL_Bench.
 
+
 Theorem test2 (x0 x1 x2 x3 x4 x5: bool) :
   ((((x0||x1))))
   =
@@ -7,6 +8,7 @@ Theorem test2 (x0 x1 x2 x3 x4 x5: bool) :
 Proof.
   benchAll "test2".
 Abort.
+
 
 Theorem test5 (x0 x1 x2 x3 x4 x5: bool) :
   (((((x0||x1)&&(x2||x3))&&(x4||x5))))
@@ -16,6 +18,7 @@ Proof.
   benchAll "test5".
 Abort.
 
+
 Theorem test10 (x0 x1 x2 x3 x4 x5 x6 x7 x8 x9: bool) :
   ((((((x0||x1)&&(x2||x3))&&(x4||x5))&&(x6||x7))&&(x8||x9)))
     =
@@ -23,6 +26,7 @@ Theorem test10 (x0 x1 x2 x3 x4 x5 x6 x7 x8 x9: bool) :
 Proof.
   benchAll "test10".
 Abort.
+
 
 Theorem test15 (x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15: bool) :
   ((((((((x0||x1)&&(x2||x3))&&(x4||x5))&&(x6||x7))&&(x8||x9))&&(x10||x11))&&(x12||x13))&&(x14||x15))
@@ -32,6 +36,7 @@ Proof.
   benchAll "test15".
 Abort.
 
+
 Theorem test20 (x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 x16 x17 x18 x19 x20: bool) :
   ((((((((((x0||x1)&&(x2||x3))&&(x4||x5))&&(x6||x7))&&(x8||x9))&&(x10||x11))&&(x12||x13))&&(x14||x15))&&(x16||x17))&&(x18||x19))
     =
@@ -39,6 +44,7 @@ Theorem test20 (x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 x16 x17 x1
 Proof.
   benchAll "test20".
 Abort.
+
 
 Theorem test25 (x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 x16 x17 x18 x19 x20 x21 x22 x23 x24 x25: bool) :
   (((((((((((((x0||x1)&&(x2||x3))&&(x4||x5))&&(x6||x7))&&(x8||x9))&&(x10||x11))&&(x12||x13))&&(x14||x15))&&(x16||x17))&&(x18||x19))&&(x20||x21))&&(x22||x23))&&(x24||x25))
@@ -48,6 +54,7 @@ Proof.
   benchAll "test25".
 Abort.
 
+
 Theorem test30 (x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 x16 x17 x18 x19 x20 x21 x22 x23 x24 x25 x26 x27 x28 x29 x30: bool) :
   (((((((((((((((x0||x1)&&(x2||x3))&&(x4||x5))&&(x6||x7))&&(x8||x9))&&(x10||x11))&&(x12||x13))&&(x14||x15))&&(x16||x17))&&(x18||x19))&&(x20||x21))&&(x22||x23))&&(x24||x25))&&(x26||x27))&&(x28||x29))
     =
@@ -55,6 +62,7 @@ Theorem test30 (x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 x16 x17 x1
 Proof.
   benchAll "test30".
 Abort.
+
 
 Theorem test35 (x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 x16 x17 x18 x19 x20 x21 x22 x23 x24 x25 x26 x27 x28 x29 x30 x31 x32 x33 x34 x35: bool) :
   ((((((((((((((((((x0||x1)&&(x2||x3))&&(x4||x5))&&(x6||x7))&&(x8||x9))&&(x10||x11))&&(x12||x13))&&(x14||x15))&&(x16||x17))&&(x18||x19))&&(x20||x21))&&(x22||x23))&&(x24||x25))&&(x26||x27))&&(x28||x29))&&(x30||x31))&&(x32||x33))&&(x34||x35))
@@ -64,6 +72,7 @@ Proof.
   benchAll "test35".
 Abort.
 
+
 Theorem test40 (x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 x16 x17 x18 x19 x20 x21 x22 x23 x24 x25 x26 x27 x28 x29 x30 x31 x32 x33 x34 x35 x36 x37 x38 x39 x40: bool) :
   ((((((((((((((((((((x0||x1)&&(x2||x3))&&(x4||x5))&&(x6||x7))&&(x8||x9))&&(x10||x11))&&(x12||x13))&&(x14||x15))&&(x16||x17))&&(x18||x19))&&(x20||x21))&&(x22||x23))&&(x24||x25))&&(x26||x27))&&(x28||x29))&&(x30||x31))&&(x32||x33))&&(x34||x35))&&(x36||x37))&&(x38||x39))
     =
@@ -71,6 +80,7 @@ Theorem test40 (x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 x16 x17 x1
 Proof.
   benchAll "test40".
 Abort.
+
 
 Theorem test45 (x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 x16 x17 x18 x19 x20 x21 x22 x23 x24 x25 x26 x27 x28 x29 x30 x31 x32 x33 x34 x35 x36 x37 x38 x39 x40 x41 x42 x43 x44 x45: bool) :
   (((((((((((((((((((((((x0||x1)&&(x2||x3))&&(x4||x5))&&(x6||x7))&&(x8||x9))&&(x10||x11))&&(x12||x13))&&(x14||x15))&&(x16||x17))&&(x18||x19))&&(x20||x21))&&(x22||x23))&&(x24||x25))&&(x26||x27))&&(x28||x29))&&(x30||x31))&&(x32||x33))&&(x34||x35))&&(x36||x37))&&(x38||x39))&&(x40||x41))&&(x42||x43))&&(x44||x45))
@@ -81,7 +91,6 @@ Proof.
 Abort.
 
 
-
 Theorem random8 (x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 x16 x17 x18 x19 x20: bool) :
   ((!x9&&!x14)||((!x16||x12)&&((x0&&x11)||!x19||((!x11||!x0)&&!x3&&!x5&&((x10&&x10)||x9)))&&!x0)||(((!x14&&!x10)||x4||x0||!x0||!x1||((!x19||x17)&&!x13)||!x10||(x15&&(x8||x11)&&x7)||!x7||!x14||x11)&&x7&&(((x13||x4)&&x9)||((!x9||!x1||!x3)&&!x18))))
     =
@@ -90,6 +99,7 @@ Proof.
   benchAll "random8".
 Abort.
 
+
 Theorem random9 (x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 x16 x17 x18 x19 x20: bool) :
   ((x14||x17||!x2||x16||(x7&&x14)||x3||(x15&&x8)||(!x18&&!x17)||(x2&&!x13&&!x2&&x0))&&(((x1||x1)&&x18)||x7||!x7||!x3)&&(((x19||x19)&&!x16)||(!x12&&!x12))&&((((x9&&!x6)||(!x2&&x7)||x19)&&!x6)||x4)&&((x6&&!x16&&(!x7||x14||!x3))||(x15&&x2))&&!x6)
     =
@@ -97,6 +107,7 @@ Theorem random9 (x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 x16 x17 x
 Proof.
   benchAll "random9".
 Abort.
+
 
 Theorem random10 (x0 x1 x2 x3 x4 x5 x6 x7 x8 x9 x10 x11 x12 x13 x14 x15 x16 x17 x18 x19 x20: bool) :
   (((!x13||(!x2&&x15&&x1))&&x14&&(x12||x10||x11||((!x3||x14)&&x5)||(!x16&&!x11))&&!x9&&x11)||!x6||(((!x19&&!x3&&x19)||x2||((!x10||!x12)&&!x17)||(!x15&&x8)||(!x1&&x16)||x16)&&(!x5||x2||!x3||x9))||(x17&&x8&&!x4)||!x11||x19||x3)

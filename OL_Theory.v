@@ -9,7 +9,6 @@ Open Scope bool_scope.
 Generalizable All Variables.
 
 
-
 Reserved Infix "==" (at level 145, left associativity).
 Reserved Infix "∪" (at level 40, left associativity).
 Reserved Infix "∩" (at level 40, left associativity).
@@ -52,7 +51,6 @@ Infix "<=" := leq.
 Infix "==" := equiv.
 
 
-
 (* Some useful lemmas needed for Withman's algorithm*)
 Lemma swap_equiv {OL: Ortholattice} x y: (x == y) -> y == x. Proof. intro. rewrite equiv_leq in *. exact (conj (proj2 H) (proj1 H)).  Qed.
 Lemma glb1 {OL: Ortholattice} x y z: y <= x -> y ∩ z <= x. Proof. intros. apply P2 with y. apply P4. auto. Qed.
@@ -82,7 +80,7 @@ end.
 Lemma example {OL: Ortholattice} a b : (a ∩ b) <= (a ∪ b).
 Proof. withman. Qed.
 
-Instance Equivalence_eq {OL: Ortholattice}: Equivalence equiv.
+Instance equivalence_eq {OL: Ortholattice}: Equivalence equiv.
   constructor.
   - intro. withman.
   - unfold Symmetric; intros. rewrite equiv_leq in *. intuition.
@@ -97,21 +95,20 @@ Ltac destruct_equiv := match goal with
   | [H: (equiv ?x ?y) |- _] => destruct H
 end.
 
-Instance Proper_meet {OL: Ortholattice}: Proper (equiv ==> equiv ==> equiv) meet. 
+Instance proper_meet {OL: Ortholattice}: Proper (equiv ==> equiv ==> equiv) meet. 
   unfold Proper. unfold respectful. intros. rewrite equiv_leq in *. intuition; withman.
 Qed.
 
 
-
-Instance Proper_join {OL: Ortholattice}: Proper (equiv ==> equiv ==> equiv) join.
+Instance proper_join {OL: Ortholattice}: Proper (equiv ==> equiv ==> equiv) join.
   unfold Proper. unfold respectful. intros. rewrite equiv_leq in *. intuition; withman.
 Qed.
 
-Instance Proper_neg {OL: Ortholattice}: Proper (equiv ==> equiv) neg.
+Instance proper_neg {OL: Ortholattice}: Proper (equiv ==> equiv) neg.
   unfold Proper. unfold respectful. intros. rewrite equiv_leq in *. intuition; withman.
 Qed.
 
-Instance Proper_leq {OL: Ortholattice}: Proper (equiv ==> equiv ==> iff) leq. split; rewrite equiv_leq in *; intuition.
+Instance proper_leq {OL: Ortholattice}: Proper (equiv ==> equiv ==> iff) leq. split; rewrite equiv_leq in *; intuition.
   - apply P2 with x; withman. apply P2 with x0; withman.
   - apply P2 with y; withman. apply P2 with y0; withman.
 Qed.
@@ -130,6 +127,7 @@ Lemma V8 {OL: Ortholattice} x y : ¬ (x ∪ y) == (¬ x) ∩ (¬ y). Proof.
 Qed.
 Lemma V9 {OL: Ortholattice} x y : x ∪ (x ∩ y) == x. Proof. withman. Qed.
 
+
 Lemma V1' {OL: Ortholattice} x y : x ∩ y == y ∩ x. Proof. withman. Qed.
 Lemma V2' {OL: Ortholattice} x y z : (x ∩ y) ∩ z == x ∩ (y ∩ z). Proof. withman. Qed.
 Lemma V3' {OL: Ortholattice} x : x ∩ x == x. Proof. withman. Qed.
@@ -139,9 +137,6 @@ Lemma V8' {OL: Ortholattice} x y : ¬ (x ∩ y) == (¬ x) ∪ (¬ y). Proof.
   - rewrite <- (V6 y) at 2. withman.
 Qed.
 Lemma V9' {OL: Ortholattice} x y : x ∩ (x ∪ y) == x. Proof. withman. Qed.
-
-
-
 
 
   (* Term Algebra *)
@@ -154,8 +149,9 @@ Inductive Term : Set :=
   | Join : Term -> Term -> Term
   | Not : Term -> Term.
 
-Definition Zero := Meet (Var xH) (Not (Var xH)).
-Definition One := Join (Var xH) (Not (Var xH)).
+
+Definition zero := Meet (Var xH) (Not (Var xH)).
+Definition one := Join (Var xH) (Not (Var xH)).
 
 
   (* Evaluation of a term in an arbitrary ortholattice *)
@@ -169,11 +165,10 @@ Fixpoint eval {OL: Ortholattice} (t: Term) (f: positive -> A) : A :=
   end.
 
 
-Definition Leq (t1 t2: Term) : Prop := forall (OL: Ortholattice), 
+Definition term_leq (t1 t2: Term) : Prop := forall (OL: Ortholattice), 
   forall f: positive -> A, eval t1 f <= eval t2 f.
 
-Declare Instance Proper_eval {OL: Ortholattice}: Proper (eq ==> eq ==> eq) eval.
-
+Declare Instance proper_eval {OL: Ortholattice}: Proper (eq ==> eq ==> eq) eval.
 
 
   (* Proof System *)
@@ -204,70 +199,76 @@ Inductive OLProof : AnTerm*AnTerm -> Set :=
 
 (* Semantic truth of a sequent *)
 
-Definition Interp t: Term := match t with
+Definition interp t: Term := match t with
   | L a => a
   | R a => Not a
-  | N => One
+  | N => one
 end.
 
-Definition NotInterp t: Term := match t with
+
+Definition not_interp t: Term := match t with
   | L a => Not a
   | R a => a
-  | N => Zero
+  | N => zero
 end.
 
 
-Definition AnLeq (l r : AnTerm): Prop := 
-  Leq (Interp l) (NotInterp r).
+Definition anTerm_leq (l r : AnTerm): Prop := 
+  term_leq (interp l) (not_interp r).
 
-Notation "⊢ a b" := (AnLeq a b _) (at level 90).
+Notation "⊢ a b" := (anTerm_leq a b _) (at level 90).
 
-  (* In particular, ⊢ (L a) (R b)   <->   Leq a b  *)
+  (* In particular, ⊢ (L a) (R b)   <->   leq a b  *)
 
 
   (* Some useful lemmas *)
 
-Lemma ZeroMin {OL: Ortholattice} : forall f t, eval Zero f <= eval t f.
+Lemma zero_min {OL: Ortholattice} : forall f t, eval zero f <= eval t f.
 Proof.
   intros.
-  unfold Zero.
+  unfold zero.
   unfold eval.
   apply P9.
 Qed.
 
-Lemma OneMax {OL: Ortholattice} : forall f t, eval t f <= eval One f.
+
+Lemma one_max {OL: Ortholattice} : forall f t, eval t f <= eval one f.
 Proof.
   intros.
-  unfold One.
+  unfold one.
   unfold eval.
   apply P9'.
 Qed.
 
-Lemma ZeroEq {OL: Ortholattice} : forall f t, eval Zero f == eval (Meet t (Not t)) f.
+
+Lemma zero_eq {OL: Ortholattice} : forall f t, eval zero f == eval (Meet t (Not t)) f.
 Proof.
   intros.
-  unfold Zero.
+  unfold zero.
   rewrite equiv_leq; split; apply P9.
 Qed.
 
-Lemma OneEq {OL: Ortholattice} : forall f t, eval One f == eval (Join t (Not t)) f.
+
+Lemma one_eq {OL: Ortholattice} : forall f t, eval one f == eval (Join t (Not t)) f.
 Proof.
   intros.
-  unfold One.
+  unfold one.
   rewrite equiv_leq; split; apply P9'.
 Qed.
 
-Lemma ContractSoundness {OL: Ortholattice} : forall f t, eval t f <= eval (Not t) f -> eval t f == eval Zero f.
+
+Lemma contract_soundness {OL: Ortholattice} : forall f t, eval t f <= eval (Not t) f -> eval t f == eval zero f.
 Proof.
   intros.
-  rewrite  (ZeroEq f t). rewrite equiv_leq; split; simpl.
+  rewrite  (zero_eq f t). rewrite equiv_leq; split; simpl.
   - apply P6.
     + apply P1.
     + auto.
   - apply P4.
 Qed.
 
-Theorem swapInterp {OL: Ortholattice} a f: eval (NotInterp a) f == ¬ eval (Interp a) f.
+
+Theorem swap_interp {OL: Ortholattice} a f: eval (not_interp a) f == ¬ eval (interp a) f.
 Proof.
   destruct a; simpl.
   - withman. apply P9. rewrite V8. apply P9.
@@ -276,85 +277,86 @@ Proof.
 Qed.
 
 
-(* Soundness *)
+(* soundness *)
 
-Theorem Soundness s (p: OLProof s) : AnLeq (fst s) (snd s).
+Theorem soundness s (p: OLProof s) : anTerm_leq (fst s) (snd s).
 Proof.
   intros.
   induction p.
-  - unfold AnLeq, Leq, Interp, NotInterp.
+  - unfold anTerm_leq, term_leq, interp, not_interp.
     intros.
     simpl.
     apply P1.
-  - unfold AnLeq, Leq, Interp, NotInterp in *; simpl in *.
+  - unfold anTerm_leq, term_leq, interp, not_interp in *; simpl in *.
     intros.
-    apply P2 with (eval Zero f). apply IHp. apply ZeroMin.
-  - unfold AnLeq, Leq, Interp, NotInterp in *; simpl in *.
+    apply P2 with (eval zero f). apply IHp. apply zero_min.
+  - unfold anTerm_leq, term_leq, interp, not_interp in *; simpl in *.
     intros.
     destruct gamma. auto. 
-      + assert (eval t f == eval Zero f).
-        apply ContractSoundness. auto.
+      + assert (eval t f == eval zero f).
+        apply contract_soundness. auto.
         rewrite H. apply P1.
-      + assert (eval (Not t) f == eval Zero f).
-        apply ContractSoundness. unfold eval. rewrite V6. fold eval. apply IHp.
+      + assert (eval (Not t) f == eval zero f).
+        apply contract_soundness. unfold eval. rewrite V6. fold eval. apply IHp.
         rewrite H. apply P1.
 
-  - unfold AnLeq, Leq, Interp, NotInterp in *; simpl in *.
+  - unfold anTerm_leq, term_leq, interp, not_interp in *; simpl in *.
     intros. (* eauto using P2, P4. *)
     apply P2 with (eval a f). apply P4. apply IHp.
-  - unfold AnLeq, Leq, Interp, NotInterp in *; simpl in *.
+  - unfold anTerm_leq, term_leq, interp, not_interp in *; simpl in *.
     intros.
     apply P2 with (eval b f). apply P5. apply IHp.
-  - unfold AnLeq, Leq, Interp, NotInterp in *; simpl in *.
+  - unfold anTerm_leq, term_leq, interp, not_interp in *; simpl in *.
     intros.
     apply P6'.  apply IHp1. apply IHp2.
-  - unfold AnLeq, Leq in *; simpl in *.
+  - unfold anTerm_leq, term_leq in *; simpl in *.
     intros. specialize (IHp OL f). auto.
-  - unfold AnLeq, Leq, Interp, NotInterp in *; simpl in *.
+  - unfold anTerm_leq, term_leq, interp, not_interp in *; simpl in *.
     intros. 
     apply P6.  apply IHp1. apply IHp2.
-  - unfold AnLeq, Leq, Interp, NotInterp in *; simpl in *.
+  - unfold anTerm_leq, term_leq, interp, not_interp in *; simpl in *.
     intros.
     apply P2 with (eval a f). apply IHp. apply P4'.  
-  - unfold AnLeq, Leq, Interp, NotInterp in *; simpl in *.
+  - unfold anTerm_leq, term_leq, interp, not_interp in *; simpl in *.
     intros.
     apply P2 with (eval b f). apply IHp. apply P5'.
-  - unfold AnLeq, Leq, Interp, NotInterp in *; simpl in *.
+  - unfold anTerm_leq, term_leq, interp, not_interp in *; simpl in *.
     intros. auto.
-  - unfold AnLeq, Leq in *; simpl in *.
+  - unfold anTerm_leq, term_leq in *; simpl in *.
     intros.
     specialize (IHp OL f).
-    rewrite swapInterp. rewrite swapInterp in IHp. rewrite <- V6 at 1. apply P8. exact IHp.
-  - unfold AnLeq, Leq, Interp, NotInterp in *; simpl in *.
+    rewrite swap_interp. rewrite swap_interp in IHp. rewrite <- V6 at 1. apply P8. exact IHp.
+  - unfold anTerm_leq, term_leq, interp, not_interp in *; simpl in *.
     intros.
     apply P2 with (eval b f). apply IHp1. apply IHp2.
   
 Qed.
 
 
-(* Completeness *)
+(* completeness *)
 
 Inductive squash (T:Type) : Prop :=
   | Squash (t: T) : squash T.
 
 Ltac sq := apply Squash.
 
-Definition hasProof (l: Term) (r: Term): Prop := squash (OLProof (L l, R r)).
 
-Lemma proof_exists {l r: Term} (p: OLProof (L l, R r)): hasProof l r.
+Definition has_proof (l: Term) (r: Term): Prop := squash (OLProof (L l, R r)).
+
+
+Lemma proof_exists {l r: Term} (p: OLProof (L l, R r)): has_proof l r.
 Proof.
   constructor. exact p.
 Qed.
 
 
-
 #[refine] Instance TermOL : Ortholattice := {
     A := Term;
-    leq := hasProof;
+    leq := has_proof;
     meet := Meet;
     join := Join;
     neg := Not;
-    equiv := fun x y => (hasProof x y) /\ (hasProof y x);
+    equiv := fun x y => (has_proof x y) /\ (has_proof y x);
   }.
 Proof.
   all: intros.
@@ -374,7 +376,8 @@ Proof.
   - apply proof_exists. apply Swap. apply Weaken. apply Contract. apply RightOr1. apply Swap. apply RightOr2. apply RightNot. apply Swap. apply Hyp.
 Defined.
 
-Lemma Var_eval (t: Term ): @eval TermOL t Var = t.
+
+Lemma var_eval (t: Term ): @eval TermOL t Var = t.
 Proof.
   induction t.
   - auto.
@@ -383,14 +386,15 @@ Proof.
   - simpl. rewrite IHt. auto.
 Qed.
 
-Theorem Completeness l r : Leq l r -> hasProof l r.
+
+Theorem completeness l r : term_leq l r -> has_proof l r.
 Proof.
   intros. specialize (H TermOL Var).
-  destruct H as [p]. repeat rewrite Var_eval in p. sq. exact p.
+  destruct H as [p]. repeat rewrite var_eval in p. sq. exact p.
 Qed.
 
 
-  (* Useful lemma using Soundness *)
+  (* Useful lemma using soundness *)
 
 
 #[refine] Instance BoolOL : Ortholattice := {
@@ -419,51 +423,53 @@ Proof.
   - destruct x, y; simpl in *; auto.
 Defined.
 
-Theorem NoProofNN (P: OLProof (N, N)): False.
+
+Theorem no_proof_NN (P: OLProof (N, N)): False.
 Proof.
-  pose (@Weaken _ (L One) (Swap (@Weaken _ (R Zero) P))) as P2.
-  assert (not (AnLeq (R Zero) (L One))).
-    - intro. unfold AnLeq, Leq in *. specialize (H BoolOL).  simpl in *. specialize (H (fun _ => false)). simpl in *. discriminate.
-    - apply H. intros. remember (Soundness (R Zero, L One) P2) as s. simpl in *. auto.
+  pose (@Weaken _ (L one) (Swap (@Weaken _ (R zero) P))) as P2.
+  assert (not (anTerm_leq (R zero) (L one))).
+    - intro. unfold anTerm_leq, leq in *. specialize (H BoolOL).  simpl in *. specialize (H (fun _ => false)). simpl in *. discriminate.
+    - apply H. intros. remember (soundness (R zero, L one) P2) as s. simpl in *. auto.
 Qed.
 
 
   (* Cut Elimination *)
 
-Fixpoint isCutFree {s: AnTerm * AnTerm} (p : OLProof s) : Prop := match p with
+Fixpoint is_cut_free {s: AnTerm * AnTerm} (p : OLProof s) : Prop := match p with
   | Hyp => True
-  | Weaken p => isCutFree p
-  | Contract p => isCutFree p
-  | Swap p => isCutFree p
-  | LeftAnd1 p => isCutFree p
-  | LeftAnd2 p => isCutFree p
-  | LeftOr p1 p2 => isCutFree p1 /\ isCutFree p2
-  | LeftNot p => isCutFree p
-  | RightAnd p1 p2 => isCutFree p1 /\ isCutFree p2
-  | RightOr1 p => isCutFree p
-  | RightOr2 p => isCutFree p
-  | RightNot p => isCutFree p
+  | Weaken p => is_cut_free p
+  | Contract p => is_cut_free p
+  | Swap p => is_cut_free p
+  | LeftAnd1 p => is_cut_free p
+  | LeftAnd2 p => is_cut_free p
+  | LeftOr p1 p2 => is_cut_free p1 /\ is_cut_free p2
+  | LeftNot p => is_cut_free p
+  | RightAnd p1 p2 => is_cut_free p1 /\ is_cut_free p2
+  | RightOr1 p => is_cut_free p
+  | RightOr2 p => is_cut_free p
+  | RightNot p => is_cut_free p
   | Cut p1 p2 => False
 end.
 
 
-Fixpoint NumCut {s: AnTerm * AnTerm} (p : OLProof s) : nat := match p with
+Fixpoint num_cut {s: AnTerm * AnTerm} (p : OLProof s) : nat := match p with
   | Hyp => 0
-  | Weaken p => NumCut p
-  | Contract p => NumCut p
-  | Swap p => NumCut p
-  | LeftAnd1 p => NumCut p
-  | LeftAnd2 p => NumCut p
-  | LeftOr p1 p2 => NumCut p1 + NumCut p2
-  | LeftNot p => NumCut p
-  | RightAnd p1 p2 => NumCut p1 + NumCut p2
-  | RightOr1 p => NumCut p
-  | RightOr2 p => NumCut p
-  | RightNot p => NumCut p
-  | Cut p1 p2 => 1 + NumCut p1 + NumCut p2
+  | Weaken p => num_cut p
+  | Contract p => num_cut p
+  | Swap p => num_cut p
+  | LeftAnd1 p => num_cut p
+  | LeftAnd2 p => num_cut p
+  | LeftOr p1 p2 => num_cut p1 + num_cut p2
+  | LeftNot p => num_cut p
+  | RightAnd p1 p2 => num_cut p1 + num_cut p2
+  | RightOr1 p => num_cut p
+  | RightOr2 p => num_cut p
+  | RightNot p => num_cut p
+  | Cut p1 p2 => 1 + num_cut p1 + num_cut p2
 end.
 
-Lemma NumCut_CutFree {s: AnTerm * AnTerm} (p : OLProof s) : isCutFree p <-> NumCut p = 0.
+
+Lemma cut_free_eq_zero_cut {s: AnTerm * AnTerm} (p : OLProof s) : is_cut_free p <-> num_cut p = 0.
   induction p. all: simpl. all: intuition.
   - lia.
   - apply H0. lia.
@@ -474,43 +480,44 @@ Lemma NumCut_CutFree {s: AnTerm * AnTerm} (p : OLProof s) : isCutFree p <-> NumC
 - lia.
 Qed.
 
-Fixpoint termSize (t: Term) : nat := match t with
+
+Fixpoint term_size (t: Term) : nat := match t with
   | Var _ => 1
-  | Meet t1 t2 => 1 + termSize t1 + termSize t2
-  | Join t1 t2 => 1 + termSize t1 + termSize t2
-  | Not t1 => 1 + termSize t1
+  | Meet t1 t2 => 1 + term_size t1 + term_size t2
+  | Join t1 t2 => 1 + term_size t1 + term_size t2
+  | Not t1 => 1 + term_size t1
 end.
 
   (* First measure for induction *)
 
   (* Starting with size 1 and not 0 is useful because when doing induction we never have to analyze the case where a proof has size 0 *)
-Fixpoint Size {s: AnTerm * AnTerm} (p : OLProof s) : nat := match p with
+Fixpoint proof_size {s: AnTerm * AnTerm} (p : OLProof s) : nat := match p with
   | Hyp => 1 
-  | Weaken p => S (S (Size p))
-  | Contract p => S (S (Size p))
-  | Swap p => S (Size p)
-  | LeftAnd1 p => S (S (Size p))
-  | LeftAnd2 p => S (S (Size p))
-  | LeftOr p1 p2 => S (S ( (Size p1) + (Size p2)))
-  | LeftNot p => S (S (Size p))
-  | RightAnd p1 p2 => S (S ( (Size p1) + (Size p2)))
-  | RightOr1 p => S (S (Size p))
-  | RightOr2 p => S (S (Size p))
-  | RightNot p => S (S (Size p))
-  | Cut p1 p2 => S (S ( (Size p1) + (Size p2)))
+  | Weaken p => S (S (proof_size p))
+  | Contract p => S (S (proof_size p))
+  | Swap p => S (proof_size p)
+  | LeftAnd1 p => S (S (proof_size p))
+  | LeftAnd2 p => S (S (proof_size p))
+  | LeftOr p1 p2 => S (S ( (proof_size p1) + (proof_size p2)))
+  | LeftNot p => S (S (proof_size p))
+  | RightAnd p1 p2 => S (S ( (proof_size p1) + (proof_size p2)))
+  | RightOr1 p => S (S (proof_size p))
+  | RightOr2 p => S (S (proof_size p))
+  | RightNot p => S (S (proof_size p))
+  | Cut p1 p2 => S (S ( (proof_size p1) + (proof_size p2)))
 end.
 
 
   (* Core Theorem *)
-Lemma InnerCutElim : forall
+Lemma inner_cut_elim : forall
   (fuelB: nat) 
-  (b: Term) (good_fuelB: fuelB >= termSize b)
+  (b: Term) (good_fuelB: fuelB >= term_size b)
   (fuelSize: nat)
   (gamma: AnTerm) (delta: AnTerm)
-  (A: OLProof (gamma, R b)) (p1: isCutFree A) 
-  (B: OLProof (L b, delta)) (p2: isCutFree B) 
-  (good_fuelSize: fuelSize >= (Size A + Size B)), 
-  {p: OLProof (gamma, delta) | isCutFree p}.
+  (A: OLProof (gamma, R b)) (p1: is_cut_free A) 
+  (B: OLProof (L b, delta)) (p2: is_cut_free B) 
+  (good_fuelSize: fuelSize >= (proof_size A + proof_size B)), 
+  {p: OLProof (gamma, delta) | is_cut_free p}.
 Proof.
   induction fuelB.
   {intros. destruct b; simpl in *; lia. }
@@ -521,27 +528,27 @@ Proof.
   (* Tactics handling recursion, proving the necessary fuel properties and the cut-freeness of parameters of the recursive calls *)
   Tactic Notation "cutelimSize" ident(fuelSize) constr(A) constr(B) := 
     let gS := (fresh "gS") in let cfA := (fresh "cfA") in let cfB := (fresh "cfB") in
-      assert (fuelSize >= Size A + Size B) as gS; (only 2: assert (isCutFree A) as cfA); (only 3: assert (isCutFree B) as cfB);
+      assert (fuelSize >= proof_size A + proof_size B) as gS; (only 2: assert (is_cut_free A) as cfA); (only 3: assert (is_cut_free B) as cfB);
       (match goal with 
-        | [IHfuelSize : forall (gamma delta : AnTerm) (A : OLProof _), isCutFree A -> forall B : OLProof _, isCutFree B -> fuelSize >= Size A + Size B -> {p : OLProof (gamma, delta) | isCutFree p} |- {p: OLProof ?s | _}]  => 
+        | [IHfuelSize : forall (gamma delta : AnTerm) (A : OLProof _), is_cut_free A -> forall B : OLProof _, is_cut_free B -> fuelSize >= proof_size A + proof_size B -> {p : OLProof (gamma, delta) | is_cut_free p} |- {p: OLProof ?s | _}]  => 
           try (exact (IHfuelSize _ _ A cfA B cfB gS));
           let P := fresh "P" in let CF := fresh "CF" in destruct (IHfuelSize _ _ A cfA B cfB gS) as [P CF]
-        | [ |- _ >= (Size _ + Size _)] => (subst; simpl in *; (try lia))
-        | [ |- _ >= (termSize _)] => (subst; simpl in *; (try lia))
-        | [ |- isCutFree _] => (subst; simpl in *; intuition)
+        | [ |- _ >= (proof_size _ + proof_size _)] => (subst; simpl in *; (try lia))
+        | [ |- _ >= (term_size _)] => (subst; simpl in *; (try lia))
+        | [ |- is_cut_free _] => (subst; simpl in *; intuition)
       end).
 
   Tactic Notation "cutelimb" ident(fuelSize) ident(fuelB) constr(b) constr(A) constr(B) := 
     let gS := (fresh "gS") in let gb := (fresh "gb") in let cfA := (fresh "cfA") in let cfB := (fresh "cfB") in
-      assert (Size A + Size B >= Size A + Size B) as gS; (only 2: assert (fuelB >= termSize b) as gb); (only 3: assert (isCutFree A) as cfA); (only 4: assert (isCutFree B) as cfB);
+      assert (proof_size A + proof_size B >= proof_size A + proof_size B) as gS; (only 2: assert (fuelB >= term_size b) as gb); (only 3: assert (is_cut_free A) as cfA); (only 4: assert (is_cut_free B) as cfB);
       (match goal with 
-        | [IHfuelB : forall b : Term, fuelB >= termSize b -> forall (fuelSize : nat) (gamma delta : AnTerm) (A : OLProof (gamma, R b)), 
-                     isCutFree A -> forall B : OLProof (L b, delta), isCutFree B -> fuelSize >= Size A + Size B -> {p : OLProof _ | isCutFree p} |- {p: OLProof ?s | _}]  => 
-            try (exact (IHfuelB b gb (Size A + Size B) _ _ A cfA B cfB gS));
-            let P := fresh "P" in let CF := fresh "CF" in destruct (IHfuelB b gb (Size A + Size B) _ _ A cfA B cfB gS) as [P CF]
-        | [ |- _ >= (Size _ + Size _)] => (subst; simpl in *; (try lia))
-        | [ |- _ >= (termSize _)] => (subst; simpl in *; (try lia))
-        | [ |- isCutFree _] => (subst; simpl in *; intuition)
+        | [IHfuelB : forall b : Term, fuelB >= term_size b -> forall (fuelSize : nat) (gamma delta : AnTerm) (A : OLProof (gamma, R b)), 
+                     is_cut_free A -> forall B : OLProof (L b, delta), is_cut_free B -> fuelSize >= proof_size A + proof_size B -> {p : OLProof _ | is_cut_free p} |- {p: OLProof ?s | _}]  => 
+            try (exact (IHfuelB b gb (proof_size A + proof_size B) _ _ A cfA B cfB gS));
+            let P := fresh "P" in let CF := fresh "CF" in destruct (IHfuelB b gb (proof_size A + proof_size B) _ _ A cfA B cfB gS) as [P CF]
+        | [ |- _ >= (proof_size _ + proof_size _)] => (subst; simpl in *; (try lia))
+        | [ |- _ >= (term_size _)] => (subst; simpl in *; (try lia))
+        | [ |- is_cut_free _] => (subst; simpl in *; intuition)
       end).
 
 
@@ -553,7 +560,7 @@ Proof.
     Ltac cutContradict := simpl in *; exfalso; auto.
 
     (* Complete the proofs of the easy side conditions *)
-    Ltac finish := simpl termSize in *; simpl isCutFree in *; intuition; lia.
+    Ltac finish := simpl term_size in *; simpl is_cut_free in *; intuition; lia.
     
     
     (* Let's do the case analysis. In theory there should be more than 500 cases, but fortunately, we can do *some* of them at once. *)
@@ -675,7 +682,7 @@ Proof.
       + cutelimSize fuelSize (Swap A') B'. exists (Weaken P). finish.
       + simpl in *. analyze A' good_fuelSize good_fuelB p1. all: try (rename o into A1). all: try (rename o0 into A2).
         * cutelimSize fuelSize (Swap A1) (Contract B'). exists (Swap (Weaken P)). auto.
-        * exfalso. apply NoProofNN. exact (Cut A B).
+        * exfalso. apply no_proof_NN. exact (Cut A B).
         * cutelimSize fuelSize (Swap A1) (Contract B'). cutelimSize fuelSize (Swap A2) (Contract B'). exists (Swap (RightAnd  (Swap P) (Swap P0))). finish.
         * cutelimSize fuelSize (Swap A1) (Contract B'). exists (Swap (RightOr1 (Swap P))). finish.
         * cutelimSize fuelSize (Swap A1) (Contract B'). exists (Swap (RightOr2 (Swap P))). finish.
@@ -770,27 +777,27 @@ Qed.
 
   (* Outer recursion. Informally, corresponds to saying ''Consider the topmost instance of Cut in the proof''. *)
 
-Theorem CutElimination_fuel : forall (fuelCut: nat) (fuelSize: nat)
+Theorem cut_elimination_fuel : forall (fuelCut: nat) (fuelSize: nat)
   (s: AnTerm*AnTerm) (proof : OLProof s)
-  (good_fuelSize: fuelSize >= (Size proof))
-  (good_fuelCut: fuelCut >= (NumCut proof)),
-  {p: OLProof s | isCutFree p}.
+  (good_fuelSize: fuelSize >= (proof_size proof))
+  (good_fuelCut: fuelCut >= (num_cut proof)),
+  {p: OLProof s | is_cut_free p}.
   induction fuelCut.
-    (* If NumCut = 0 *) 
-  {intros. simpl. assert (0 = (NumCut proof)). lia. symmetry in H. rewrite <- NumCut_CutFree in H. exists proof. auto. }
-  (* If NumCut = S n *) 
+    (* If num_cut = 0 *) 
+  {intros. simpl. assert (0 = (num_cut proof)). lia. symmetry in H. rewrite <- cut_free_eq_zero_cut in H. exists proof. auto. }
+  (* If num_cut = S n *) 
   induction fuelSize; intros.
-    (* If Size = 0 *)
-    { destruct proof. exists (Hyp). simpl. auto. all: subst. all: (unfold Size in good_fuelSize; lia). }
-    (* If Size = S n *)
+    (* If proof_size = 0 *)
+    { destruct proof. exists (Hyp). simpl. auto. all: subst. all: (unfold proof_size in good_fuelSize; lia). }
+    (* If proof_size = S n *)
     destruct proof eqn: Hp. 
     all: try (rename gamma into g). all: try (rename delta into d). all: try (rename o into p). all: try (rename o1 into p1; rename o2 into p2). all: (rename fuelSize into n). 
     
     Tactic Notation "goodSize" ident(n) ident(proof)  := let name := (fresh "gS_" proof) in
-      assert ((n >= Size proof)) as name; (only 1: (subst; simpl in *; (try lia))).
+      assert ((n >= proof_size proof)) as name; (only 1: (subst; simpl in *; (try lia))).
 
     Tactic Notation "goodCut" ident(fuelCut) ident(proof)  := let name := (fresh "gC_" proof) in
-      assert ((S fuelCut) >= NumCut proof) as name; (only 1:  subst; simpl in *; (try lia)).
+      assert ((S fuelCut) >= num_cut proof) as name; (only 1:  subst; simpl in *; (try lia)).
     
     { exists (Hyp). finish. }
     1, 2, 3, 4, 6, 8, 9, 10, 11: ( goodSize n p;  goodCut fuelCut p).
@@ -809,19 +816,20 @@ Theorem CutElimination_fuel : forall (fuelCut: nat) (fuelSize: nat)
     1, 2: destruct (IHfuelSize _ p1 gS_p1 gC_p1) as [P1 CF1]; destruct (IHfuelSize _ p2 gS_p2 gC_p2) as [P2 CF2].
     { exists (LeftOr P1 P2). finish. }
     { exists (RightAnd P1 P2). finish. }
-    { destruct (NumCut p1) eqn: p1cut.
-      - destruct (NumCut p2) eqn: p2cut.
-        + unshelve eapply (InnerCutElim (termSize b) b _ (Size p1 + Size p2) _ _ p1 _ p2 _); (try lia); rewrite NumCut_CutFree; auto.
-        + ( goodSize n p2;  goodCut fuelCut p2). destruct (IHfuelSize _ p2 gS_p2 gC_p2) as [P CF]. rewrite NumCut_CutFree in CF.
-          remember (Cut p1 P) as newproof. assert (S (NumCut proof) >= NumCut newproof ). subst. simpl. lia.
-          eapply (IHfuelCut (Size newproof) _ newproof) . lia. subst. simpl in *. lia.
-      - ( goodSize n p1;  goodCut fuelCut p1). destruct (IHfuelSize _ p1 gS_p1 gC_p1) as [P CF]. rewrite NumCut_CutFree in CF.
-          remember (Cut P p2) as newproof. assert (S (NumCut proof) >= NumCut newproof ). subst. simpl. lia.
-          eapply (IHfuelCut (Size newproof) _ newproof). lia. subst. simpl in *. lia.
+    { destruct (num_cut p1) eqn: p1cut.
+      - destruct (num_cut p2) eqn: p2cut.
+        + unshelve eapply (inner_cut_elim (term_size b) b _ (proof_size p1 + proof_size p2) _ _ p1 _ p2 _); (try lia); rewrite cut_free_eq_zero_cut; auto.
+        + ( goodSize n p2;  goodCut fuelCut p2). destruct (IHfuelSize _ p2 gS_p2 gC_p2) as [P CF]. rewrite cut_free_eq_zero_cut in CF.
+          remember (Cut p1 P) as newproof. assert (S (num_cut proof) >= num_cut newproof ). subst. simpl. lia.
+          eapply (IHfuelCut (proof_size newproof) _ newproof) . lia. subst. simpl in *. lia.
+      - ( goodSize n p1;  goodCut fuelCut p1). destruct (IHfuelSize _ p1 gS_p1 gC_p1) as [P CF]. rewrite cut_free_eq_zero_cut in CF.
+          remember (Cut P p2) as newproof. assert (S (num_cut proof) >= num_cut newproof ). subst. simpl. lia.
+          eapply (IHfuelCut (proof_size newproof) _ newproof). lia. subst. simpl in *. lia.
     }
 Qed.
 
-Theorem CutElimination s (proof : OLProof s): {p: OLProof s | isCutFree p}.
+
+Theorem cut_elimination s (proof : OLProof s): {p: OLProof s | is_cut_free p}.
 Proof.
-  eapply CutElimination_fuel with (fuelCut := (NumCut proof)) (fuelSize := (Size proof)); eauto.
+  eapply cut_elimination_fuel with (fuelCut := (num_cut proof)) (fuelSize := (proof_size proof)); eauto.
 Qed.

@@ -25,6 +25,7 @@ object Main {
 
     s"""Require Import OL_Bench.
 
+
 Theorem test${f"${i}%03d"} (${(0 to i).map("x"+_).reduce(_ + " " + _)}: bool) :
   ${prettyCoq(f1)} 
     = 
@@ -55,8 +56,8 @@ s"""Theorem ${name} (${(0 to upvars).map("x"+_).reduce(_ + " " + _)}: bool) :
   ${prettyCoq(f2)}
 . Proof. match goal with | |- ?goal => (assert (goal /\\ goal /\\ goal /\\ goal /\\ goal); intuition) end.
   timeout 10 (solveOLBase BoolOL).
-  timeout 10 (solveOLMemo BoolOL).
-  timeout 10 (solveOLFmap BoolOL).
+  timeout 10 (solveOL_memo BoolOL).
+  timeout 10 (solveOL_fmap BoolOL).
   timeout 10 (solveOLPointers BoolOL).
   timeout 10 (btauto).
 Admitted.
