@@ -14,7 +14,7 @@ Require Export Btauto.
 Import List.
 Import ListNotations.
 
-Ltac solveOL OL thm reduction :=
+Ltac solve_OL OL thm reduction :=
   OL_Reflection_1_base.reify_goal OL;
   simple apply thm; reduction (); exact eq_refl.
 
@@ -43,17 +43,17 @@ Tactic Notation "bench1" uconstr(id) constr(thm) constr(reduction)  :=
                   | vm_compute => fun _ => vm_compute
                   | none => fun _ => idtac
                   end in
-  time (run1 (solveOL BoolOL thm reduction)).
+  time (run1 (solve_OL BoolOL thm reduction)).
 
 Tactic Notation "benchSuperFast" uconstr(id) :=
-  do 10 (bench1 id OL_Reflection_1_base.reduceToAlgo lazy);
-  do 10 (bench1 id OL_Reflection_1_base.reduceToAlgo vm_compute);
-  do 10 (bench1 id OL_Reflection_2_memo.reduceToAlgoMemo lazy);
-  do 10 (bench1 id OL_Reflection_2_memo.reduceToAlgoMemo vm_compute);
-  do 10 (bench1 id OL_Reflection_3_fmap.reduceToAlgoFmap lazy);
-  do 10 (bench1 id OL_Reflection_3_fmap.reduceToAlgoFmap vm_compute);
-  do 10 (bench1 id OL_Reflection_4_pointers.reduceToAlgoPointers lazy);
-  do 10 (bench1 id OL_Reflection_4_pointers.reduceToAlgoPointers vm_compute);
+  do 10 (bench1 id OL_Reflection_1_base.reduce_to_decideOL lazy);
+  do 10 (bench1 id OL_Reflection_1_base.reduce_to_decideOL vm_compute);
+  do 10 (bench1 id OL_Reflection_2_memo.reduce_to_decideOL_memo lazy);
+  do 10 (bench1 id OL_Reflection_2_memo.reduce_to_decideOL_memo vm_compute);
+  do 10 (bench1 id OL_Reflection_3_fmap.reduce_to_decideOL_fmap lazy);
+  do 10 (bench1 id OL_Reflection_3_fmap.reduce_to_decideOL_fmap vm_compute);
+  do 10 (bench1 id OL_Reflection_4_pointers.reduce_to_decideOL_pointer lazy);
+  do 10 (bench1 id OL_Reflection_4_pointers.reduce_to_decideOL_pointer vm_compute);
   do 10 (header id "btauto" "none"; time (run1 (btauto)));
   idtac.
 

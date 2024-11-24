@@ -15,35 +15,35 @@ Tactic call ran for 0.053 secs (0.053u,0.s) (success)
 solved
 Tactic call ran for 0.053 secs (0.053u,0.s) (success)
 --------------------------------------------------------------------------------
-:: "test26" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+:: "test26" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: lazy
 solved
 Tactic call ran for 0.669 secs (0.667u,0.001s) (success)
 --------------------------------------------------------------------------------
-:: "test26" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: lazy
+:: "test26" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: lazy
 solved
 Tactic call ran for 0.677 secs (0.671u,0.005s) (success)
 --------------------------------------------------------------------------------
-:: "test26" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+:: "test26" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: vm_compute
 solved
 Tactic call ran for 0.062 secs (0.062u,0.s) (success)
 --------------------------------------------------------------------------------
-:: "test26" ::: OL_Reflection_3_fmap.reduceToAlgoFmap ::: vm_compute
+:: "test26" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: vm_compute
 solved
 Tactic call ran for 0.06 secs (0.06u,0.s) (success)
 --------------------------------------------------------------------------------
-:: "test26" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: lazy
+:: "test26" ::: OL_Reflection_2_memo.reduce_to_decideOL_memo ::: lazy
 solved
 Tactic call ran for 7.571 secs (7.568u,0.002s) (success)
 --------------------------------------------------------------------------------
-:: "test26" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: lazy
+:: "test26" ::: OL_Reflection_2_memo.reduce_to_decideOL_memo ::: lazy
 solved
 Tactic call ran for 7.67 secs (7.664u,0.004s) (success)
 --------------------------------------------------------------------------------
-:: "test26" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: vm_compute
+:: "test26" ::: OL_Reflection_2_memo.reduce_to_decideOL_memo ::: vm_compute
 solved
 Tactic call ran for 0.93 secs (0.929u,0.s) (success)
 --------------------------------------------------------------------------------
-:: "test26" ::: OL_Reflection_2_memo.reduceToAlgoMemo ::: vm_compute
+:: "test26" ::: OL_Reflection_2_memo.reduce_to_decideOL_memo ::: vm_compute
 solved
 Tactic call ran for 0.931 secs (0.931u,0.s) (success)
 --------------------------------------------------------------------------------
