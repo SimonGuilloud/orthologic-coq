@@ -90,6 +90,7 @@ Fixpoint decideOL_base (fuel: nat) (g d: AnTerm) : bool :=
 Ltac recurse := simpl in *; lia.
 
 Hint Constructors OLProof squash : olproof.
+Hint Resolve full_hyp : olproof.
 
 
 Lemma rewrite_false_eq_true_left c : c -> false = true \/ c.
@@ -412,19 +413,6 @@ Qed.
 
 Ltac no_NN := exfalso; apply no_proof_NN; auto.
 
-Lemma decideOL_base_complete n: 
-  forall g d (p: OLProof (g, d)),
-  n >= proof_size p ->
-  exists n, decideOL_base n g d = true.
-Proof.
-  induction n.
-  - intros. destruct p; simpl in *; lia.
-  - intros g d p good_size.
-    destruct p;  simpl in good_size.
-    + admit.
-    + specialize (IHn _ _ p). destruct IHn as [n0 H]. lia. exists (S n). simpl.
-
-
   
 *)
 
@@ -536,4 +524,44 @@ Proof.
       | _ => autorewrite with rw_bool in *; repeat apply rewrite_false_eq_true_left
     end. all: try rewrite IHo; try rewrite IHo0; auto.
     all: try (repeat (auto; try (left; reflexivity); right); fail).
+Qed.
+
+Require Import Coq.Program.Equality.
+Lemma var_hyp_reduce a b: 
+  (OLProof (L (Var a),  R (Var b))) -> (Pos.eqb a b) = true.
+Proof.
+  intro. pose proof (cut_elimination (L (Var a), R (Var b)) H). 
+  destruct H0. clear H. dependent induction x. 
+  - apply Pos.eqb_refl.
+  - inversion_clear H.
+
+
+Lemma left_join_reduce_1 s t d: 
+  (OLProof (L (Join s t),  d)) -> (OLProof (L t, d)).
+Proof.
+  intro. eauto 5 with olproof.
+Qed.
+
+Lemma left_join_reduce_2 s t d: 
+  (OLProof (L (Join s t),  d)) -> (OLProof (L s, d)).
+Proof.
+  intro. eauto 5 with olproof.
+Qed.
+
+Lemma right_meet_reduce_1 s t d: 
+  (OLProof (R (Meet s t),  d)) -> (OLProof (R s, d)).
+Proof.
+  intro. eauto 5 with olproof.
+Qed.
+
+Lemma right_meet_reduce_2 s t d: 
+  (OLProof (R (Meet s t),  d)) -> (OLProof (R t, d)).
+Proof.
+  intro. eauto 5 with olproof.
+Qed.
+
+Lemma left_not_reduce s d: 
+  (OLProof (L (Not s),  d)) -> (OLProof (R s, d)).
+Proof.
+  intro. eauto 5 with olproof.
 Qed.
