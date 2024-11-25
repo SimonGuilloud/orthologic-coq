@@ -182,7 +182,7 @@ Inductive AnTerm: Set :=
 Definition Sequent (l r : AnTerm) := (l, r).
 
 Inductive OLProof : AnTerm*AnTerm -> Set := 
-  | Hyp : forall {a}, OLProof (L a, R a)
+  | Hyp : forall {p}, OLProof (L (Var p), R (Var p))
   | Weaken : forall {gamma} {delta}, OLProof (gamma, N) -> OLProof (gamma, delta)
   | Contract : forall {gamma}, OLProof (gamma, gamma) -> OLProof (gamma, N)
   | LeftAnd1 : forall {a} {b} {delta}, OLProof (L a, delta) -> OLProof (L (Meet a b), delta)
@@ -277,6 +277,9 @@ Proof.
 Qed.
 
 
+
+
+
 (* soundness *)
 
 Theorem soundness s (p: OLProof s) : anTerm_leq (fst s) (snd s).
@@ -332,6 +335,12 @@ Proof.
   
 Qed.
 
+Hint Constructors OLProof : olproof_constr.
+
+Lemma full_hyp s : OLProof (L s, R s).
+Proof.
+  induction s; eauto 4 with olproof_constr.
+Qed.
 
 (* completeness *)
 
@@ -361,19 +370,19 @@ Qed.
 Proof.
   all: intros.
   - reflexivity.
-  - apply proof_exists. exact (Hyp).
+  - apply proof_exists. apply (full_hyp).
   - destruct H. destruct H0. apply proof_exists. eapply Cut. eauto. intuition.
-  - apply proof_exists. apply LeftAnd1. apply Hyp.
-  - apply proof_exists. apply LeftAnd2. apply Hyp.
+  - apply proof_exists. apply LeftAnd1. apply full_hyp.
+  - apply proof_exists. apply LeftAnd2. apply full_hyp.
   - destruct H. destruct H0. apply proof_exists. apply RightAnd; auto.
-  - apply proof_exists. apply RightNot. apply Swap. apply LeftNot. apply Swap. apply Hyp.
+  - apply proof_exists. apply RightNot. apply Swap. apply LeftNot. apply Swap. apply full_hyp.
   - destruct H. apply proof_exists. apply LeftNot. apply RightNot. apply Swap. auto.
-  - apply proof_exists. apply Weaken. apply Contract. apply LeftAnd1. apply Swap. apply LeftAnd2. apply LeftNot. apply Swap. apply Hyp.
-  - apply proof_exists. apply RightOr1. apply Hyp.
-  - apply proof_exists. apply RightOr2. apply Hyp.
+  - apply proof_exists. apply Weaken. apply Contract. apply LeftAnd1. apply Swap. apply LeftAnd2. apply LeftNot. apply Swap. apply full_hyp.
+  - apply proof_exists. apply RightOr1. apply full_hyp.
+  - apply proof_exists. apply RightOr2. apply full_hyp.
   - destruct H. destruct H0. apply proof_exists. apply LeftOr; auto.
-  - apply proof_exists. apply LeftNot. apply Swap. apply RightNot. apply Swap. apply Hyp.
-  - apply proof_exists. apply Swap. apply Weaken. apply Contract. apply RightOr1. apply Swap. apply RightOr2. apply RightNot. apply Swap. apply Hyp.
+  - apply proof_exists. apply LeftNot. apply Swap. apply RightNot. apply Swap. apply full_hyp.
+  - apply proof_exists. apply Swap. apply Weaken. apply Contract. apply RightOr1. apply Swap. apply RightOr2. apply RightNot. apply Swap. apply full_hyp.
 Defined.
 
 
@@ -575,7 +584,6 @@ Proof.
     - cutelimSize fuelSize A' B. exists (LeftNot P). finish.
       (*Here we also inverse B, generalizing the necessary fuel conditions*)
     - analyze B good_fuelSize good_fuelB p2. all: try (rename o into B'). all: try (rename o0 into B'').
-      + exists (RightAnd A' A''). eauto.
       + cutelimSize fuelSize (RightAnd A' A'') B'. exists (Weaken P). finish.
       + simpl in *. analyze B' good_fuelSize good_fuelB p2. all: try (rename o into B1). all: try (rename o0 into B2).
         * cutelimSize fuelSize (RightAnd A' A'') B1.
@@ -603,7 +611,6 @@ Proof.
         * cutContradict.
       + cutContradict.
     - analyze B good_fuelSize good_fuelB p2. all: try (rename o into B'). all: try (rename o0 into B'').
-      + exists (@RightOr1 _ b0 _ A'). eauto.
       + cutelimSize fuelSize (@RightOr1 _ b0 _ A') B'. exists (Weaken P). finish.
       + simpl in *. analyze B' good_fuelSize good_fuelB p2. all: try (rename o into B1). all: try (rename o0 into B2).
         * cutelimSize fuelSize (@RightOr1 _ b0 _ A') B1.
@@ -628,7 +635,6 @@ Proof.
         * cutContradict.
       + cutContradict.
     - analyze B good_fuelSize good_fuelB p2. all: try (rename o into B'). all: try (rename o0 into B'').
-      + exists (@RightOr2 a _  _ A'). eauto.
       + cutelimSize fuelSize (@RightOr2 a _  _ A') B'. exists (Weaken P). finish.
       + simpl in *. analyze B' good_fuelSize good_fuelB p2. all: try (rename o into B1). all: try (rename o0 into B2).
         * cutelimSize fuelSize (@RightOr2 a _  _ A') B1.
@@ -653,7 +659,6 @@ Proof.
         * cutContradict.
       + cutContradict.
     - analyze B good_fuelSize good_fuelB p2. all: try (rename o into B'). all: try (rename o0 into B'').
-      + exists (RightNot A'). eauto.
       + cutelimSize fuelSize (RightNot A') B'. exists (Weaken P). finish.
       + simpl in *. analyze B' good_fuelSize good_fuelB p2. all: try (rename o into B1). all: try (rename o0 into B2).
         * cutelimSize fuelSize (RightNot A') B1.
