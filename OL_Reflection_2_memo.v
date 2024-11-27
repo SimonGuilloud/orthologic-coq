@@ -8,6 +8,7 @@ Require Import Setoid Morphisms.
 Require Import Lia.
 Require Import Coq.Arith.Bool_nat.
 Require Import Coq.Arith.PeanoNat.
+Require Import Btauto.
 
 
 Open Scope bool_scope.
@@ -60,71 +61,49 @@ match find (g, d) memo with
 | None => (match fuel with
   | 0 => (false, memo) 
   | S n => let (b, m) :=
-    (* Guaranteed sufficent cases. *)
-      match (g, d) with 
-      | (L (Var a), R (Var b) )  => mbool (Pos.eqb a b) (* Hyp *)
-      | (L (Join a b), _) => (decideOL_memo n (L a) d) &&& (decideOL_memo n (L b) d) (* LeftOr *)
-      | (L (Not a), _) => decideOL_memo n (R a) d (* LeftNot *)
-      | (_, R (Meet a b)) => (decideOL_memo n g (R a)) &&& (decideOL_memo n g (R b)) (* RightAnd *)
-      | (_, R (Not a)) => decideOL_memo n g (L a) (* RightNot *)
-          (* Swap cases *)
-      | (R (Var a), L (Var b) )  => mbool (Pos.eqb b a) (* Hyp *)
-      | (_, L (Join a b)) => (decideOL_memo n g (L a)) &&& (decideOL_memo n g (L b)) (* LeftOr *)
-      | (_, L (Not a)) => decideOL_memo n g (R a) (* LeftNot *)
-      | (R (Meet a b), _) => (decideOL_memo n (R a) d) &&& (decideOL_memo n (R b) d) (* RightAnd *)
-      | (R (Not a), _) => decideOL_memo n (L a) d (* RightNot *)
-      | _ => 
-                match d with (* Weaken g*)
-        | L a => decideOL_memo n g N 
-        | R a => decideOL_memo n g N 
-        | N => mfalse
-        end |||(
-        match g with (* Weaken d*)
-        | L a => decideOL_memo n d N 
-        | R a => decideOL_memo n d N 
-        | N => mfalse
-        end |||(
-        match g with (* LeftAnd1 g*)
-        | L (Meet a b) => decideOL_memo n (L a) d
-        | _ => mfalse
-        end |||(
-        match d with (* LeftAnd1 d*)
-        | L (Meet a b) => decideOL_memo n (L a) g
-        | _ => mfalse
-        end |||(
-        match g with (* LeftAnd2 g*)
-        | L (Meet a b) => decideOL_memo n (L b) d
-        | _ => mfalse
-        end |||(
-        match d with (* LeftAnd2 d*)
-        | L (Meet a b) => decideOL_memo n (L b) g
-        | _ => mfalse
-        end |||(
-        match g with (* RightOr1 g*)
-        | R (Join a b) => decideOL_memo n d (R a)
-        | _ => mfalse
-        end |||(
-        match d with (* RightOr1 d*)
-        | R (Join a b) => decideOL_memo n g (R a)
-        | _ => mfalse
-        end |||(
-        match g with (* RightOr2 g*)
-        | R (Join a b) => decideOL_memo n d (R b)
-        | _ => mfalse
-        end |||(
-        match d with (* RightOr2 d*)
-        | R (Join a b) => decideOL_memo n g (R b)
-        | _ => mfalse
-        end |||(
-        match (g, d) with
-        | (N, L(_)) => decideOL_memo n d d
-        | (N, R(_)) => decideOL_memo n d d
-        | (L(_), N) => decideOL_memo n g g
-        | (R(_), N) => decideOL_memo n g g
-        | _ => mfalse
-        end
-        ))))))))))
-      end ((g, d, false) :: memo)
+    (match (g, d) with 
+    | (L (Var a), R (Var b) )  => mbool (Pos.eqb a b) (* Hyp *)
+    | _ => mfalse
+    end ||| (
+    decideOL_memo n g N ||| (
+    match d with 
+    | N => decideOL_memo n g g 
+    | _ => mfalse
+    end ||| (
+    match g with 
+    | L (Meet a b) => decideOL_memo n (L a) d
+    | _ => mfalse
+    end ||| (
+    match g with
+    | L (Meet a b) => decideOL_memo n (L b) d
+    | _ => mfalse
+    end ||| (
+    match g with 
+    | L (Join a b) => decideOL_memo n (L a) d &&& decideOL_memo n (L b) d
+    | _ => mfalse
+    end ||| (
+    match g with 
+    | L (Not a) => decideOL_memo n (R a) d
+    | _ => mfalse
+    end ||| (
+    match d with 
+    | R (Meet a b) => decideOL_memo n g (R a) &&& decideOL_memo n g (R b)
+    | _ => mfalse
+    end ||| (
+    match d with
+    | R (Join a b) => decideOL_memo n g (R a)
+    | _ => mfalse
+    end ||| (
+    match d with
+    | R (Join a b) => decideOL_memo n g (R b)
+    | _ => mfalse
+    end ||| (
+    match d with
+    | R (Not a) => decideOL_memo n g (L a)
+    | _ => mfalse
+    end ||| (
+    decideOL_memo n d g
+    )))))))))))) ((g, d, false) :: memo)
   in (b, ((g, d), b) :: m) end)
 end.
 
@@ -166,7 +145,7 @@ Proof.
 Qed.
 
 
-Theorem mor_mtrue_l A: (mfalse ||| A) = A.
+Theorem mor_mfalse_l A: (mfalse ||| A) = A.
 Proof. 
   apply functional_extensionality. intro. cbv. auto.
 Qed.
@@ -221,19 +200,19 @@ Qed.
 
 Lemma memomap_correct_cons g d l e : 
   (*(n >= anterm_size g + anterm_size d) -> *)
-  memomap_correct l -> 
+  memomap_correct l /\ 
   (e = true -> exists n, decideOL_base n g d = true) -> 
-  memomap_correct ((g, d, e) :: l).
+  memomap_correct ((g, d, e) :: l) /\ (e = true -> exists n, decideOL_base n g d = true).
 Proof.
-  intros. unfold memomap_correct. intros.
+  intros. unfold memomap_correct. intros. split; intuition. 
   unfold find. fold find. destruct e.
-  - destruct H0 as [n H0]; auto.  destruct (memokey_eqdec (g0, d0) (fst (g, d, decideOL_base n g d))).
+  - destruct H1 as [n H1]; auto. destruct (memokey_eqdec (g0, d0) (fst (g, d, decideOL_base n g d))).
     + rewrite memokey_eqdec_refl; auto. exists n. destruct (decideOL_base n g d) eqn: res; simpl in *.
       intros. simpl in *.  assert (g0 = g). congruence. assert (d0 = d). congruence. subst. auto. exfalso. auto with *.
-    + rewrite memokey_eqdec_refl2. 2: auto. apply H.
+    + rewrite memokey_eqdec_refl2. 2: auto. apply H0.
   - destruct (memokey_eqdec (g0, d0) (fst (g, d, false))).
     + rewrite memokey_eqdec_refl; auto.
-    + rewrite memokey_eqdec_refl2; auto. apply H.
+    + rewrite memokey_eqdec_refl2; auto. apply H0.
 Qed.
 
 
@@ -293,14 +272,16 @@ Proof.
       * auto.
     + specialize (H g d). simpl in *.
       destruct (find (g, d) l); intros.
-      destruct p; simpl in *. destruct b. destruct H. all: eexists; intros; subst. all: simpl in *; (try congruence). apply H. 
+      destruct p; simpl in *. destruct b. destruct H. all: simpl in *; try congruence. eexists; intros; subst. all: simpl in *; (try congruence). apply H. 
 
-  - intros. split.
+  - intros.
     + simpl. pose proof H. unfold memomap_correct in H.  specialize (H g d).
-      destruct (find (g, d) l) eqn: res; simpl in *. destruct p; simpl in *. auto.
-      dest_simp g; dest_simp d; (try dest_simp t0); (try dest_simp t). all: repeat rewrite mor_mtrue_r; repeat rewrite mor_mtrue_l; repeat rewrite mand_mtrue_l.
+      destruct (find (g, d) l) eqn: res; simpl in *. destruct p; simpl in *. auto. destruct b; simpl in *; auto. split; auto; intro; congruence.
 
-      all: apply memomap_correct_snd_unfold. all: repeat rewrite mor_mtrue_r; repeat rewrite mor_mtrue_l; repeat rewrite mand_mtrue_l.
+      pose proof (memomap_correct_false g d l H0) as H1. 
+      dest_simp g; dest_simp d; (try dest_simp t0); (try dest_simp t). all: repeat rewrite mor_mtrue_r; repeat rewrite mor_mfalse_l; repeat rewrite mand_mtrue_l.
+
+      all: rewrite snd_let_simpl; rewrite fst_let_simpl. all: repeat rewrite mor_mtrue_r; repeat rewrite mor_mfalse_l; repeat rewrite mand_mtrue_l.
 
       Ltac rewrite_mor x y l:= 
         assert ((x ||| y) l = let (b, m) := x l in if b then (true, m) else (y m) ) as rew_first_or; (only 1: reflexivity); rewrite rew_first_or in *; clear rew_first_or.
@@ -314,100 +295,79 @@ Proof.
                         (decideOL_base n g1 d1 ||| (decideOL_base n g2 d2||| (decideOL_base n g3 d3 ||| ... )))
         as well as conjunctions
       *)
+
+
+
+
       Ltac reduce_and_or rest IHn l H :=
         let IHn_ := (fresh "IHn") in let IHn_snd := (fresh "IHn_snd") in 
         let IHn_fst := (fresh "IHn_fst") in let n0 := (fresh "n0") in 
         let b_ := (fresh "b") in let l_ := (fresh "l") in let found := (fresh "found") in
-          lazymatch rest with 
-          | (decideOL_memo ?n ?g ?d) ||| ?rest2 => 
-            try rewrite_mor (decideOL_memo n g d) rest2 l;
+          lazymatch rest with
+          | decideOL_memo ?n ?g ?d => 
             pose proof (IHn g d l H) as IHn_; simpl in *; destruct IHn_ as [IHn_snd IHn_fst];
-            destruct (decideOL_memo n g d l)  as [ b_ l_] eqn: found;
-            destruct b_; simpl in *; auto;
-            intros;
-            try(destruct IHn_fst as [n0 IHn_fst]; auto; exists (S n0); eauto using 1);
-            simpl in *;
-            repeat rewrite Bool.orb_false_r;  repeat rewrite mor_mtrue_r; repeat rewrite mor_mtrue_l; repeat rewrite mand_mtrue_l;
-            match goal with | [ |- (_ -> _) ] => intro  | _ => idtac end;
-            try congruence;
-            try (apply Bool.orb_true_iff; left; congruence);
-            try (apply Bool.orb_true_iff; right);
-            try (eapply IHn; simpl in *; eauto using 1; fail); 
-            try (eapply IHn_fst; simpl in *; eauto using 1; fail);
-            try (rewrite IHn_fst; simpl; repeat rewrite Bool.orb_true_r; auto;  fail);
+            destruct (decideOL_memo n g d l) as [b_ l_] eqn: found;
+            destruct b_; simpl in *;
+            only 1: (destruct IHn_fst as [n0 IHn_fst]; auto; simpl in *;
+              split; auto; intro; exists (S n0); simpl; 
+              autorewrite with rw_bool in *; auto 7);
+            split; auto; congruence;
+            idtac
+
+          | decideOL_memo ?n ?g ?d ||| ?rest2 =>
+            rewrite_mor (decideOL_memo n g d) rest2 l;
+            pose proof (IHn g d l H) as IHn_; simpl in *; destruct IHn_ as [IHn_snd IHn_fst];
+            destruct (decideOL_memo n g d l) as [b_ l_] eqn: found;
+            destruct b_; simpl in *;
+            only 1: (destruct IHn_fst as [n0 IHn_fst]; auto; simpl in *;
+              split; auto; intro; exists (S n0); simpl; 
+              autorewrite with rw_bool in *; auto 7);
             reduce_and_or rest2 IHn l_ IHn_snd;
             idtac
-          | (decideOL_memo ?n ?g ?d) &&& ?rest2 => 
-            try rewrite_mand (decideOL_memo n g d) rest2 l;
-            pose proof (IHn g d l H) as IHn_; simpl in *; destruct IHn_ as [IHn_snd IHn_fst];
-            destruct (decideOL_memo n g d l)  as [ b_ l_] eqn: found;
-            destruct b_; simpl in *; auto;
-            intros; try congruence;
-            match goal with
-            | [ HH: true = true -> _ |- _ ]=> destruct IHn_fst as [n0 IHn_fst]; auto; idtac
-            | [ HH: false = true -> _ |- _ ]=> clear IHn_fst
-            | _ => idtac
-            end;
+
+          | (decideOL_memo ?n ?g1 ?d1) &&& (decideOL_memo ?n ?g2 ?d2) ||| ?rest2 =>
+            rewrite_mor ((decideOL_memo n g1 d1) &&& (decideOL_memo n g2 d2)) rest2 l;
+            rewrite_mand (decideOL_memo n g1 d1) (decideOL_memo n g2 d2) l;
+            let IHn_snd_r := (fresh "IHn_snd_r") in let IHn_fst_r := (fresh "IHn_fst_r") in
+            let IHn_r := (fresh "IHn_r") in let m1 := (fresh "m1") in let m2 := (fresh "m2") in
+            let b_r := (fresh "b_r") in let l_r := (fresh "l_r") in let found_r := (fresh "found_r") in
+            pose proof (IHn g1 d1 l H) as IHn_; simpl in *; destruct IHn_ as [IHn_snd IHn_fst];
+            destruct (decideOL_memo n g1 d1 l)  as [ b_ l_] eqn: found;
+            pose proof (IHn g2 d2 l_ IHn_snd) as IHn_r; simpl in *; destruct IHn_r as [IHn_snd_r IHn_fst_r];
+            destruct (decideOL_memo n g2 d2 l_)  as [ b_r l_r] eqn: found_r;
             simpl in *;
-            repeat rewrite Bool.orb_false_r;  repeat rewrite mor_mtrue_r; repeat rewrite mor_mtrue_l; repeat rewrite mand_mtrue_l;
-            try (apply Bool.andb_true_iff; split);
-            try (eapply IHn; simpl in *; eauto using 1; fail); 
-            try (eapply IHn_fst; simpl in *; eauto using 1; fail);
-            try (rewrite IHn_fst; simpl; repeat rewrite Bool.orb_true_r; auto;  fail);
-            reduce_and_or rest2 IHn l_ IHn_snd;
-            idtac
-          | decideOL_memo ?n ?g ?d =>  
-            simpl in *; repeat rewrite Bool.orb_false_r; simpl in *; auto; intros; try congruence;
-            try (apply IHn; simpl in *; eauto using 1; congruence);
-            pose proof (IHn g d l H) as IHn_; simpl in *; destruct IHn_ as [IHn_snd IHn_fst]; 
-            destruct IHn_fst as [n0 IHn_fst]; auto;
-            lazymatch goal with
-            | [ J1: decideOL_base ?m1 _ _ = true, J2: decideOL_base ?m2 _ _ = true |- _ ] => 
-                exists (S (Nat.max m1 m2)); simpl; apply Bool.andb_true_iff; split; 
-                only 1: (apply (decideOL_base_monotonic (Nat.max m1 m2) m1); try lia); 
-                only 2: (apply (decideOL_base_monotonic (Nat.max m1 m2) m2); try lia);
-                idtac
-            | [ J1: decideOL_base ?m1 _ _ = true |- _ ] =>  exists (S m1); simpl
-            | _ => idtac
+            destruct b_ ; destruct b_r ; simpl in *;
+            only 1: (destruct IHn_fst as [m1 IHn_fst]; destruct IHn_fst_r as [m2 IHn_fst_r]; auto;
+              split; auto; intros;
+              exists (S (Nat.max m1 m2)); simpl;
+              apply (decideOL_base_monotonic (Nat.max m1 m2)) in IHn_fst; try lia;
+              apply (decideOL_base_monotonic (Nat.max m1 m2)) in IHn_fst_r; try lia;
+              rewrite IHn_fst; rewrite IHn_fst_r; btauto;
+              simpl in *; autorewrite with rw_bool in *; auto);
+            lazymatch type of found with
+            | _ = (true, _) => reduce_and_or rest2 IHn l_r IHn_snd_r
+            | _ = (false, _)  => reduce_and_or rest2 IHn l_ IHn_snd
             end;
-            repeat rewrite Bool.orb_false_r;
-            repeat (apply Bool.orb_true_iff; right); eauto using 1;
             idtac
-          | mfalse => simpl in *; auto; intros; congruence;
+          | decideOL_memo ?n ?g ?d =>
+            
             idtac
-          | (mbool _) => intros; simpl in *; auto; exists 1; simpl; auto; intros; congruence
-          | _ => fail "unknown shape" rest
-          end.
-
-
-      all: try (lazymatch goal with
-      | [H : memomap_correct ?l |- 
-          memomap_correct ( (?g, ?d, fst (?rest (?head :: ?l))) :: snd (?rest (?head :: ?l))) ] => 
-        apply (memomap_correct_cons g d);
-        let H0 := (fresh "H0") in
-        pose proof (memomap_correct_false g d l H) as H0;
-        reduce_and_or rest IHn (head :: l) H0;
+          | mfalse => idtac
+          | (mbool (?p0 =? ?p)%positive) ||| ?rest2 => 
+            let p_eq := (fresh "p_eq") in
+            destruct (p0 =? p)%positive eqn: p_eq; simpl in *; 
+            only 1: (split; intros; auto; exists 1; simpl; autorewrite with rw_bool in *; auto);
+            try rewrite mor_mfalse_l;
+            reduce_and_or rest2 IHn l H;
+            idtac
+      end.
+       all: try (lazymatch goal with
+      | [ |- memomap_correct ( (?g, ?d, fst (?rest ?l)) :: snd (?rest ?l)) /\ _ ] => 
+        apply memomap_correct_cons;
+        reduce_and_or rest IHn l H1;
         idtac
       | _ => fail "unknown shape"
-      end; fail).
-
-      (* Need to do the second half of the proof, which could be the same as the first *)
-    + Opaque decideOL_base. simpl. pose proof H as H0. unfold memomap_correct in H0.  specialize (H0 g d).
-      destruct (find (g, d) l) eqn: res; simpl in *. destruct p; simpl in *. 
-      * destruct b eqn:b_eq; simpl in *; intro; auto; try congruence.
-      * Transparent decideOL_base. dest_simp g; dest_simp d; (try dest_simp t0); (try dest_simp t).
-        all: rewrite fst_let_simpl; simpl in *; repeat rewrite Bool.orb_false_r; repeat rewrite mor_mtrue_r; repeat rewrite mor_mtrue_l.
-        all: try ( apply IHn; auto; simpl in *; lia).
-        all: try (lazymatch goal with
-            | [H : memomap_correct ?l |- fst (?rest (?head :: ?l)) = true -> _ ] => 
-              let H0 := (fresh "H0") in
-              epose proof (memomap_correct_false _ _ l H) as H0;
-              reduce_and_or rest IHn (head :: l) H0
-            | [H : memomap_correct ?l |- ?inner = true -> _ ] => 
-              reduce_and_or (mbool inner) IHn l H
-            | _ => fail "unknown shape"
-            end; fail). 
-    Unshelve. all: try exact 1.
+      end; fail). 
 Qed.
 
 
