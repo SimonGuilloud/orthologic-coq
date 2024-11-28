@@ -6,6 +6,7 @@ Require Import Setoid Morphisms.
 Require Import Lia.
 Require Import Coq.Arith.Bool_nat.
 Require Import Coq.Arith.PeanoNat.
+Require Import Btauto.
 
 
 Open Scope bool_scope.
