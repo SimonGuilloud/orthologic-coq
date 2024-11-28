@@ -56,55 +56,55 @@ end.
 
 
 Fixpoint decideOL_memo (fuel: nat) (g d: AnTerm) (memo: MemoMap) : (bool * MemoMap) :=
-match find (g, d) memo with
-| Some (_, b) => (b, memo)
-| None => (match fuel with
-  | 0 => (false, memo) 
-  | S n => let (b, m) :=
-    (match (g, d) with 
-    | (L (Var a), R (Var b) )  => mbool (Pos.eqb a b) (* Hyp *)
-    | _ => mfalse
-    end ||| (
-    decideOL_memo n g N ||| (
-    match d with 
-    | N => decideOL_memo n g g 
-    | _ => mfalse
-    end ||| (
-    match g with 
-    | L (Meet a b) => decideOL_memo n (L a) d
-    | _ => mfalse
-    end ||| (
-    match g with
-    | L (Meet a b) => decideOL_memo n (L b) d
-    | _ => mfalse
-    end ||| (
-    match g with 
-    | L (Join a b) => decideOL_memo n (L a) d &&& decideOL_memo n (L b) d
-    | _ => mfalse
-    end ||| (
-    match g with 
-    | L (Not a) => decideOL_memo n (R a) d
-    | _ => mfalse
-    end ||| (
-    match d with 
-    | R (Meet a b) => decideOL_memo n g (R a) &&& decideOL_memo n g (R b)
-    | _ => mfalse
-    end ||| (
-    match d with
-    | R (Join a b) => decideOL_memo n g (R a)
-    | _ => mfalse
-    end ||| (
-    match d with
-    | R (Join a b) => decideOL_memo n g (R b)
-    | _ => mfalse
-    end ||| (
-    match d with
-    | R (Not a) => decideOL_memo n g (L a)
-    | _ => mfalse
-    end ||| (
-    decideOL_memo n d g
-    )))))))))))) ((g, d, false) :: memo)
-  in (b, ((g, d), b) :: m) end)
+  match find (g, d) memo with
+  | Some (_, b) => (b, memo)
+  | None => (match fuel with
+    | 0 => (false, memo) 
+    | S n => let (b, m) :=
+      (match (g, d) with 
+      | (L (Var a), R (Var b) )  => mbool (Pos.eqb a b) (* Hyp *)
+      | _ => mfalse
+      end ||| (
+      decideOL_memo n g N ||| (
+      match d with 
+      | N => decideOL_memo n g g 
+      | _ => mfalse
+      end ||| (
+      match g with 
+      | L (Meet a b) => decideOL_memo n (L a) d
+      | _ => mfalse
+      end ||| (
+      match g with
+      | L (Meet a b) => decideOL_memo n (L b) d
+      | _ => mfalse
+      end ||| (
+      match g with 
+      | L (Join a b) => decideOL_memo n (L a) d &&& decideOL_memo n (L b) d
+      | _ => mfalse
+      end ||| (
+      match g with 
+      | L (Not a) => decideOL_memo n (R a) d
+      | _ => mfalse
+      end ||| (
+      match d with 
+      | R (Meet a b) => decideOL_memo n g (R a) &&& decideOL_memo n g (R b)
+      | _ => mfalse
+      end ||| (
+      match d with
+      | R (Join a b) => decideOL_memo n g (R a)
+      | _ => mfalse
+      end ||| (
+      match d with
+      | R (Join a b) => decideOL_memo n g (R b)
+      | _ => mfalse
+      end ||| (
+      match d with
+      | R (Not a) => decideOL_memo n g (L a)
+      | _ => mfalse
+      end ||| (
+      decideOL_memo n d g
+      )))))))))))) ((g, d, false) :: memo)
+    in (b, ((g, d), b) :: m) end)
 end.
 
 
@@ -288,18 +288,7 @@ Proof.
       Ltac rewrite_mand x y l:= 
         assert ((x &&& y) l = let (b, m) := x l in if b then (y m) else (false, m) ) as rew_first_and; (only 1: reflexivity); rewrite rew_first_and in *; clear rew_first_and.
 
-      (* recursively prove goals of the form 
-            memomap_correct (snd (decideOL_memo n g1 d1 ||| (decideOL_memo n g2 d2||| (decideOL_memo n g3 d3 ||| ... ))) )
-        and
-            fst ( (decideOL_memo n g1 d1 ||| (decideOL_memo n g2 d2||| (decideOL_memo n g3 d3 ||| ... ))) l) =
-                        (decideOL_base n g1 d1 ||| (decideOL_base n g2 d2||| (decideOL_base n g3 d3 ||| ... )))
-        as well as conjunctions
-      *)
-
-
-
-
-      Ltac reduce_and_or rest IHn l H :=
+      Ltac reduce_or rest IHn l H :=
         let IHn_ := (fresh "IHn") in let IHn_snd := (fresh "IHn_snd") in 
         let IHn_fst := (fresh "IHn_fst") in let n0 := (fresh "n0") in 
         let b_ := (fresh "b") in let l_ := (fresh "l") in let found := (fresh "found") in
@@ -322,7 +311,7 @@ Proof.
             only 1: (destruct IHn_fst as [n0 IHn_fst]; auto; simpl in *;
               split; auto; intro; exists (S n0); simpl; 
               autorewrite with rw_bool in *; auto 7);
-            reduce_and_or rest2 IHn l_ IHn_snd;
+            reduce_or rest2 IHn l_ IHn_snd;
             idtac
 
           | (decideOL_memo ?n ?g1 ?d1) &&& (decideOL_memo ?n ?g2 ?d2) ||| ?rest2 =>
@@ -345,8 +334,8 @@ Proof.
               rewrite IHn_fst; rewrite IHn_fst_r; btauto;
               simpl in *; autorewrite with rw_bool in *; auto);
             lazymatch type of found with
-            | _ = (true, _) => reduce_and_or rest2 IHn l_r IHn_snd_r
-            | _ = (false, _)  => reduce_and_or rest2 IHn l_ IHn_snd
+            | _ = (true, _) => reduce_or rest2 IHn l_r IHn_snd_r
+            | _ = (false, _)  => reduce_or rest2 IHn l_ IHn_snd
             end;
             idtac
           | decideOL_memo ?n ?g ?d =>
@@ -358,13 +347,13 @@ Proof.
             destruct (p0 =? p)%positive eqn: p_eq; simpl in *; 
             only 1: (split; intros; auto; exists 1; simpl; autorewrite with rw_bool in *; auto);
             try rewrite mor_mfalse_l;
-            reduce_and_or rest2 IHn l H;
+            reduce_or rest2 IHn l H;
             idtac
       end.
        all: try (lazymatch goal with
       | [ |- memomap_correct ( (?g, ?d, fst (?rest ?l)) :: snd (?rest ?l)) /\ _ ] => 
         apply memomap_correct_cons;
-        reduce_and_or rest IHn l H1;
+        reduce_or rest IHn l H1;
         idtac
       | _ => fail "unknown shape"
       end; fail). 

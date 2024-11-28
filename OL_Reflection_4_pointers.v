@@ -9,6 +9,7 @@ Require Import Setoid Morphisms.
 Require Import Lia.
 Require Import Coq.Arith.Bool_nat.
 Require Import Coq.Arith.PeanoNat.
+Require Import Btauto.
 
 
 Open Scope bool_scope.
@@ -264,77 +265,55 @@ Notation "[[ x ]]" := (get_pointer_anterm x) (at level 0).
 
 
 Fixpoint decideOL_pointers (fuel: nat) (g d: AnTermPointer) (memo: MemoMap) : (bool * MemoMap) :=
-match M.find ([[g]], [[d]]) memo with
-| Some b => (b, memo)
-| None => (match fuel with
-  | 0 => (false, memo)
-  | S n => let (b, m) :=
-    (* Guaranteed sufficent cases. *)
-      match (g, d) with 
+  match M.find ([[g]], [[d]]) memo with
+  | Some b => (b, memo)
+  | None => (match fuel with
+    | 0 => (false, memo) 
+    | S n => let (b, m) :=
+      (match (g, d) with 
       | (LTP (VarP a _), RTP (VarP b _) )  => mbool (Pos.eqb a b) (* Hyp *)
-      | (LTP (JoinP a b _), _) => (decideOL_pointers n (LTP a) d) &&& (decideOL_pointers n (LTP b) d) (* LeftOr *)
-      | (LTP (NotP a _), _) => decideOL_pointers n (RTP a) d (* LeftNot *)
-      | (_, RTP (MeetP a b _)) => (decideOL_pointers n g (RTP a)) &&& (decideOL_pointers n g (RTP b)) (* RightAnd *)
-      | (_, RTP (NotP a _)) => decideOL_pointers n g (LTP a) (* RightNot *)
-          (* Swap cases *)
-      | (RTP (VarP a _), LTP (VarP b _) )  => mbool (Pos.eqb b a) (* Hyp *)
-      | (_, LTP (JoinP a b _)) => (decideOL_pointers n g (LTP a)) &&& (decideOL_pointers n g (LTP b)) (* LeftOr *)
-      | (_, LTP (NotP a _)) => decideOL_pointers n g (RTP a) (* LeftNot *)
-      | (RTP (MeetP a b _), _) => (decideOL_pointers n (RTP a) d) &&& (decideOL_pointers n (RTP b) d) (* RightAnd *)
-      | (RTP (NotP a _), _) => decideOL_pointers n (LTP a) d (* RightNot *)
-      | _ => 
-        match d with (* Weaken g*)
-        | LTP a => decideOL_pointers n g NTP 
-        | RTP a => decideOL_pointers n g NTP 
-        | NTP => mfalse
-        end |||(
-        match g with (* Weaken d*)
-        | LTP a => decideOL_pointers n d NTP 
-        | RTP a => decideOL_pointers n d NTP 
-        | NTP => mfalse
-        end |||(
-        match g with (* LeftAnd1 g*)
-        | LTP (MeetP a b _) => decideOL_pointers n (LTP a) d
-        | _ => mfalse
-        end |||(
-        match d with (* LeftAnd1 d*)
-        | LTP (MeetP a b _) => decideOL_pointers n (LTP a) g
-        | _ => mfalse
-        end |||(
-        match g with (* LeftAnd2 g*)
-        | LTP (MeetP a b _) => decideOL_pointers n (LTP b) d
-        | _ => mfalse
-        end |||(
-        match d with (* LeftAnd2 d*)
-        | LTP (MeetP a b _) => decideOL_pointers n (LTP b) g
-        | _ => mfalse
-        end |||(
-        match g with (* RightOr1 g*)
-        | RTP (JoinP a b _) => decideOL_pointers n d (RTP a)
-        | _ => mfalse
-        end |||(
-        match d with (* RightOr1 d*)
-        | RTP (JoinP a b _) => decideOL_pointers n g (RTP a)
-        | _ => mfalse
-        end |||(
-        match g with (* RightOr2 g*)
-        | RTP (JoinP a b _) => decideOL_pointers n d (RTP b)
-        | _ => mfalse
-        end |||(
-        match d with (* RightOr2 d*)
-        | RTP (JoinP a b _) => decideOL_pointers n g (RTP b)
-        | _ => mfalse
-        end |||(
-        match (g, d) with
-        | (NTP, LTP _) => decideOL_pointers n d d
-        | (NTP, RTP _) => decideOL_pointers n d d
-        | (LTP _, NTP) => decideOL_pointers n g g
-        | (RTP _, NTP) => decideOL_pointers n g g
-        | _ => mfalse
-        end
-        ))))))))))
-      end (AnPointerPairAVLMap.add ([[g]], [[d]]) false memo)
-   in (b, AnPointerPairAVLMap.add ([[g]], [[d]]) b m) end)
+      | _ => mfalse
+      end ||| (
+      decideOL_pointers n g NTP ||| (
+      match d with 
+      | NTP => decideOL_pointers n g g 
+      | _ => mfalse
+      end ||| (
+      match g with 
+      | LTP (MeetP a b _) => decideOL_pointers n (LTP a) d
+      | _ => mfalse
+      end ||| (
+      match g with
+      | LTP (MeetP a b _) => decideOL_pointers n (LTP b) d
+      | _ => mfalse
+      end ||| (
+      match g with 
+      | LTP (JoinP a b _) => decideOL_pointers n (LTP a) d &&& decideOL_pointers n (LTP b) d
+      | _ => mfalse
+      end ||| (
+      match g with 
+      | LTP (NotP a _) => decideOL_pointers n (RTP a) d
+      | _ => mfalse
+      end ||| (
+      match d with 
+      | RTP (MeetP a b _) => decideOL_pointers n g (RTP a) &&& decideOL_pointers n g (RTP b)
+      | _ => mfalse
+      end ||| (
+      match d with
+      | RTP (JoinP a b _) => decideOL_pointers n g (RTP a)
+      | _ => mfalse
+      end ||| (
+      match d with
+      | RTP (JoinP a b _) => decideOL_pointers n g (RTP b)
+      | _ => mfalse
+      end ||| (
+      match d with
+      | RTP (NotP a _) => decideOL_pointers n g (LTP a)
+      | _ => mfalse
+      end ||| (
+      decideOL_pointers n d g
+      )))))))))))) (AnPointerPairAVLMap.add ([[g]], [[d]]) false memo)
+    in (b, AnPointerPairAVLMap.add ([[g]], [[d]]) b m) end)
 end.
 
 
@@ -430,7 +409,7 @@ Proof.
 Qed.
 
 
-Theorem mor_mtrue_l A: (mfalse ||| A) = A.
+Theorem mor_mfalse_l A: (mfalse ||| A) = A.
 Proof. 
   apply functional_extensionality. intro. cbv. auto.
 Qed.
@@ -463,11 +442,11 @@ Proof. destruct p; simpl; eauto using termP_size_eq_termSize. Qed.
 Lemma memomap_correct_cons (refmap : RefMap) pg pd l e : 
   let liftedReverseRef := lift_refmap refmap in
   let g := liftedReverseRef pg in let d := liftedReverseRef pd in
-  memomap_correct refmap l -> 
+  memomap_correct refmap l /\
   (e = true -> exists n, decideOL_base n (forget_anpointer g) (forget_anpointer d) = true) -> 
-  memomap_correct refmap (AnPointerPairAVLMap.add (pg, pd) e l).
+  memomap_correct refmap (AnPointerPairAVLMap.add (pg, pd) e l) /\ (e = true -> exists n, decideOL_base n (forget_anpointer g) (forget_anpointer d) = true).
 Proof.
-  unfold memomap_correct; intros Hok He *.
+  unfold memomap_correct; intro H1; destruct H1 as [Hok He]. split; auto. intros.
   rewrite F.add_o; destruct F.eq_dec as [(Heq1%compare_anpointer_eq, Heq2%compare_anpointer_eq) | Hneq ];
     simpl in *; subst.
   - destruct e; auto.
@@ -511,6 +490,13 @@ Proof.
    destruct a; simpl in *; auto; destruct t; simpl in *; intuition; rewrite H0; auto.
 Qed.
 
+Theorem forget_rev_equal_2 (refmap : RefMap) a : 
+  refmap_inv_get_pointer_anterm refmap a -> (forget_anpointer (lift_refmap refmap [[a]])) = (forget_anpointer a).
+Proof.
+  intro.
+  rewrite forget_rev_equal; auto.
+Qed.
+
 
 Lemma memomap_correct_false (refmap : RefMap) pg pd l: memomap_correct refmap l -> memomap_correct refmap (AnPointerPairAVLMap.add (pg, pd) false l).
 Proof.
@@ -529,168 +515,128 @@ Theorem decideOL_pointers_correct (refmap : RefMap) :
   (memomap_correct refmap (snd (decideOL_pointers n g d l))) /\
   (((fst (decideOL_pointers n g d l)) = true) ->  exists n, (decideOL_base n (forget_anpointer g) (forget_anpointer d)) = true).
 Proof.
-  induction n.
-  - intros. split. 
-    + intros. pose proof (H pg pd). simpl in *. 
-      subst g d liftedReverseRef. rewrite !(get_pointer_inv_refmap_anterm).
-      destruct M.find; simpl in *; auto.
-    + intros. pose proof (H pg pd). simpl in *. 
-      subst g d liftedReverseRef. rewrite !(get_pointer_inv_refmap_anterm) in *.
-      destruct M.find; intros; simpl in *; subst; congruence.
 
-  - intros. split.
-    + simpl. pose proof (H pg pd). 
-      unfold g, d, liftedReverseRef. rewrite  !(get_pointer_inv_refmap_anterm) in *.
-      destruct M.find eqn: res; simpl in *. auto.
-      fold liftedReverseRef; fold g d;
-      rewrite <- (get_pointer_inv_refmap_anterm refmap pg);  rewrite <- (get_pointer_inv_refmap_anterm refmap pd);
-      subst liftedReverseRef; fold g d.
-      dest_simp g ; dest_simp d; (try dest_simp t0); (try dest_simp t);
-      apply memomap_correct_snd_unfold; 
-      rewrite ?mor_mtrue_r, ?mor_mtrue_l, ?mand_mtrue_l.
 
-    Ltac rewrite_mor x y l:= 
-      assert ((x ||| y) l = let (b, m) := x l in if b then (true, m) else (y m) ) as rew_first_or; (only 1: reflexivity); rewrite rew_first_or in *; clear rew_first_or.
-    Ltac rewrite_mand x y l:= 
-      assert ((x &&& y) l = let (b, m) := x l in if b then (y m) else (false, m) ) as rew_first_and; (only 1: reflexivity); rewrite rew_first_and in *; clear rew_first_and.
 
-      Ltac niceSimpl := simpl fst in *; simpl snd in *; simpl andb in *; simpl orb in *; simpl decideOL_base in *.
+      Ltac niceSimpl := simpl fst in *; simpl snd in *; simpl andb in *; simpl orb in *.
       Ltac repRewRev := (repeat (rewrite forget_rev_equal; auto)); do 2 (try (rewrite forget_rev_equal in *; try (niceSimpl; simpl refmap_inv_get_pointer_anterm in *; auto; fail))).
       Ltac repRew := (repeat (rewrite forget_rev_equal; auto)).
       Ltac splitConj := repeat match goal with
       | [H: _ /\ _ |- _] => destruct H
       end.
 
-      Ltac reduce_and_or rest IHn l H :=
-        let IHn_ := (fresh "IHn") in let IHn_snd := (fresh "IHn_snd") in 
-        let IHn_fst := (fresh "IHn_fst") in let n0 := (fresh "n0") in  
-        let b_ := (fresh "b") in let l_ := (fresh "l") in
-        let A_ := (fresh "A") in let B_ := (fresh "B") in
-          lazymatch rest with 
-          | (decideOL_pointers ?n ?g ?d) ||| ?rest2 => 
-            lazymatch goal with
-            | [H1: refmap_inv_get_pointer_anterm ?rev ?g1,
-              H2: refmap_inv_get_pointer_anterm ?rev ?d1 |- _ ] =>
+
+  induction n.
+  - intros. split. 
+    + intros. pose proof (H [[g]] [[d]] ). simpl in *. 
+      subst g d liftedReverseRef. rewrite !(get_pointer_inv_refmap_anterm) in *.
+      destruct M.find; simpl in *; auto.
+    + intros. pose proof (H pg pd). simpl in *. 
+      subst g d liftedReverseRef. rewrite !(get_pointer_inv_refmap_anterm) in *.
+      destruct M.find; intros; simpl in *; subst; congruence.
+
+  - intros. 
+    + Opaque decideOL_base. rewrite <- (forget_rev_equal_2 refmap g); auto. rewrite <- (forget_rev_equal_2 refmap d); auto. simpl. pose proof (H [[g]] [[d]]) as H2. unfold memomap_correct in H2. 
+      destruct (M.find ([[g]], [[d]]) l) eqn: res; simpl in *.
+      split; auto. destruct b eqn:b_eq; simpl in *; intro; auto; repRewRev; congruence.
+      fold liftedReverseRef; fold g d.
+      subst liftedReverseRef; fold g d.
+      pose proof (memomap_correct_false refmap [[g]] [[d]] l H) as H3. 
+      dest_simp g ; dest_simp d; (try dest_simp t0); (try dest_simp t). 
+      all: rewrite OL_Reflection_3_fmap.snd_let_simpl; rewrite OL_Reflection_3_fmap.fst_let_simpl;
+      rewrite ?mor_mtrue_r, ?mor_mfalse_l, ?mand_mtrue_l.
+      Transparent decideOL_base.
+
+    Ltac rewrite_mor x y l:= 
+      assert ((x ||| y) l = let (b, m) := x l in if b then (true, m) else (y m) ) as rew_first_or; (only 1: reflexivity); 
+      try rewrite rew_first_or in *;
+      simpl in rew_first_or; try rewrite rew_first_or in *; clear rew_first_or.
+    Ltac rewrite_mand x y l:= 
+      assert ((x &&& y) l = let (b, m) := x l in if b then (y m) else (false, m) ) as rew_first_and; (only 1: reflexivity); rewrite rew_first_and in *; clear rew_first_and.
+
+    Ltac reduce_or rest IHn l H :=
+          let IHn_ := (fresh "IHn") in let IHn_snd := (fresh "IHn_snd") in 
+          let IHn_fst := (fresh "IHn_fst") in let n0 := (fresh "n0") in 
+          let b_ := (fresh "b") in let l_ := (fresh "l") in let found := (fresh "found") in
+            lazymatch rest with
+            | decideOL_pointers ?n ?g ?d => 
+              pose proof (IHn [[g]] [[d]]  l H) as IHn_; destruct IHn_ as [IHn_snd IHn_fst]; auto;
+
+              do 2 (try (rewrite forget_rev_equal in *; auto;  try (intuition; fail)));
+              
+              destruct (decideOL_pointers n g d l) as [b_ l_] eqn: found;
+              destruct b_; niceSimpl; (**)
+              try only 1: (
+                destruct IHn_fst as [n0 IHn_fst]; auto; try rewrite found in *; niceSimpl;
+                split; auto; intro; exists (S n0); simpl; 
+                autorewrite with rw_bool in *; auto 7;(**) idtac);
+              split; auto; congruence;
+              idtac
+
+            | decideOL_pointers ?n ?g ?d ||| ?rest2 =>
               try rewrite_mor (decideOL_pointers n g d) rest2 l;
-              specialize (IHn [[g]] [[d]] l H) as IHn_; 
-              pose proof H1; pose proof H2;
-              pose proof H1; pose proof H2; simpl in  H1; simpl in H2; splitConj;
-              do 2 (try (rewrite forget_rev_equal in *; auto;  try (intuition; fail)));
-              destruct IHn_ as [IHn_snd IHn_fst]; auto; repRew;
-              destruct (decideOL_pointers n g d l)  as [ b_ l_];
-              destruct b_; niceSimpl; auto; try congruence;
-              intros;
-              try(destruct IHn_fst as [n0 IHn_fst]; auto; exists (S n0); niceSimpl; eauto);
-              repeat rewrite Bool.orb_false_r;  
-              repeat rewrite OL_Reflection_3_fmap.mor_mtrue_r; 
-              repeat rewrite OL_Reflection_3_fmap.mor_mtrue_l; 
-              repeat rewrite OL_Reflection_3_fmap.mand_mtrue_l;
-              match goal with | [ |- (_ -> _) ] => intro  | _ => idtac end;
-              try congruence;
-              try (rewrite IHn_fst; simpl; repeat rewrite Bool.orb_true_r; auto;  fail);
-              try (apply Bool.orb_true_iff; left; congruence);
-              try (apply Bool.orb_true_iff; right);
-              try (apply Bool.andb_true_iff; split);
-              try (eapply IHn; simpl in *; eauto; lia); 
-              try (eapply IHn_fst; simpl in *; eauto; lia); 
-              try (rewrite IHn_fst; simpl; repeat rewrite Bool.orb_true_r; auto; fail);
-              reduce_and_or rest2 IHn l_ IHn_snd;
+              pose proof (IHn [[g]] [[d]]  l H) as IHn_; destruct IHn_ as [IHn_snd IHn_fst]; auto;
+              (do 2 try (rewrite forget_rev_equal in *; auto;  try (intuition; fail)));
+              try (simpl in *; repeat splitConj; auto; fail);
+              destruct (decideOL_pointers n g d l) as [b_ l_] eqn: found;
+              destruct b_; niceSimpl; simpl in found; try rewrite found in *;
+              only 1: (destruct IHn_fst as [n0 IHn_fst]; auto;  niceSimpl; auto;
+                split; auto; intro; exists (S n0); simpl; 
+                autorewrite with rw_bool in *; auto 7; fail(**));
+              reduce_or rest2 IHn l_ IHn_snd;(**)
               idtac
-            | _ => fail "did not find H1 and H2"
-            end
-          | (decideOL_pointers ?n ?g ?d) &&& ?rest2 => 
-            lazymatch goal with
-            | [H1: refmap_inv_get_pointer_anterm ?rev ?g1,
-              H2: refmap_inv_get_pointer_anterm ?rev ?d1 |- _ ] =>
-              try rewrite_mand (decideOL_pointers n g d) rest2 l;
-              specialize (IHn [[g]] [[d]] l H) as IHn_; 
-              pose proof H1; pose proof H2;
-              pose proof H1; pose proof H2; simpl in  H1; simpl in H2; splitConj;
-              do 2 (try (rewrite forget_rev_equal in *; auto;  try (intuition; fail)));
-              destruct IHn_ as [IHn_snd IHn_fst]; auto; repRew;
-              destruct (decideOL_pointers n g d l)  as [ b_ l_];
-              destruct b_; niceSimpl; auto; try congruence;
-              intros;
-              match goal with
-              | [ HH: true = true -> _ |- _ ]=> destruct IHn_fst as [n0 IHn_fst]; auto; idtac
-              | [ HH: false = true -> _ |- _ ]=> clear IHn_fst
-              | _ => idtac
-              end;
-              try congruence;
-              repeat rewrite Bool.orb_false_r;  
-              repeat rewrite OL_Reflection_3_fmap.mor_mtrue_r; 
-              repeat rewrite OL_Reflection_3_fmap.mor_mtrue_l; 
-              repeat rewrite OL_Reflection_3_fmap.mand_mtrue_l;
-              try (rewrite IHn_fst; simpl; repeat rewrite Bool.orb_true_r; auto;  fail);
-              try (apply Bool.andb_true_iff; split);
-              try (eapply IHn; simpl in *; eauto; lia); 
-              try (eapply IHn_fst; simpl in *; eauto; lia); 
-              try (rewrite IHn_fst; simpl; repeat rewrite Bool.orb_true_r; auto; fail);
-              reduce_and_or rest2 IHn l_ IHn_snd;
+
+            | (decideOL_pointers ?n ?g1 ?d1) &&& (decideOL_pointers ?n ?g2 ?d2) ||| ?rest2 =>
+              try rewrite_mor ((decideOL_pointers n g1 d1) &&& (decideOL_pointers n g2 d2)) rest2 l;
+              try rewrite_mand (decideOL_pointers n g1 d1) (decideOL_pointers n g2 d2) l;
+              let IHn_snd_r := (fresh "IHn_snd_r") in let IHn_fst_r := (fresh "IHn_fst_r") in
+              let IHn_r := (fresh "IHn_r") in let m1 := (fresh "m1") in let m2 := (fresh "m2") in
+              let b_r := (fresh "b_r") in let l_r := (fresh "l_r") in let found_r := (fresh "found_r") in
+              pose proof (IHn [[g1]] [[d1]]  l H) as IHn_; destruct IHn_ as [IHn_snd IHn_fst]; auto;
+              (do 2 try (rewrite forget_rev_equal in *; auto;  try (intuition; fail)));
+              try (simpl in *; repeat splitConj; auto; fail);
+              destruct (decideOL_pointers n g1 d1 l)  as [ b_ l_] eqn: found;
+              pose proof (IHn [[g2]] [[d2]]  l_ IHn_snd) as IHn_r; destruct IHn_r as [IHn_snd_r IHn_fst_r]; auto;
+              (do 2 try (rewrite forget_rev_equal in *; auto;  try (intuition; fail)));
+              try (simpl in *; repeat splitConj; auto; fail);
+              destruct (decideOL_pointers n g2 d2 l_)  as [ b_r l_r] eqn: found_r;
+              destruct b_ ; destruct b_r ; niceSimpl;
+              only 1: (destruct IHn_fst as [m1 IHn_fst]; destruct IHn_fst_r as [m2 IHn_fst_r];  (* HERE *)
+                try rewrite found in *; try rewrite found_r in *;auto;
+                split; auto; intros;
+                exists (S (Nat.max m1 m2)); simpl in *;
+                apply (decideOL_base_monotonic (Nat.max m1 m2)) in IHn_fst; try lia;
+                apply (decideOL_base_monotonic (Nat.max m1 m2)) in IHn_fst_r; try lia;
+                rewrite IHn_fst; rewrite IHn_fst_r; btauto;
+                (*niceSimpl; autorewrite with rw_bool in *; auto; fail*)
+                idtac);
+              lazymatch type of found with
+              | _ = (true, _) => reduce_or rest2 IHn l_r IHn_snd_r
+              | _ = (false, _)  => reduce_or rest2 IHn l_ IHn_snd
+              end;(**)
               idtac
-            | _ => fail "did not find H1 and H2"
-            end
-          | (decideOL_pointers ?n ?g ?d ) => 
-            repRew; niceSimpl; simpl in *;
-            repeat rewrite Bool.orb_false_r; simpl in *; auto; intuition; intros; try congruence;
-            try (apply IHn; simpl in *; eauto; congruence);
-            specialize (IHn [[g]] [[d]] l H) as IHn_; destruct IHn_ as [IHn_snd IHn_fst]; auto; repRew; 
-            
-            try (niceSimpl; simpl refmap_inv_get_pointer_anterm in *;  intuition; fail);
-            repRewRev;
-            destruct IHn_fst as [n0 IHn_fst]; auto;
-            lazymatch goal with
-            | [ J1: decideOL_base ?m1 _ _ = true, J2: decideOL_base ?m2 _ _ = true |- _ ] => 
-                exists (S (Nat.max m1 m2)); simpl; apply Bool.andb_true_iff; split; 
-                only 1: (apply (decideOL_base_monotonic (Nat.max m1 m2) m1); try lia); 
-                only 2: (apply (decideOL_base_monotonic (Nat.max m1 m2) m2); try lia);
-                idtac
-            | [ J1: decideOL_base ?m1 _ _ = true |- _ ] =>  exists (S m1); niceSimpl; auto
-            | _ => idtac
-            end;
-            repeat rewrite Bool.orb_false_r;
-            repeat (apply Bool.orb_true_iff; right); eauto;
-            idtac
-          | mfalse => simpl in *; auto; intros; congruence; 
-            repRewRev; simpl in *; repeat rewrite Bool.orb_false_r; auto;
-            simpl in *; eauto; (try lia);
-            idtac
-          | (mbool _) => 
-            intros; try (simpl in *; auto; fail); exists 1; repRewRev; simpl; auto;
-            idtac
-          | _ => fail "unknown shape" rest
-          end. 
+            | decideOL_pointers ?n ?g ?d =>
+              
+              idtac
+            | mfalse => idtac
+            | (mbool (?p0 =? ?p)%positive) ||| ?rest2 => 
+              rewrite_mor (mbool (p0 =? p)%positive) rest2 l;
+              let p_eq := (fresh "p_eq") in
+              destruct (p0 =? p)%positive eqn: p_eq; niceSimpl;
+              (do 2 try (rewrite forget_rev_equal in *; auto;  try (intuition; fail)));
+              only 1: (split; intros; auto; exists 1; simpl; autorewrite with rw_bool in *; auto;(**) idtac);
+              try rewrite mor_mfalse_l;
+              reduce_or rest2 IHn l H;(**)
+              idtac
+        end. 
+
       all: try (lazymatch goal with
-      | [H : memomap_correct ?revref ?l |- 
-        memomap_correct ?revref (_ (?g, ?d) (fst (?rest (_ ?k ?v ?l))) (snd (?rest (_ ?k ?v ?l)))) ] =>
-        apply (memomap_correct_cons revref g d);
-        let H0 := (fresh "H0") in
-        pose proof (memomap_correct_false revref g d l H) as H0;
-        reduce_and_or rest IHn (AnPointerPairAVLMap.add k v l) H0;
+      | [ |- memomap_correct ?revref (_ (?g, ?d) (fst (?rest ?l)) (snd (?rest ?l))) /\ _ ] => 
+        apply memomap_correct_cons;
+        reduce_or rest IHn l H3;
         idtac
       | _ => fail "unknown shape"
-      end; fail). 
-
-    + Opaque decideOL_base. simpl. pose proof (H [[g]] [[d]]) as H2. unfold memomap_correct in H2. 
-      destruct (M.find ([[g]], [[d]]) l) eqn: res; simpl in *.
-      * destruct b eqn:b_eq; simpl in *; intro; auto; repRewRev; try congruence.
-      * Transparent decideOL_base. dest_simp g; dest_simp d; (try dest_simp t0); (try dest_simp t).
-        all: rewrite OL_Reflection_3_fmap.fst_let_simpl; niceSimpl;
-             repeat rewrite Bool.orb_false_r; 
-             repeat rewrite mor_mtrue_r; 
-             repeat rewrite mor_mtrue_l.
-        all: try ( apply IHn; auto; simpl in *; lia).
-        all: try (lazymatch goal with
-          | [H : memomap_correct ?revref ?l |- 
-            (fst (?rest (_ ?k ?v ?l))) = true -> _ ] => 
-            let H0 := (fresh "H0") in
-            epose proof (memomap_correct_false revref _ _ l H) as H0;
-            reduce_and_or rest IHn (AnPointerPairAVLMap.add k v l) H0
-          | [H : memomap_correct ?revref ?l |- ?inner = true -> _ ] => 
-            reduce_and_or (mbool inner) IHn l H
-          | _ => fail "unknown shape"
-          end; fail).
-Unshelve. all: exact 1.
+      end; fail).
 Qed.
 
 
