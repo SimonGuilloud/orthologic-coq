@@ -31,6 +31,8 @@ Open Scope string_scope.
 
 Inductive reduction := compute | lazy | vm_compute | none.
 
+#[global] Set Printing Width 1200. (* Avoid line wraps in output *)
+
 Tactic Notation "header" uconstr(id) constr(thm) constr(reduction) :=
   idtac "--------------------------------------------------------------------------------";
   idtac "::" id ":::" thm ":::" reduction.
