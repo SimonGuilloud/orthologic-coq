@@ -1,0 +1,360 @@
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_1_base.reduce_to_decideOL ::: lazy
+timeout
+Tactic call ran for 90. secs (89.966u,0.029s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_1_base.reduce_to_decideOL ::: lazy
+timeout
+Tactic call ran for 90. secs (89.959u,0.035s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_1_base.reduce_to_decideOL ::: lazy
+timeout
+Tactic call ran for 90. secs (89.974u,0.02s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_1_base.reduce_to_decideOL ::: lazy
+timeout
+Tactic call ran for 90. secs (89.978u,0.015s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_1_base.reduce_to_decideOL ::: lazy
+timeout
+Tactic call ran for 90. secs (89.977u,0.017s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_1_base.reduce_to_decideOL ::: lazy
+timeout
+Tactic call ran for 90. secs (89.994u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_1_base.reduce_to_decideOL ::: lazy
+timeout
+Tactic call ran for 90. secs (89.978u,0.017s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_1_base.reduce_to_decideOL ::: lazy
+timeout
+Tactic call ran for 90. secs (89.996u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_1_base.reduce_to_decideOL ::: lazy
+timeout
+Tactic call ran for 90. secs (89.996u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_1_base.reduce_to_decideOL ::: lazy
+timeout
+Tactic call ran for 90. secs (89.996u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_1_base.reduce_to_decideOL ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.998u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_1_base.reduce_to_decideOL ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.997u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_1_base.reduce_to_decideOL ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.997u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_1_base.reduce_to_decideOL ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.997u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_1_base.reduce_to_decideOL ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.998u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_1_base.reduce_to_decideOL ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.997u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_1_base.reduce_to_decideOL ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.996u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_1_base.reduce_to_decideOL ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.997u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_1_base.reduce_to_decideOL ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.997u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_1_base.reduce_to_decideOL ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.997u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_2_memo.reduce_to_decideOL_memo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.995u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_2_memo.reduce_to_decideOL_memo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.995u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_2_memo.reduce_to_decideOL_memo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.995u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_2_memo.reduce_to_decideOL_memo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.996u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_2_memo.reduce_to_decideOL_memo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.996u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_2_memo.reduce_to_decideOL_memo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.996u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_2_memo.reduce_to_decideOL_memo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.995u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_2_memo.reduce_to_decideOL_memo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.995u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_2_memo.reduce_to_decideOL_memo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.995u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_2_memo.reduce_to_decideOL_memo ::: lazy
+timeout
+Tactic call ran for 90. secs (89.995u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_2_memo.reduce_to_decideOL_memo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.995u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_2_memo.reduce_to_decideOL_memo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.995u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_2_memo.reduce_to_decideOL_memo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.995u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_2_memo.reduce_to_decideOL_memo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.995u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_2_memo.reduce_to_decideOL_memo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.995u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_2_memo.reduce_to_decideOL_memo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.995u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_2_memo.reduce_to_decideOL_memo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.997u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_2_memo.reduce_to_decideOL_memo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.996u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_2_memo.reduce_to_decideOL_memo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.996u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_2_memo.reduce_to_decideOL_memo ::: vm_compute
+timeout
+Tactic call ran for 90. secs (89.995u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: lazy
+solved
+Tactic call ran for 28.146 secs (28.125u,0.018s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: lazy
+solved
+Tactic call ran for 28.176 secs (28.14u,0.033s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: lazy
+solved
+Tactic call ran for 28.103 secs (28.102u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: lazy
+solved
+Tactic call ran for 28.123 secs (28.098u,0.023s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: lazy
+solved
+Tactic call ran for 28.12 secs (28.117u,0.002s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: lazy
+solved
+Tactic call ran for 28.067 secs (28.066u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: lazy
+solved
+Tactic call ran for 28.158 secs (28.153u,0.004s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: lazy
+solved
+Tactic call ran for 28.072 secs (28.071u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: lazy
+solved
+Tactic call ran for 28.166 secs (28.16u,0.003s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: lazy
+solved
+Tactic call ran for 28.13 secs (28.129u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: vm_compute
+solved
+Tactic call ran for 1.487 secs (1.487u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: vm_compute
+solved
+Tactic call ran for 1.465 secs (1.465u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: vm_compute
+solved
+Tactic call ran for 1.459 secs (1.459u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: vm_compute
+solved
+Tactic call ran for 1.457 secs (1.457u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: vm_compute
+solved
+Tactic call ran for 1.465 secs (1.465u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: vm_compute
+solved
+Tactic call ran for 1.461 secs (1.461u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: vm_compute
+solved
+Tactic call ran for 1.47 secs (1.47u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: vm_compute
+solved
+Tactic call ran for 1.467 secs (1.467u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: vm_compute
+solved
+Tactic call ran for 1.44 secs (1.44u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_3_fmap.reduce_to_decideOL_fmap ::: vm_compute
+solved
+Tactic call ran for 1.471 secs (1.471u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_4_pointers.reduce_to_decideOL_pointer ::: lazy
+solved
+Tactic call ran for 13.45 secs (13.449u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_4_pointers.reduce_to_decideOL_pointer ::: lazy
+solved
+Tactic call ran for 13.414 secs (13.395u,0.017s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_4_pointers.reduce_to_decideOL_pointer ::: lazy
+solved
+Tactic call ran for 13.48 secs (13.479u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_4_pointers.reduce_to_decideOL_pointer ::: lazy
+solved
+Tactic call ran for 13.394 secs (13.393u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_4_pointers.reduce_to_decideOL_pointer ::: lazy
+solved
+Tactic call ran for 13.488 secs (13.487u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_4_pointers.reduce_to_decideOL_pointer ::: lazy
+solved
+Tactic call ran for 13.449 secs (13.448u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_4_pointers.reduce_to_decideOL_pointer ::: lazy
+solved
+Tactic call ran for 13.45 secs (13.449u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_4_pointers.reduce_to_decideOL_pointer ::: lazy
+solved
+Tactic call ran for 13.435 secs (13.434u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_4_pointers.reduce_to_decideOL_pointer ::: lazy
+solved
+Tactic call ran for 13.416 secs (13.415u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_4_pointers.reduce_to_decideOL_pointer ::: lazy
+solved
+Tactic call ran for 13.42 secs (13.419u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_4_pointers.reduce_to_decideOL_pointer ::: vm_compute
+solved
+Tactic call ran for 0.863 secs (0.863u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_4_pointers.reduce_to_decideOL_pointer ::: vm_compute
+solved
+Tactic call ran for 0.872 secs (0.872u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_4_pointers.reduce_to_decideOL_pointer ::: vm_compute
+solved
+Tactic call ran for 0.876 secs (0.876u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_4_pointers.reduce_to_decideOL_pointer ::: vm_compute
+solved
+Tactic call ran for 0.854 secs (0.854u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_4_pointers.reduce_to_decideOL_pointer ::: vm_compute
+solved
+Tactic call ran for 0.852 secs (0.852u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_4_pointers.reduce_to_decideOL_pointer ::: vm_compute
+solved
+Tactic call ran for 0.844 secs (0.844u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_4_pointers.reduce_to_decideOL_pointer ::: vm_compute
+solved
+Tactic call ran for 0.885 secs (0.885u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_4_pointers.reduce_to_decideOL_pointer ::: vm_compute
+solved
+Tactic call ran for 0.866 secs (0.866u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_4_pointers.reduce_to_decideOL_pointer ::: vm_compute
+solved
+Tactic call ran for 0.879 secs (0.879u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: OL_Reflection_4_pointers.reduce_to_decideOL_pointer ::: vm_compute
+solved
+Tactic call ran for 0.848 secs (0.848u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: "btauto" ::: "none"
+timeout
+Tactic call ran for 90. secs (87.845u,2.148s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: "btauto" ::: "none"
+timeout
+Tactic call ran for 90. secs (88.521u,1.473s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: "btauto" ::: "none"
+timeout
+Tactic call ran for 90. secs (89.047u,0.942s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: "btauto" ::: "none"
+timeout
+Tactic call ran for 90.018 secs (89.237u,0.777s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: "btauto" ::: "none"
+timeout
+Tactic call ran for 90. secs (88.771u,1.224s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: "btauto" ::: "none"
+timeout
+Tactic call ran for 90.021 secs (89.107u,0.91s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: "btauto" ::: "none"
+timeout
+Tactic call ran for 90.005 secs (88.956u,1.045s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: "btauto" ::: "none"
+timeout
+Tactic call ran for 90. secs (88.853u,1.142s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: "btauto" ::: "none"
+timeout
+Tactic call ran for 90. secs (89.76u,0.235s) (success)
+--------------------------------------------------------------------------------
+:: "test48" ::: "btauto" ::: "none"
+timeout
+Tactic call ran for 90. secs (89.142u,0.853s) (success)
