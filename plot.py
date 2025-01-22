@@ -26,11 +26,16 @@ def parse_entry(entry_contents: str) -> dict[str, Any]:
     return m.groupdict() if m else None
 
 SOLVER_RENAME = {
+    "btauto": "btauto",
     "OL_Reflection_1_base.reduce_to_decideOL": "OL",
     "OL_Reflection_2_memo.reduce_to_decideOL_memo": "OL+l",
     "OL_Reflection_3_fmap.reduce_to_decideOL_fmap": "OL+m",
+    "OL_Reflection_4_pointers.reduce_to_decideOL_pointer": "OL+m+φ",
+    # Old names
+    "OL_Reflection_1_base.reduceToAlgo": "OL",
+    "OL_Reflection_2_memo.reduceToAlgoMemo": "OL+l",
+    "OL_Reflection_3_fmap.reduceToAlgoFmap": "OL+m",
     "OL_Reflection_4_pointers.reduceToAlgoPointers": "OL+m+φ",
-    "btauto": "btauto"
 }
 
 REDUCTION_RENAME = {
