@@ -1,5 +1,7 @@
 [@@@ocaml.warnings "-31-32"]
 
+
+
 (* Unique key counters *)
 let total_formula = ref 0
 let total_polar = ref 0
@@ -278,7 +280,7 @@ let rec normal_formula_to_string nf =
 
 
 
-let rec get_polar_inverse (pf: polar_formula) =
+let get_polar_inverse (pf: polar_formula) =
   match get_p_inverse_option pf with
   | Some pf' -> pf'
   | None -> 
@@ -306,7 +308,7 @@ let rec polarize f polarity =
     if polarity then set_polar_formula f (Some pf) else set_polar_formula f (Some (get_polar_inverse pf));
     pf
 
-let rec get_normal_inverse (nf: normal_formula) =
+let get_normal_inverse (nf: normal_formula) =
   match get_n_inverse_option nf with
   | Some nf' -> nf'
   | None ->
@@ -343,7 +345,7 @@ let rec to_formula_nnf (nf: normal_formula) (positive: bool): formula =
     r
 
 
-let rec to_formula (nf: normal_formula) = to_formula_nnf nf true
+let to_formula (nf: normal_formula) = to_formula_nnf nf true
 
 
 
@@ -364,11 +366,12 @@ let rec lattices_leq (nf1: normal_formula) (nf2: normal_formula) =
         | (NormalVariable v, NormalAnd and_f) when not and_f.polarity -> List.exists (fun x -> lattices_leq nf1 (get_normal_inverse x)) and_f.children
         | (NormalAnd and_f, NormalVariable v) when and_f.polarity -> List.exists (fun x -> lattices_leq x nf2) and_f.children
         | (NormalAnd and_f1, NormalAnd and_f2) -> List.exists (fun x -> lattices_leq x nf2) and_f1.children || List.exists (fun x -> lattices_leq nf1 x) and_f2.children
+        | _ -> raise (Failure "Impossible case")
       in
       set_lt_cached nf1 nf2 r;
       r
 
-let rec simplify (children: normal_formula list) (polarity: bool) =
+let simplify (children: normal_formula list) (polarity: bool) =
   let non_simplified = new_n_and children polarity in
   let rec treat_child i = 
     match i with
@@ -404,7 +407,7 @@ let rec simplify (children: normal_formula list) (polarity: bool) =
   | [x] -> if polarity then x else get_normal_inverse x
   | accepted -> new_n_and accepted polarity
 
-let rec check_for_contradiction (f: normal_formula) =
+let check_for_contradiction (f: normal_formula) =
   match f with
   | NormalAnd (and_f) when not and_f.polarity -> 
     List.exists (fun x -> lattices_leq x f) and_f.children
@@ -448,7 +451,9 @@ let f = new_or [ new_and [ new_neg a; b ]; new_neg a ]
 
 
 (* Printing results *)
-let () =
-  Printf.printf "Formula: %s\n" (formula_to_string f);
-  Printf.printf "Polarized: %s\n" (polar_formula_to_string (polarize f true));
-  Printf.printf "Normal Form: %s\n" (formula_to_string (reduced_form f))
+let show_ol  = 
+  (Printf.sprintf "Formula: %s\n" (formula_to_string f)) ^
+  (Printf.sprintf "Polarized: %s\n" (polar_formula_to_string (polarize f true))) ^
+  (Printf.sprintf "Normal Form: %s\n" (formula_to_string (reduced_form f)));;
+
+

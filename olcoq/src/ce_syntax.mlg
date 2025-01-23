@@ -1,0 +1,26 @@
+DECLARE PLUGIN "coq-ol.plugin"
+
+
+{
+
+open Ltac_plugin
+(*open Pp*)
+open Stdarg
+
+}
+
+TACTIC EXTEND Hello
+| [ "hello" ] -> { Ce_api.printHello }
+END
+
+TACTIC EXTEND HelloOL
+| [ "hello_ol" ] -> { Ce_api.printTestOL }
+END
+
+
+TACTIC EXTEND OLGet
+| [ "olget" constr(e) ] -> 
+  { 
+   Ce_api.identity e
+  }
+END
