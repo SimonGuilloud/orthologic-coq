@@ -203,15 +203,15 @@ Ltac index_of x l :=
 Ltac convertible x y := constr:(eq_refl x : x = y).
 
 (* Puts all leaves of the expression (i.e. which are neither meets, joins nor neg) into a list. *)
-Ltac leaves AA m j n l exp := 
+Ltac leaves OL l exp := 
   match exp with
-  | (?op ?X1 ?X2) => let __ := convertible op m in let l1 := leaves AA m j n l X1 in
-                 let l2 := leaves AA m j n l1 X2 in
+  | (?op ?X1 ?X2) => let __ := convertible op (@meet OL) in let l1 := leaves OL l X1 in
+                 let l2 := leaves OL l1 X2 in
                  constr:(l2)
-  | (?op ?X1 ?X2) => let __ := convertible op j in let l1 := leaves AA m j n l X1 in
-                 let l2 := leaves AA m j n l1 X2 in
+  | (?op ?X1 ?X2) => let __ := convertible op (@join OL) in let l1 := leaves OL l X1 in
+                 let l2 := leaves OL l1 X2 in
                  constr:(l2)
-  | (?op ?X1) => let __ := convertible op n in leaves AA m j n l X1
+  | (?op ?X1) => let __ := convertible op (@neg OL) in leaves OL l X1
   | ?X1 => add_if_not_exists X1 l
   end.
 
@@ -239,17 +239,23 @@ Ltac reify_leq OL S T :=
   let AA := (eval simpl in (@A OL)) with
       m := (eval simpl in (@meet OL)) with
       j := (eval simpl in (@join OL)) with
-      n := (eval simpl in (@neg OL)) in
-  let l1 := leaves AA m j n (@nil AA) S in
-  let l2 := leaves AA m j n l1 T in
+      n := (eval simpl in (@neg OL)) with
+      f := (eval simpl in (@zero OL)) with
+      t := (eval simpl in (@one OL)) in
+  let l1 := leaves OL (@nil AA) S in
+  let l2 := leaves OL l1 T in
   let t1' := (reify_term OL S l2) with
       t2' := (reify_term OL T l2) in
-  let h := head_tac l2 in
-  let env := constr:(fun k:positive => nth (pred (Pos.to_nat k)) l2 h ) in
-      change ((@eval OL t1' env) <= (@eval OL t2' env)).
+  let env := constr:(fun k:positive => nth (pred (Pos.to_nat k)) l2 (@e OL) ) in
+      change ((@eval OL t1' env) <= (@eval OL t2' env));try unfold Zero; try unfold One.
 
 
-Ltac reify_goal OL := 
+
+Ltac bool_unfold := 
+  replace false with (@zero BoolOL) by reflexivity; replace true with (@one BoolOL) by reflexivity.
+
+  
+Ltac reify_goal OL := bool_unfold; try rewrite false_eq; try rewrite true_eq;
   match goal with
   | [ |- ?f ?S ?T ] =>  
         change ((@OL_Theory.equiv OL) S T)
@@ -265,11 +271,13 @@ Ltac reify_goal OL :=
   | _ => fail "Should not happen"
   end.
 
+
 Ltac solve_OL OL := 
   reify_goal OL; apply reduce_to_decideOL; auto; vm_compute; (try reflexivity).
 
 
 (* Small tests *)
+
 
 Example test1 {OL: Ortholattice} : forall a,  a <= a.
 Proof.
@@ -333,303 +341,3 @@ Proof.
   solve_OL OL.
 Qed.
 
-
-
-(* Completeness *)
-
-Lemma soundness_sequent g d : (OLProof (g, d)) -> anTerm_leq g d.
-Proof.
-  intro. exact (soundness (g, d) H).
-Qed.
-
-
-Ltac no_NN := exfalso; apply no_proof_NN; auto.
-
-(*
-Fixpoint decideOL_base (fuel: nat) (g d: AnTerm) : bool :=
-  match fuel with
-  | 0 => false
-  | S n =>
-    match (g, d) with 
-    | (L (Var a), R (Var b) )  => (Pos.eqb a b) (* Hyp *)
-    | _ => false
-    end || (
-    decideOL_base n g N || (
-    match d with 
-    | N => decideOL_base n g g 
-    | _ => false
-    end || (
-    match g with 
-    | L (Meet a b) => decideOL_base n (L a) d
-    | _ => false
-    end || (
-    match g with
-    | L (Meet a b) => decideOL_base n (L b) d
-    | _ => false
-    end || (
-    match g with 
-    | L (Join a b) => decideOL_base n (L a) d && decideOL_base n (L b) d
-    | _ => false
-    end || (
-    match g with 
-    | L (Not a) => decideOL_base n (R a) d
-    | _ => false
-    end || (
-    match d with 
-    | R (Meet a b) => decideOL_base n g (R a) && decideOL_base n g (R b)
-    | _ => false
-    end || (
-    match d with
-    | R (Join a b) => decideOL_base n g (R a)
-    | _ => false
-    end || (
-    match d with
-    | R (Join a b) => decideOL_base n g (R b)
-    | _ => false
-    end || (
-    match d with
-    | R (Not a) => decideOL_base n g (L a)
-    | _ => false
-    end || (
-    decideOL_base n d g
-    )))))))))))
-  end.
-*)
-
-
-
-(*    
-
-Require Import Coq.Program.Equality.
-Lemma var_hyp_reduce a b: 
-  (OLProof (L (Var a),  R (Var b))) -> (Pos.eqb a b) = true.
-Proof.
-  intro. apply soundness_sequent in H.
-  unfold anTerm_leq in *. unfold term_leq in *. simpl in H. 
-  specialize (H BoolOL (fun p => if Pos.eqb a p then true else false)). simpl in H.
-  rewrite Pos.eqb_refl in H. destruct (a=?b)%positive eqn: ab. reflexivity. 
-  apply H.
-Qed.
-
-Lemma var_hyp_reduce_rev a b: 
-  (OLProof (R (Var a),  L (Var b))) -> (Pos.eqb a b) = true.
-Proof.
-  intro. apply Swap in H. rewrite Pos.eqb_sym. apply var_hyp_reduce. auto.
-Qed.
-
-
-Lemma left_join_reduce_1_g s t d: 
-  (OLProof (L (Join s t),  d)) -> (OLProof (L t, d)).
-Proof.
-  intro. eauto 5 with olproof.
-Qed.
-
-Lemma left_join_reduce_2_g s t d: 
-  (OLProof (L (Join s t),  d)) -> (OLProof (L s, d)).
-Proof.
-  intro. eauto 5 with olproof.
-Qed.
-
-Lemma right_meet_reduce_1_g s t d: 
-  (OLProof (R (Meet s t),  d)) -> (OLProof (R s, d)).
-Proof.
-  intro. eauto 5 with olproof.
-Qed.
-
-Lemma right_meet_reduce_2_g s t d: 
-  (OLProof (R (Meet s t),  d)) -> (OLProof (R t, d)).
-Proof.
-  intro. eauto 5 with olproof.
-Qed.
-
-Lemma left_not_reduce_g s d: 
-  (OLProof (L (Not s),  d)) -> (OLProof (R s, d)).
-Proof.
-  intro. eauto 5 with olproof.
-Qed.
-
-Lemma right_not_reduce_g s d: 
-  (OLProof (R (Not s),  d)) -> (OLProof (L s, d)).
-Proof.
-  intro. eauto 6 with olproof.
-Qed.
-
-
-
-
-
-Lemma left_join_reduce_1_d g s t : 
-  (OLProof (g, L (Join s t))) -> (OLProof (g, L t)).
-Proof.
-  intro. eauto 5 with olproof.
-Qed.
-
-Lemma left_join_reduce_2_d g s t: 
-  (OLProof (g, L (Join s t))) -> (OLProof (g, L s)).
-Proof.
-  intro. eauto 5 with olproof.
-Qed.
-
-Lemma right_meet_reduce_1_d g s t: 
-  (OLProof (g, R (Meet s t))) -> (OLProof (g, R s)).
-Proof.
-  intro. eauto 5 with olproof.
-Qed.
-
-Lemma right_meet_reduce_2_d g s t: 
-  (OLProof (g, R (Meet s t))) -> (OLProof (g, R t)).
-Proof.
-  intro. eauto 5 with olproof.
-Qed.
-
-Lemma left_not_reduce_d g s: 
-  (OLProof (g, L (Not s))) -> (OLProof (g, R s)).
-Proof.
-  intro. eauto 6 with olproof.
-Qed.
-
-Lemma right_not_reduce_d g s: 
-  (OLProof (g, R (Not s))) -> (OLProof (g, L s)).
-Proof.
-  intro. eauto 5 with olproof.
-Qed.
-
-
-    | (L (Var a), R (Var b) )  => (Pos.eqb a b) (* Hyp *)
-    | (L (Join a b), _) => (decideOL_base n (L a) d) && (decideOL_base n (L b) d) (* LeftOr *)
-    | (L (Not a), _) => decideOL_base n (R a) d (* LeftNot *)
-    | (_, R (Meet a b)) => (decideOL_base n g (R a)) && (decideOL_base n g (R b)) (* RightAnd *)
-    | (_, R (Not a)) => decideOL_base n g (L a) (* RightNot *)
-    
-    *)
-
-
-
-(*
-Theorem decideOL_base_complete: 
-  forall m n g d, 
-  forall p: (OLProof (g, d)),
-  is_cut_free p ->
-  m > (anterm_size g) + (anterm_size d) \/ (m >= (anterm_size g) + (anterm_size d) /\ n >= proof_size p) ->
-  exists n0, (decideOL_base n0 g d) = true.
-Proof. 
-  induction m.
-  - intros; simpl in *. destruct H0.
-    + destruct g; destruct d; simpl in *; lia.
-    + destruct H0; destruct d; simpl in *; lia.
-  - induction n. 
-    + intros; simpl in *. destruct H0. 2: try destruct H0; destruct p; simpl in *; lia.
-      destruct g as [ | t | t ] eqn: g_eq; try destruct t.
-        all: destruct d as [ | t0 | t0 ] eqn: d_eq; try destruct t0; simpl in *.
-        no_NN.
-
-        all: try( pose proof (var_hyp_reduce _ _ p) as Hvar; clear H p).
-        all: try( pose proof (left_join_reduce_1_g _ _ _ p) as o_1;
-          apply cut_elimination in o_1; destruct o_1 as [o_1 o_1_cut];
-          pose proof (left_join_reduce_2_g _ _ _ p) as o_2;
-          apply cut_elimination in o_2; destruct o_2 as [o_2 o_2_cut]; clear H p).
-        all: try( pose proof (left_not_reduce_g _ _ p) as o_1;
-          apply cut_elimination in o_1; destruct o_1 as [o_1 o_1_cut]; clear H p).
-        all: try( pose proof (right_meet_reduce_1_d _ _ _ p) as o_1;
-          apply cut_elimination in o_1; destruct o_1 as [o_1 o_1_cut];
-          pose proof (right_meet_reduce_2_d _ _ _ p) as o_2;
-          apply cut_elimination in o_2; destruct o_2 as [o_2 o_2_cut]; clear H p).
-        all: try( pose proof (right_not_reduce_d _ _ p) as o_1;
-          apply cut_elimination in o_1; destruct o_1 as [o_1 o_1_cut]; clear H p).
-
-        all: try (repeat match goal with
-        | [o1: (OLProof (?o1g, ?o1d)), o2: (OLProof (?o2g, ?o2d)) |- _ ] => 
-          pose proof (IHm (proof_size o1) o1g o1d o1) as IHo1;
-          destruct IHo1 as [n1 IHo1]; auto; try (right; split; simpl; lia);
-          pose proof (IHm (proof_size o2) o2g o2d o2) as IHo2;
-          destruct IHo2 as [n2 IHo2]; auto; try (right; split; simpl; lia);
-          apply (decideOL_base_monotonic (n1 + n2)) in IHo1; 
-          apply (decideOL_base_monotonic (n1 + n2)) in IHo2; auto; try lia;
-          exists (S (n1 + n2)); auto; simpl
-        | [o1: (OLProof (?o1g, ?o1d)) |- _ ] => 
-          pose proof (IHm (proof_size o1) o1g o1d o1) as IHo1;
-          destruct IHo1 as [n1 IHo1]; auto; try (right; split; simpl; lia);
-          exists (S n1); simpl
-        | [ Hvar: (?p0 =? ?p1)%positive = true |- _] => exists 1; simpl ; auto
-        | _ => autorewrite with rw_bool in *; subst; auto
-        end; fail).
-
-        all: generalize H; generalize H0; dependent inversion p; intro Hfuel; intro Hcut; simpl in Hcut; try destruct Hcut.
-        all: subst; clear H p.
-        all: try (repeat match goal with
-        | [o1: (OLProof (?o1g, ?o1d)), o2: (OLProof (?o2g, ?o2d)) |- _ ] => 
-          pose proof (IHm (proof_size o1) o1g o1d o1) as IHo1;
-          destruct IHo1 as [n1 IHo1]; auto; try (right; split; simpl; lia);
-          pose proof (IHm (proof_size o2) o2g o2d o2) as IHo2;
-          destruct IHo2 as [n2 IHo2]; auto; try (right; split; simpl; lia);
-          apply (decideOL_base_monotonic (n1 + n2)) in IHo1; 
-          apply (decideOL_base_monotonic (n1 + n2)) in IHo2; auto; try lia;
-          exists (S (n1 + n2)); auto; simpl; autorewrite with rw_bool in *; subst; auto
-        | [o1: (OLProof (?o1g, ?o1d)) |- _ ] => 
-          pose proof (IHm (proof_size o1) o1g o1d o1) as IHo1;
-          destruct IHo1 as [n1 IHo1]; auto; try (right; split; simpl; lia); try (left; lia);
-          exists (S n1); simpl; autorewrite with rw_bool in *; subst; auto 8
-        | [ Hvar: (?p0 =? ?p1)%positive = true |- _] => exists 1; simpl ; auto
-        | _ => autorewrite with rw_bool in *; subst; auto
-        end; fail).
-    + intros.
-    destruct g as [ | t | t ] eqn: g_eq; try destruct t.
-      all: destruct d as [ | t0 | t0 ] eqn: d_eq; try destruct t0; simpl in *.
-
-      all: try( pose proof (var_hyp_reduce _ _ p) as Hvar; clear H).
-      all: try( pose proof (left_join_reduce_1_g _ _ _ p) as o_1;
-        apply cut_elimination in o_1; destruct o_1 as [o_1 o_1_cut];
-        pose proof (left_join_reduce_2_g _ _ _ p) as o_2;
-        apply cut_elimination in o_2; destruct o_2 as [o_2 o_2_cut]; clear H).
-      all: try( pose proof (left_not_reduce_g _ _ p) as o_1;
-        apply cut_elimination in o_1; destruct o_1 as [o_1 o_1_cut]; clear H).
-      all: try( pose proof (right_meet_reduce_1_d _ _ _ p) as o_1;
-        apply cut_elimination in o_1; destruct o_1 as [o_1 o_1_cut];
-        pose proof (right_meet_reduce_2_d _ _ _ p) as o_2;
-        apply cut_elimination in o_2; destruct o_2 as [o_2 o_2_cut]; clear H).
-      all: try( pose proof (right_not_reduce_d _ _ p) as o_1;
-        apply cut_elimination in o_1; destruct o_1 as [o_1 o_1_cut]; clear H).
-
-      no_NN. Opaque Nat.max. all: simpl in *; auto.
-      all: subst.
-      all: try (repeat match goal with
-      | [o_1_cut : is_cut_free ?o_1, o_2_cut : is_cut_free ?o_2, o1: (OLProof (?o1g, ?o1d)), o2: (OLProof (?o2g, ?o2d)) |- _ ] => 
-        pose proof (IHm (proof_size o1) o1g o1d o1) as IHo1;
-        destruct IHo1 as [n1 IHo1]; auto; try (right; split; simpl; lia);
-        pose proof (IHm (proof_size o2) o2g o2d o2) as IHo2;
-        destruct IHo2 as [n2 IHo2]; auto; try (right; split; simpl; lia);
-        apply (decideOL_base_monotonic (n1 + n2)) in IHo1; 
-        apply (decideOL_base_monotonic (n1 + n2)) in IHo2; auto; try lia;
-        exists (S (n1 + n2)); auto; simpl
-      | [o_1_cut : is_cut_free ?o_1, o1: (OLProof (?o1g, ?o1d)) |- _ ] => 
-        pose proof (IHm (proof_size o1) o1g o1d o1) as IHo1;
-        destruct IHo1 as [n1 IHo1]; auto; try (right; split; simpl; lia);
-        exists (S n1); simpl
-      | [ Hvar: (?p0 =? ?p1)%positive = true |- _] => exists 1; simpl ; auto
-      | _ => autorewrite with rw_bool in *; subst; auto
-      end; fail).
-
-      all: generalize H; generalize H0; dependent inversion p; intro Hfuel; intro Hcut; simpl in Hcut; try destruct Hcut.
-      all: subst; clear H; clear H0.
-      all: try (repeat match goal with
-      | [o_1_cut : is_cut_free ?o_1, o_2_cut : is_cut_free ?o_2, o1: (OLProof (?o1g, ?o1d)), o2: (OLProof (?o2g, ?o2d)) |- _ ] => 
-        pose proof (IHn o1g o1d o1) as IHo1;
-        destruct IHo1 as [n1 IHo1]; auto; simpl in *; 
-        destruct Hfuel; only 1: left; only 2: right; simpl; try lia;
-        pose proof (IHn o2g o2d o2) as IHo2;
-        destruct IHo2 as [n2 IHo2]; auto; simpl in *; 
-        destruct Hfuel; only 1: left; only 2: right; simpl; try lia;
-        apply (decideOL_base_monotonic (n1 + n2)) in IHo1; 
-        apply (decideOL_base_monotonic (n1 + n2)) in IHo2; auto; try lia;
-        exists (S (n1 + n2)); auto; simpl; autorewrite with rw_bool in *; subst; auto
-      | [o_1_cut : is_cut_free ?o_1, o1: (OLProof (?o1g, ?o1d)) |- _ ] => 
-        pose proof (IHn  o1g o1d o1) as IHo1;
-        destruct IHo1 as [n1 IHo1]; auto; simpl in *; 
-        destruct Hfuel; only 1: left; only 2: right; simpl; try lia;
-        exists (S n1); simpl; autorewrite with rw_bool in *; subst; auto 8
-      | [ Hvar: (?p0 =? ?p1)%positive = true |- _] => exists 1; simpl ; auto
-      | _ => autorewrite with rw_bool in *; subst; auto
-      end; fail).
-Qed.
-
-*)

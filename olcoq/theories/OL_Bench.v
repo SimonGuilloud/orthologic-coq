@@ -5,9 +5,10 @@ Require Export Coq.Arith.PeanoNat.
 
 Require Export OL_Theory.
 Require OL_Reflection_1_base.
-Require OL_Reflection_2_memo.
-Require OL_Reflection_3_fmap.
-Require OL_Reflection_4_pointers.
+Require OL_Reflection_2_opti.
+Require OL_Reflection_3_memo.
+Require OL_Reflection_4_fmap.
+Require OL_Reflection_5_pointers.
 
 Open Scope bool_scope.
 Require Export Btauto.
@@ -50,12 +51,14 @@ Tactic Notation "bench1" uconstr(id) constr(thm) constr(reduction)  :=
 Tactic Notation "benchSuperFast" uconstr(id) :=
   do 10 (bench1 id OL_Reflection_1_base.reduce_to_decideOL lazy);
   do 10 (bench1 id OL_Reflection_1_base.reduce_to_decideOL vm_compute);
-  do 10 (bench1 id OL_Reflection_2_memo.reduce_to_decideOL_memo lazy);
-  do 10 (bench1 id OL_Reflection_2_memo.reduce_to_decideOL_memo vm_compute);
-  do 10 (bench1 id OL_Reflection_3_fmap.reduce_to_decideOL_fmap lazy);
-  do 10 (bench1 id OL_Reflection_3_fmap.reduce_to_decideOL_fmap vm_compute);
-  do 10 (bench1 id OL_Reflection_4_pointers.reduce_to_decideOL_pointer lazy);
-  do 10 (bench1 id OL_Reflection_4_pointers.reduce_to_decideOL_pointer vm_compute);
+  do 10 (bench1 id OL_Reflection_2_opti.reduce_to_decideOL_opti lazy);
+  do 10 (bench1 id OL_Reflection_2_opti.reduce_to_decideOL_opti vm_compute);
+  do 10 (bench1 id OL_Reflection_3_memo.reduce_to_decideOL_memo lazy);
+  do 10 (bench1 id OL_Reflection_3_memo.reduce_to_decideOL_memo vm_compute);
+  do 10 (bench1 id OL_Reflection_4_fmap.reduce_to_decideOL_fmap lazy);
+  do 10 (bench1 id OL_Reflection_4_fmap.reduce_to_decideOL_fmap vm_compute);
+  do 10 (bench1 id OL_Reflection_5_pointers.reduce_to_decideOL_pointer lazy);
+  do 10 (bench1 id OL_Reflection_5_pointers.reduce_to_decideOL_pointer vm_compute);
   do 10 (header id "btauto" "none"; time (run1 (btauto)));
   idtac.
 

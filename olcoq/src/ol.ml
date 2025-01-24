@@ -1,6 +1,11 @@
-[@@@ocaml.warnings "-31-32"]
+[@@@ocaml.warnings "-31-32-33"]
 
-
+(*
+open Constr
+open Pp
+open Context
+open Typing
+*)
 
 (* Unique key counters *)
 let total_formula = ref 0
@@ -232,6 +237,9 @@ let set_lt_cached nf1 nf2 b =
 
   (* Pretty printers *)
 
+  
+
+
 let rec formula_to_string f =
   match f with
   | Variable v -> Printf.sprintf "V_%d" v.id 
@@ -405,7 +413,7 @@ let simplify (children: normal_formula list) (polarity: bool) =
   match loop [] remaining with
   | [] -> new_n_literal polarity
   | [x] -> if polarity then x else get_normal_inverse x
-  | accepted -> new_n_and accepted polarity
+  | accepted -> new_n_and (List.rev accepted) polarity
 
 let check_for_contradiction (f: normal_formula) =
   match f with
@@ -445,7 +453,7 @@ let reduced_form (f: formula) =
 (* Example usage *)
 let a = new_variable 0
 let b = new_variable 1
-let f = new_or [ new_and [ new_neg a; b ]; new_neg a ]
+let f = new_and [a; new_neg a ]
 
 (* Function to convert Formula to string *)
 
