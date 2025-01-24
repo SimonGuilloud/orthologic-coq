@@ -19,8 +19,8 @@ END
 
 
 TACTIC EXTEND OLGet
-| [ "olget" constr(e) ] -> 
+| [ "olget" constr(e) ident(h) ] -> 
   { 
-   Ce_api.identity e
+   Ce_api.ol_normal e h
   }
 END

@@ -2,6 +2,7 @@ Require Import Setoid Morphisms.
 Require Import Lia.
 Require Import Coq.Arith.Bool_nat.
 Require Import Coq.Arith.PeanoNat.
+Require Import Btauto.
 
 
 Open Scope bool_scope.
@@ -19,14 +20,19 @@ Reserved Notation "¬ x" (at level 20).
 Class Ortholattice := {
 
   A : Set;
+  e : A;
 
   leq : relation A where "x <= y" := (leq x y);
   meet : A -> A -> A where "x ∩ y" := (meet x y);
   join : A -> A -> A where "x ∪ y" := (join x y);
   neg : A -> A where "¬ x" := (neg x);
+  zero : A;
+  one : A;
 
   equiv: relation A where "x == y" := (equiv x y);
   equiv_leq : forall x y, (x == y) <-> ( (x <= y) /\ (y <= x));
+  zero_leq : forall x, (leq zero x);
+  one_leq : forall x, (leq x one);
 
   P1 : forall x, x <= x;
   P2 : forall x y z, x <= y -> y <= z -> x <= z;
@@ -65,6 +71,8 @@ Lemma lub2 {OL: Ortholattice} x y z: x <= z -> x <= y ∪ z. Proof. intros. appl
 *)
 Ltac withman := match goal with
   | [ |- _ == _] => rewrite equiv_leq; split; withman
+  | [ |- zero <= _] => apply zero_leq
+  | [ |- _ <= one] => apply one_leq
   | [ |- ?x <= ?x] => apply P1
   | [ |- _ <= _ ∩ _] => apply P6; withman
   | [ |- _ ∪ _ <= _] => apply P6'; withman
@@ -138,6 +146,8 @@ Lemma V8' {OL: Ortholattice} x y : ¬ (x ∩ y) == (¬ x) ∪ (¬ y). Proof.
 Qed.
 Lemma V9' {OL: Ortholattice} x y : x ∩ (x ∪ y) == x. Proof. withman. Qed.
 
+Lemma false_eq {OL: Ortholattice} : zero == e ∩ (¬ e). Proof. withman. apply P9. Qed.
+Lemma true_eq {OL: Ortholattice} : one == e ∪ (¬ e). Proof. withman. apply P9'. Qed.
 
   (* Term Algebra *)
 
@@ -150,8 +160,8 @@ Inductive Term : Set :=
   | Not : Term -> Term.
 
 
-Definition zero := Meet (Var xH) (Not (Var xH)).
-Definition one := Join (Var xH) (Not (Var xH)).
+Definition Zero := Meet (Var xH) (Not (Var xH)).
+Definition One := Join (Var xH) (Not (Var xH)).
 
 
   (* Evaluation of a term in an arbitrary ortholattice *)
@@ -202,14 +212,14 @@ Inductive OLProof : AnTerm*AnTerm -> Set :=
 Definition interp t: Term := match t with
   | L a => a
   | R a => Not a
-  | N => one
+  | N => One
 end.
 
 
 Definition not_interp t: Term := match t with
   | L a => Not a
   | R a => a
-  | N => zero
+  | N => Zero
 end.
 
 
@@ -223,41 +233,41 @@ Notation "⊢ a b" := (anTerm_leq a b _) (at level 90).
 
   (* Some useful lemmas *)
 
-Lemma zero_min {OL: Ortholattice} : forall f t, eval zero f <= eval t f.
+Lemma zero_min {OL: Ortholattice} : forall f t, eval Zero f <= eval t f.
 Proof.
   intros.
-  unfold zero.
+  unfold Zero.
   unfold eval.
   apply P9.
 Qed.
 
 
-Lemma one_max {OL: Ortholattice} : forall f t, eval t f <= eval one f.
+Lemma one_max {OL: Ortholattice} : forall f t, eval t f <= eval One f.
 Proof.
   intros.
-  unfold one.
+  unfold One.
   unfold eval.
   apply P9'.
 Qed.
 
 
-Lemma zero_eq {OL: Ortholattice} : forall f t, eval zero f == eval (Meet t (Not t)) f.
+Lemma zero_eq {OL: Ortholattice} : forall f t, eval Zero f == eval (Meet t (Not t)) f.
 Proof.
   intros.
-  unfold zero.
+  unfold Zero.
   rewrite equiv_leq; split; apply P9.
 Qed.
 
 
-Lemma one_eq {OL: Ortholattice} : forall f t, eval one f == eval (Join t (Not t)) f.
+Lemma one_eq {OL: Ortholattice} : forall f t, eval One f == eval (Join t (Not t)) f.
 Proof.
   intros.
-  unfold one.
+  unfold One.
   rewrite equiv_leq; split; apply P9'.
 Qed.
 
 
-Lemma contract_soundness {OL: Ortholattice} : forall f t, eval t f <= eval (Not t) f -> eval t f == eval zero f.
+Lemma contract_soundness {OL: Ortholattice} : forall f t, eval t f <= eval (Not t) f -> eval t f == eval Zero f.
 Proof.
   intros.
   rewrite  (zero_eq f t). rewrite equiv_leq; split; simpl.
@@ -292,14 +302,14 @@ Proof.
     apply P1.
   - unfold anTerm_leq, term_leq, interp, not_interp in *; simpl in *.
     intros.
-    apply P2 with (eval zero f). apply IHp. apply zero_min.
+    apply P2 with (eval Zero f). apply IHp. apply zero_min.
   - unfold anTerm_leq, term_leq, interp, not_interp in *; simpl in *.
     intros.
     destruct gamma. auto. 
-      + assert (eval t f == eval zero f).
+      + assert (eval t f == eval Zero f).
         apply contract_soundness. auto.
         rewrite H. apply P1.
-      + assert (eval (Not t) f == eval zero f).
+      + assert (eval (Not t) f == eval Zero f).
         apply contract_soundness. unfold eval. rewrite V6. fold eval. apply IHp.
         rewrite H. apply P1.
 
@@ -361,15 +371,22 @@ Qed.
 
 #[refine] Instance TermOL : Ortholattice := {
     A := Term;
+    e := Var xH;
     leq := has_proof;
     meet := Meet;
     join := Join;
     neg := Not;
+    zero := Zero;
+    one := One;
     equiv := fun x y => (has_proof x y) /\ (has_proof y x);
   }.
 Proof.
   all: intros.
   - reflexivity.
+  - unfold Zero. apply proof_exists. apply Weaken. apply Contract. 
+    apply LeftAnd1; apply Swap; apply LeftAnd2. apply LeftNot; apply Swap; apply full_hyp.
+  - unfold One. apply proof_exists. apply Swap. apply Weaken. apply Contract.
+    apply RightOr1. apply Swap. apply RightOr2. apply RightNot. apply Swap. apply full_hyp.
   - apply proof_exists. apply (full_hyp).
   - destruct H. destruct H0. apply proof_exists. eapply Cut. eauto. intuition.
   - apply proof_exists. apply LeftAnd1. apply full_hyp.
@@ -408,15 +425,20 @@ Qed.
 
 #[refine] Instance BoolOL : Ortholattice := {
   A := bool;
+  e := false;
   leq := Bool.le;
   meet := andb;
   join := orb;
   neg := negb;
   equiv := eq;
+  zero := false;
+  one := true;
 }.
 Proof.
   all: intros.
   - destruct x, y; simpl; intuition.
+  - simpl; auto.
+  - destruct x; simpl; auto.
   - destruct x; unfold Bool.le; auto.
   - destruct x, y, z; simpl in *; auto.
   - destruct x, y; simpl in *; auto.
@@ -435,10 +457,10 @@ Defined.
 
 Theorem no_proof_NN (P: OLProof (N, N)): False.
 Proof.
-  pose (@Weaken _ (L one) (Swap (@Weaken _ (R zero) P))) as P2.
-  assert (not (anTerm_leq (R zero) (L one))).
+  pose (@Weaken _ (L One) (Swap (@Weaken _ (R Zero) P))) as P2.
+  assert (not (anTerm_leq (R Zero) (L One))).
     - intro. unfold anTerm_leq, leq in *. specialize (H BoolOL).  simpl in *. specialize (H (fun _ => false)). simpl in *. discriminate.
-    - apply H. intros. remember (soundness (R zero, L one) P2) as s. simpl in *. auto.
+    - apply H. intros. remember (soundness (R Zero, L One) P2) as s. simpl in *. auto.
 Qed.
 
 
@@ -565,7 +587,7 @@ Proof.
     Tactic Notation "analyze" hyp(proof) ident(good_fuelSize) ident(p) ident(good_fuelB) := 
       generalize good_fuelSize, good_fuelB, p; clear good_fuelSize; clear good_fuelB; clear p; dependent inversion proof; intros; subst.
 
-    (* for cases where one of the proof has a cut when it is supposed to be cut free. *)
+    (* for cases where One of the proof has a cut when it is supposed to be cut free. *)
     Ltac cutContradict := simpl in *; exfalso; auto.
 
     (* Complete the proofs of the easy side conditions *)
