@@ -7,3 +7,17 @@ Open Scope bool_scope.
 Require Import Bool.
 Require Import Btauto.
 
+
+Example test0 a b c: (negb (a && (b || c))) ||  ((a && b) || (a && c)) = true.
+Proof.
+  oltauto.
+Qed.
+
+Example test0_cert a b c: (negb (a && (b || c))) ||  ((a && b) || (a && c)) = true.
+Proof.
+  oltauto_cert.
+Qed.
+
+Require Extraction.
+
+Extraction "extractedCode" decideOL_pointers.
