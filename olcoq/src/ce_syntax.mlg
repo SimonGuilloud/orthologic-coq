@@ -24,6 +24,27 @@ TACTIC EXTEND OLCert
   }
 END
 
+TACTIC EXTEND OLCertGoal
+| [ "olcert_goal" clause(cl)] -> 
+  { 
+   Ce_api.ol_cert_goal_tactic cl
+  }
+END
+
+TACTIC EXTEND OLNormCert
+| [ "ol_norm_cert" constr(e) clause(cl)] -> 
+  { 
+   Ce_api.ol_norm_cert_tactic e cl
+  }
+END
+
+TACTIC EXTEND OLNormCertGoal
+| [ "ol_norm_cert_goal" clause(cl)] -> 
+  { 
+   Ce_api.ol_norm_cert_goal_tactic cl
+  }
+END
+
 TACTIC EXTEND DestructAtom
 | [ "destruct_atom" ] -> 
   { 

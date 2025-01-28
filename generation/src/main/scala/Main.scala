@@ -12,7 +12,7 @@ object Main {
   def main(args: Array[String]): Unit = {
     for i <- 1 to 50 do {
       val txt = (getBenchFile(2*i))
-      val path = Paths.get(s"../bench/test${f"${2 * i}%03d"}.v")
+      val path = Paths.get(s"../theories/bench2/test${f"${2 * i}%03d"}.v")
       Files.createDirectories(path.getParent)
       Files.write(path, txt.getBytes(StandardCharsets.UTF_8))
     }
@@ -31,24 +31,26 @@ Theorem test${f"${i}%03d"} (${(0 to i).map("x"+_).reduce(_ + " " + _)}: bool) :
     = 
   ${prettyCoq(f2)}
 . Proof.
-    ${if (i>60) then "benchSuperFast" else if (i>40) then "benchFast" else if (i>20) "bench" else "benchSlow"} "test$i".
+    ${if (i>40) then "benchSuperFast" else if (i>20) then "benchFast" else if (i>8) "bench" else "benchSlow2"} "test$i".
 Admitted.
 """
   }
 
 
   def getBenchFileTauto(i:Int): String = {
-      val f = FormulaGenerator.randomFormula(size, numberVars)
+    val size = i
+    val numberVars = 20
+    val f = FormulaGenerator.randomFormula(size, numberVars)
 
-      s"""Require Import OL_Bench.
+    s"""Require Import OL_Bench.
 
 
   Theorem test${f"${i}%03d"} (${(0 to i).map("x"+_).reduce(_ + " " + _)}: bool) :
-    ${prettyCoq(f1)} 
+    ${prettyCoq(f)} 
       = 
-    ${prettyCoq(f2)}
+    true
   . Proof.
-      ${if (i>60) then "benchSuperFast" else if (i>40) then "benchFast" else if (i>20) "bench" else "benchSlow"} "test$i".
+      ${if (i>50) then "benchSuperFast" else if (i>20) then "benchFast" else if (i>8) "bench" else "benchSlow"} "test$i".
   Admitted.
   """
     }
