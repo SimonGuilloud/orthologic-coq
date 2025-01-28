@@ -7,21 +7,6 @@ Require Import Bool.
 Require Import Btauto.
 Open Scope bool_scope.
 
-(*
-
-      let left_true_or = Lazy.force left_true_or in
-      let right_true_or = Lazy.force right_true_or in
-      let left_neg_or = Lazy.force left_neg_or in
-      let right_neg_or = Lazy.force right_neg_or in
-      let left_and_or = Lazy.force left_and_or in
-      let right_and_or = Lazy.force right_and_or in
-      let left_or_or_1 = Lazy.force left_or_or_1 in
-      let left_or_or_2 = Lazy.force left_or_or_2 in
-      let right_or_or_1 = Lazy.force right_or_or_1 in
-      let right_or_or_2 = Lazy.force right_or_or_2 in
-      
-*)
-
 Definition tpair a b := (a || b) = true.
 
 Ltac easy := intros; unfold tpair in *; repeat match goal with
@@ -106,17 +91,6 @@ end.
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 Example test1 : tpair true true.
 Proof.
   olcert_goal. auto.
@@ -195,7 +169,7 @@ Ltac ol_norm e := let e' := fresh "e" with Hol := fresh "Hol" in
   olget e e'; assert (e = e') as Hol by (subst e'; (solveOLPointers BoolOL)); subst e'; try rewrite Hol; clear Hol.
 
 Ltac ol_norm_cert e := let e' := fresh "e" with Hol := fresh "Hol" in
-  olget e e'; assert (e = e') as Hol by (subst e'; olcert_goal; auto); subst e'; try rewrite Hol.
+  olget e e'; assert (e = e') as Hol by (subst e'; olcert_goal; auto); subst e'; try rewrite Hol; clear Hol.
 
 Ltac ol_norm2 e := match e with 
   | _ => 
@@ -207,12 +181,12 @@ Ltac ol_norm2 e := match e with
   | _ => idtac
 end.
 
-Ltac ol_norm2_cert e := match e with 
-  | _ => 
-    lazymatch type of e with
-      | bool => ol_norm_cert e
-      | _ => fail
-    end
+Ltac ol_norm2_cert e := lazymatch e with 
+  | andb ?a ?b => ol_norm_cert e
+  | orb ?a ?b => ol_norm_cert e
+  | negb ?a => ol_norm_cert e
+  | xorb ?a ?b => ol_norm_cert e
+  | eqb ?a ?b => ol_norm_cert e
   | ?f ?arg => ol_norm2_cert f; ol_norm2_cert arg
   | _ => idtac
 end.
@@ -285,9 +259,6 @@ Proof.
   olnormalize.
   solveOLPointers BoolOL.
 Qed.
-
-
-
 
 
 

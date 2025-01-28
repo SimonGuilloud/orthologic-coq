@@ -37,6 +37,23 @@ Admitted.
   }
 
 
+  def getBenchFileTauto(i:Int): String = {
+      val f = FormulaGenerator.randomFormula(size, numberVars)
+
+      s"""Require Import OL_Bench.
+
+
+  Theorem test${f"${i}%03d"} (${(0 to i).map("x"+_).reduce(_ + " " + _)}: bool) :
+    ${prettyCoq(f1)} 
+      = 
+    ${prettyCoq(f2)}
+  . Proof.
+      ${if (i>60) then "benchSuperFast" else if (i>40) then "benchFast" else if (i>20) "bench" else "benchSlow"} "test$i".
+  Admitted.
+  """
+    }
+
+
 
 
   def prettyCoq(f: Formula): String = f match {

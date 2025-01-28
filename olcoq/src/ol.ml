@@ -373,7 +373,8 @@ let rec lattices_leq (nf1: normal_formula) (nf2: normal_formula) =
         | (NormalAnd and_f, _) when not and_f.polarity -> List.for_all (fun x -> lattices_leq (get_normal_inverse x) nf2) and_f.children
         | (NormalVariable v, NormalAnd and_f) when not and_f.polarity -> List.exists (fun x -> lattices_leq nf1 (get_normal_inverse x)) and_f.children
         | (NormalAnd and_f, NormalVariable v) when and_f.polarity -> List.exists (fun x -> lattices_leq x nf2) and_f.children
-        | (NormalAnd and_f1, NormalAnd and_f2) -> List.exists (fun x -> lattices_leq x nf2) and_f1.children || List.exists (fun x -> lattices_leq nf1 x) and_f2.children
+        | (NormalAnd and_f1, NormalAnd and_f2) -> 
+          List.exists (fun x -> lattices_leq x nf2) and_f1.children || List.exists (fun x -> lattices_leq nf1 (get_normal_inverse x)) and_f2.children
         | _ -> raise (Failure "Impossible case")
       in
       set_lt_cached nf1 nf2 r;
@@ -393,7 +394,8 @@ let simplify (children: normal_formula list) (polarity: bool) =
       else 
         let tr_ch = and_f.children in
         match List.find_opt (fun f -> lattices_leq f non_simplified) tr_ch with
-        | Some value -> treat_child (get_normal_inverse value)
+        | Some value -> 
+          treat_child (get_normal_inverse value)
         | None -> [i]
         )
     | NormalVariable v -> [i]
@@ -404,13 +406,15 @@ let simplify (children: normal_formula list) (polarity: bool) =
   let rec loop (acc: normal_formula list) (rem: normal_formula list) =
     match rem with
     | current::tail ->
-      if (lattices_leq (new_n_and (acc @ tail) true) current) then
+      if (lattices_leq (new_n_and (acc @ tail) true) current) then (
         loop acc tail
+      )
       else
         loop (current::acc) tail
     | [] -> acc
       in
-  match loop [] remaining with
+  let res = loop [] remaining in
+  match res with
   | [] -> new_n_literal polarity
   | [x] -> if polarity then x else get_normal_inverse x
   | accepted -> new_n_and (List.rev accepted) polarity
@@ -453,15 +457,13 @@ let reduced_form (f: formula) =
 (* Example usage *)
 let a = new_variable 0
 let b = new_variable 1
-let f = new_and [a; new_neg a ]
-
-(* Function to convert Formula to string *)
+let f = new_or [new_and [a; b ]; new_neg (new_and [a; b ])]
 
 
 (* Printing results *)
-let show_ol  = 
-  (Printf.sprintf "Formula: %s\n" (formula_to_string f)) ^
-  (Printf.sprintf "Polarized: %s\n" (polar_formula_to_string (polarize f true))) ^
-  (Printf.sprintf "Normal Form: %s\n" (formula_to_string (reduced_form f)));;
+let show_ol () = 
+  (Printf.printf "Formula: %s\n" (formula_to_string f));
+  (Printf.printf "Polarized: %s\n" (polar_formula_to_string (polarize f true)));
+  (Printf.printf "Normal Form: %s\n\n" (formula_to_string (reduced_form f)));
 
 

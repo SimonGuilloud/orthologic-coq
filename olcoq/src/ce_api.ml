@@ -17,16 +17,6 @@ let msg_in_tactic str : unit PV.tactic =
   PV.tclLIFT (PV.NonLogical.make (fun () ->
       Feedback.msg_warning (Pp.str str)))
 
-let printHello : unit PV.tactic =
-  let open PV.Notations in
-  msg_in_tactic "hello" >>= fun () ->
-  Tacticals.tclIDTAC
-
-
-let printTestOL : unit PV.tactic =
-  let open PV.Notations in
-  msg_in_tactic show_ol >>= fun () ->
-  Tacticals.tclIDTAC
 
 let identity (t: Evd.econstr) (h: Names.Id.t): unit PV.tactic =
   Proofview.Goal.enter begin fun gl ->
