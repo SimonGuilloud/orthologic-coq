@@ -3,8 +3,16 @@ open Constr
 open Pp
 open Context
 open Typing
+
+(*open Ltac_plugin*)
+
+
+open Util
+
+
 (* Example: simple, no-op tactic + print *)
 module PV = Proofview
+
 
 let decomp_term sigma (c : Constr.t) =
   Constr.kind (EConstr.Unsafe.to_constr (Termops.strip_outer_cast sigma (EConstr.of_constr c)))
@@ -85,6 +93,7 @@ let andb   = lib_constr "core.bool.andb"
 let orb    = lib_constr "core.bool.orb"
 let xorb   = lib_constr "core.bool.xorb"
 let negb   = lib_constr "core.bool.negb"
+let eqb   = lib_constr "core.bool.eqb"
 
 
 
@@ -101,6 +110,8 @@ let right_or_or_1 = lib_constr "olplugin.right_or_or_1"
 let right_or_or_2 = lib_constr "olplugin.right_or_or_2"
 let contract_or_1 = lib_constr "olplugin.contract_or_1"
 let contract_or_2 = lib_constr "olplugin.contract_or_2"
+
+let tpair_to_eq = lib_constr "olplugin.tpair_to_eq"
 
 
 
@@ -232,17 +243,18 @@ let ol_normal (t: Evd.econstr) (h: Names.Id.t): unit PV.tactic =
   let tot_id = ref 0
 
 
-
-  let revmap : (cert_formula Constrhash.t) = Constrhash.create 50
-
+  (*let revmap : (cert_formula Constrhash.t) = Constrhash.create 50*)
 
 
-  let new_formula (env : Environ.env) sigma (e:types) : cert_formula =
+
+  let new_formulas (env : Environ.env) sigma (e:(types array)) : cert_formula array =
     let trueb = Lazy.force trueb in
     let falseb = Lazy.force falseb in
     let andb = Lazy.force andb in
     let orb = Lazy.force orb in
     let negb = Lazy.force negb in
+
+    let revmap : (cert_formula Constrhash.t) = Constrhash.create 50 in
 
     let rec aux e =
       incr tot_cert;
@@ -271,7 +283,7 @@ let ol_normal (t: Evd.econstr) (h: Names.Id.t): unit PV.tactic =
           Constrhash.add revmap e v;
           v)
 
-    in aux e
+    in Array.map aux e
 
   let get_cert_key (f: cert_formula) : int =
     match f with
@@ -304,6 +316,17 @@ let ol_normal (t: Evd.econstr) (h: Names.Id.t): unit PV.tactic =
 
   let set_lt_cached_cert cf1 cf2 res =
     Hashtbl.add (get_lt_cache_cert cf1) (get_cert_key cf2) res
+
+
+  let cert_formula_to_string (f: cert_formula) : string =
+    let rec aux f = match f with
+    | CertVariable {id = i; _} -> Printf.sprintf "Var(%d)" i
+    | CertNeg {child = c; _} -> Printf.sprintf "Neg(%s)" (aux c)
+    | CertOr {c1 = c1; c2 = c2; _} -> Printf.sprintf "Or(%s, %s)" (aux c1) (aux c2)
+    | CertAnd {c1 = c1; c2 = c2; _} -> Printf.sprintf "And(%s, %s)" (aux c1) (aux c2)
+    | CertLiteral {b = b; _} -> Printf.sprintf "Lit(%b)" b
+    in aux f
+
 
 
   let first_some opt1 opt2 =
@@ -402,8 +425,9 @@ let ol_normal (t: Evd.econstr) (h: Names.Id.t): unit PV.tactic =
       let t2 = EConstr.Unsafe.to_constr t in
       match decomp_term sigma t2 with
       | App (head, args) when head === tpair && Array.length args = 2 ->
-        let f1 = new_formula env sigma args.(0) in
-        let f2 = new_formula env sigma args.(1) in
+        let new_forms = new_formulas env sigma args in
+        let f1 = new_forms.(0) in
+        let f2 = new_forms.(1) in
         let res = proof_ol f1 f2 in
         (match res with
         | Some res ->
@@ -414,12 +438,82 @@ let ol_normal (t: Evd.econstr) (h: Names.Id.t): unit PV.tactic =
         | None ->
           let msg = str "No proof found" in
           Tacticals.tclFAIL msg)
-      | _ ->
-        let typ_str = Pp.string_of_ppcmds (Printer.pr_constr_env env sigma t2) in
-        let msg = str "Not a pair of boolean expressions: " ++ str typ_str in
+      | App (head, args) when head === tpair -> 
+        let msg = str (Printf.sprintf "Not a pair of boolean expressions. Is tpair but args size: %d" (Array.length args)) in
         Tacticals.tclFAIL msg
 
+      | _ ->
+        let typ_str = Pp.string_of_ppcmds (Printer.pr_constr_env env sigma t2) in
+        let msg = str "Goal is not a tpair: " ++ str typ_str in
+        Tacticals.tclFAIL msg
     end
+
+let ol_cert_goal_tactic cl : unit PV.tactic =
+  let tpair = Lazy.force tpair in
+  let eq = Lazy.force eq in
+
+  let aux () =
+    Proofview.Goal.enter begin fun gl ->
+      let concl = Proofview.Goal.concl gl in
+      let env = Tacmach.pf_env gl in
+      let sigma = Tacmach.project gl in
+      let concl2 = EConstr.Unsafe.to_constr concl in
+      match decomp_term sigma concl2 with
+      | App (head, args) when head === tpair && Array.length args = 2 ->
+        let new_forms = new_formulas env sigma args in
+        let f1 = new_forms.(0) in
+        let f2 = new_forms.(1) in
+        let res = proof_ol f1 f2 in
+        (match res with
+        | Some res ->
+          let res = EConstr.of_constr res in
+          Tacticals.tclTHENLIST [
+                  Tactics.exact_check res;
+                ]
+        | None ->
+          (*concl2*)
+          let msg = str (Printf.sprintf "No proof of tpair %s %s found" (cert_formula_to_string f1) (cert_formula_to_string f2)) in
+          Tacticals.tclFAIL msg)
+      | _ ->
+        let typ_str = Pp.string_of_ppcmds (Printer.pr_constr_env env sigma concl2) in
+        let msg = str "Goal is not a tpair nor an equality: " ++ str typ_str in
+        Tacticals.tclFAIL msg
+      end
+    in
+    Proofview.Goal.enter begin fun gl ->
+      let concl = Proofview.Goal.concl gl in
+      let env = Tacmach.pf_env gl in
+      let sigma = Tacmach.project gl in
+      let concl2 = EConstr.Unsafe.to_constr concl in
+      match decomp_term sigma concl2 with
+      | App (head, args) when head === tpair && Array.length args = 2 ->
+        (*Printf.printf "Pair: %s\n" (Pp.string_of_ppcmds (Printer.pr_constr_env env sigma concl2));*)
+        Tacticals.tclTHENLIST [
+          Autorewrite.auto_multi_rewrite ["nnf_lemmas"] cl;
+          aux ()
+        ]
+      | App (head, args) when head === eq ->
+          Tacticals.tclTHENFIRSTn
+            (Tactics.apply (EConstr.of_constr (Lazy.force tpair_to_eq)))
+            [|
+              (Tacticals.tclTHEN
+              (Autorewrite.auto_multi_rewrite ["nnf_lemmas"] cl)
+              (aux ()));
+
+              (Tacticals.tclTHEN
+              (Autorewrite.auto_multi_rewrite ["nnf_lemmas"] cl)
+              (aux ()))
+            |]
+
+      | App (head, args) when head === tpair -> 
+        let msg = str (Printf.sprintf "Not a pair of boolean expressions. Is tpair but args size: %d" (Array.length args)) in
+        Tacticals.tclFAIL msg
+
+      | _ ->
+        let typ_str = Pp.string_of_ppcmds (Printer.pr_constr_env env sigma concl2) in
+        let msg = str "Goal is not a tpair nor an equality: " ++ str typ_str in
+        Tacticals.tclFAIL msg
+  end
 
   let destruct_atom : unit PV.tactic =
 
@@ -433,19 +527,15 @@ let ol_normal (t: Evd.econstr) (h: Names.Id.t): unit PV.tactic =
       let t = decomp_term sigma concl in
       match t with
       | App (head, args) when head === eq && Array.length args = 3 && args.(0) === bool_typ ->
-        let tl = args.(1) in
-        let tr = args.(2) in
-        let tl = new_formula env sigma tl in
-        let tr = new_formula env sigma tr in
+        let new_forms = new_formulas env sigma [|args.(1); args.(2)|] in
+        let tl = new_forms.(0) in
+        let tr = new_forms.(1) in
         let res = best_atom [tl; tr] in
         (match res with
         | Some res ->
           let res = get_coq_term res in
           let res = EConstr.of_constr res in
-          (*destruct res*)
-          Tacticals.tclTHENLIST [
-            Tactics.destruct false None res None None;
-                ]
+          Tactics.destruct false None res None None;
         | None ->
           let msg = str "Nothing to destruct" in
           Tacticals.tclFAIL msg)
@@ -453,4 +543,53 @@ let ol_normal (t: Evd.econstr) (h: Names.Id.t): unit PV.tactic =
         let msg = str "Not an equality of boolean expressions" in
         Tacticals.tclFAIL msg
 
+    end
+
+let ol_norm_cert_tactic (t: Evd.econstr) cl : unit PV.tactic =
+  let andb = Lazy.force andb in
+  let orb = Lazy.force orb in
+  let xorb = Lazy.force xorb in
+  let negb = Lazy.force negb in
+  let eqb = Lazy.force eqb in
+
+  Proofview.Goal.enter begin fun gl ->
+    let env = Tacmach.pf_env gl in
+    let sigma = Tacmach.project gl in
+    let rec aux t =
+      let t2 = EConstr.Unsafe.to_constr t in
+      match decomp_term sigma t2 with
+      | App (head, args) when 
+        head === andb && Array.length args = 2 ||
+        head === orb && Array.length args = 2 ||
+        head === xorb && Array.length args = 2 ||
+        head === negb && Array.length args = 1 ||
+        head === eqb && Array.length args = 2 ->
+        let formula, map = quote env sigma t2 in
+        let normal_form = reduced_form formula in
+        let res = unquote normal_form map in
+        let res2 = EConstr.of_constr res in
+        let _tac = ol_cert_goal_tactic cl in
+        (*Printf.printf "Normal form: %s\n" (Pp.string_of_ppcmds (Printer.pr_constr_env env sigma res));
+        let t_eq_res = Constr.mkApp (Lazy.force eq, [|t2; res|]) in
+        let _t_eq_res2 = EConstr.of_constr t_eq_res in
+        Printf.printf "Equality: %s\n" (Pp.string_of_ppcmds (Printer.pr_constr_env env sigma t_eq_res));*)
+        Tacticals.tclTHENLIST [
+          Equality.replace_by t res2 _tac
+        ]
+      | App (head, args) ->
+        Tacticals.tclTHENLIST (aux (EConstr.of_constr head) :: List.map (fun c -> aux (EConstr.of_constr c)) (Array.to_list args))
+      | _ -> 
+        Proofview.tclUNIT ()
+      in
+    aux t
+  end
+
+
+
+
+
+  let ol_norm_cert_goal_tactic cl : unit PV.tactic =
+    Proofview.Goal.enter begin fun gl ->
+      let concl = Proofview.Goal.concl gl in
+      ol_norm_cert_tactic concl cl
     end
