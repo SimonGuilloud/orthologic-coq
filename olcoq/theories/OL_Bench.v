@@ -26,7 +26,7 @@ Ltac solve_OL OL thm reduction :=
 Tactic Notation "run1" tactic(t) :=
   idtac;
   first
-    [ timeout 5
+    [ timeout 60
         first[ assert_succeeds (idtac; solve[t]); idtac "solved"
              | fail 2 "not solved" ]
     | idtac "timeout" ].
@@ -53,31 +53,31 @@ Tactic Notation "bench1" uconstr(id) constr(thm) constr(reduction)  :=
   time (run1 (solve_OL BoolOL thm reduction)).
 
 Tactic Notation "benchSuperFast" uconstr(id) :=
-  (*do 1 (bench1 id OL_Reflection_5_pointers.reduce_to_decideOL_pointer lazy);*)
-  do 1 (bench1 id OL_Reflection_5_pointers.reduce_to_decideOL_pointer vm_compute);
-  do 1 (header id "olcert_goal" "none"; time (run1 (olcert_goal)));
-  do 1 (header id "oltauto_cert" "none"; time (run1 (oltauto_cert)));
-  do 1 (header id "oltauto" "none"; time (run1 (oltauto)));
+  do 5 (bench1 id OL_Reflection_4_fmap.reduce_to_decideOL_fmap lazy);
+  do 5 (bench1 id OL_Reflection_4_fmap.reduce_to_decideOL_fmap vm_compute);
+  do 5 (bench1 id OL_Reflection_5_pointers.reduce_to_decideOL_pointer lazy);
+  do 5 (bench1 id OL_Reflection_5_pointers.reduce_to_decideOL_pointer vm_compute);
+  do 5 (header id "olcert_goal" "none"; time (run1 (olcert_goal)));
+  (* do 1 (header id "oltauto_cert" "none"; time (run1 (oltauto_cert))); *)
+  (* do 1 (header id "oltauto" "none"; time (run1 (oltauto))); *)
   idtac.
 
 Tactic Notation "benchFast" uconstr(id) :=
-  (*do 1 (bench1 id OL_Reflection_4_fmap.reduce_to_decideOL_fmap lazy);*)
-  do 1 (bench1 id OL_Reflection_4_fmap.reduce_to_decideOL_fmap vm_compute);
+  do 5 (bench1 id OL_Reflection_3_memo.reduce_to_decideOL_memo lazy);
+  do 5 (bench1 id OL_Reflection_3_memo.reduce_to_decideOL_memo vm_compute);
   benchSuperFast id;
   idtac.
 
 Tactic Notation "bench" uconstr(id) :=
-  (*do 1 (bench1 id OL_Reflection_3_memo.reduce_to_decideOL_memo lazy);*)
-  do 1 (bench1 id OL_Reflection_3_memo.reduce_to_decideOL_memo vm_compute);
   benchFast id;
-  do 1 (header id "btauto" "none"; time (run1 (btauto)));
+  do 5 (header id "btauto" "none"; time (run1 (btauto)));
   idtac.
 
 Tactic Notation "benchSlow" uconstr(id) :=
-  (*do 1 (bench1 id OL_Reflection_1_base.reduce_to_decideOL lazy);*)
-  do 1 (bench1 id OL_Reflection_1_base.reduce_to_decideOL vm_compute);
-  (*do 1 (bench1 id OL_Reflection_2_opti.reduce_to_decideOL_opti lazy);*)
-  do 1 (bench1 id OL_Reflection_2_opti.reduce_to_decideOL_opti vm_compute);
+  do 5 (bench1 id OL_Reflection_1_base.reduce_to_decideOL lazy);
+  do 5 (bench1 id OL_Reflection_1_base.reduce_to_decideOL vm_compute);
+  do 5 (bench1 id OL_Reflection_2_opti.reduce_to_decideOL_opti lazy);
+  do 5 (bench1 id OL_Reflection_2_opti.reduce_to_decideOL_opti vm_compute);
   bench id;
   idtac.
 
