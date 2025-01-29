@@ -288,11 +288,7 @@ end.
   (* oltauto*)
 
 Ltac oltauto := 
-  repeat (try solveOLPointers; olnormalize; lazymatch goal with
-  | [ |- ?e1 = ?e1 ] => reflexivity
-  | [ |- ?e1 <= ?e1 ] => apply P1
-  | [ |- ?e ] => destr_subbool_goal
-  end).
+  repeat (try (now solveOLPointers BoolOL); olnormalize; destr_subbool_goal).
 
 
 
