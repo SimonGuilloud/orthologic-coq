@@ -31,7 +31,7 @@ Theorem test${f"${i}%03d"} (${(0 to i).map("x"+_).reduce(_ + " " + _)}: bool) :
     = 
   ${prettyCoq(f2)}
 . Proof.
-    ${if (i>60) then "benchSuperFast" else if (i>40) then "benchFast" else if (i>8) "bench" else "benchSlow"} "test$i".
+    ${if (i>50) then "benchSuperFast" else if (i>40) then "benchFast" else if (i>12) "bench" else "benchSlow"} "test$i".
 Admitted.
 """
   }
