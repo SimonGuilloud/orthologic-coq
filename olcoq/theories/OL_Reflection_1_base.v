@@ -273,7 +273,7 @@ Ltac reify_goal OL := bool_unfold; try rewrite false_eq; try rewrite true_eq;
 
 
 Ltac solve_OL OL := 
-  reify_goal OL; apply reduce_to_decideOL; auto; vm_compute; (try reflexivity).
+  reify_goal OL; apply reduce_to_decideOL; vm_compute; (try exact eq_refl).
 
 
 (* Small tests *)

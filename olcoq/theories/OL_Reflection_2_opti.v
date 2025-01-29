@@ -156,7 +156,7 @@ Qed.
 
 
 Ltac solve_OL_opti OL := 
-  reify_goal OL; apply reduce_to_decideOL_opti; auto; vm_compute; (try reflexivity).
+  reify_goal OL; apply reduce_to_decideOL_opti; vm_compute; (try exact eq_refl).
 
 (* Small tests *)
 

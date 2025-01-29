@@ -288,9 +288,7 @@ end.
   (* oltauto*)
 
 Ltac oltauto := 
-  repeat (try (now solveOLPointers BoolOL); olnormalize; destr_subbool_goal).
-
-
+  repeat (try solve [solveOLPointers BoolOL] ; olnormalize; destr_subbool_goal).
 
 
   (* tests *)
