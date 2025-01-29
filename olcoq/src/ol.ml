@@ -161,6 +161,14 @@ let set_p_normal_form pf nf =
   | PolarAnd and_f -> and_f.normal_form <- nf
   | PolarLiteral lit -> lit.normal_form <- nf
 
+let rec size f =
+  match f with
+  | Variable _ -> 1
+  | Neg neg -> 1 + size neg.child
+  | Or or_f -> 1 + List.fold_left (fun acc x -> acc + size x) 0 or_f.children
+  | And and_f -> 1 + List.fold_left (fun acc x -> acc + size x) 0 and_f.children
+  | Literal _ -> 1
+
   (* Getter and Setters for polar formulas*)
 let get_p_key pf =
   match pf with
@@ -455,15 +463,15 @@ let reduced_form (f: formula) =
 
 
 (* Example usage *)
-let a = new_variable 0
-let b = new_variable 1
-let f = new_or [new_and [a; b ]; new_neg (new_and [a; b ])]
 
 
 (* Printing results *)
 let show_ol () = 
-  (Printf.printf "Formula: %s\n" (formula_to_string f));
-  (Printf.printf "Polarized: %s\n" (polar_formula_to_string (polarize f true)));
-  (Printf.printf "Normal Form: %s\n\n" (formula_to_string (reduced_form f)));
+  let a = new_variable 0 in
+  let b = new_variable 1 in
+  let _f = new_or [new_and [a; b ]; new_neg (new_and [a; b ])] in
+  (Printf.printf "Formula: %s\n" (formula_to_string _f));
+  (Printf.printf "Polarized: %s\n" (polar_formula_to_string (polarize _f true)));
+  (Printf.printf "Normal Form: %s\n\n" (formula_to_string (reduced_form _f)));
 
 

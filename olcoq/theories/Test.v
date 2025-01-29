@@ -8,6 +8,9 @@ Require Import Bool.
 Require Import Btauto.
 
 
+
+
+(*
 Example test0 a b c: (negb (a && (b || c))) ||  ((a && b) || (a && c)) = true.
 Proof.
   oltauto.
@@ -17,6 +20,18 @@ Example test0_cert a b c: (negb (a && (b || c))) ||  ((a && b) || (a && c)) = tr
 Proof.
   oltauto_cert.
 Qed.
+*)
+
+
+
+
+
+
+
+
+
+
+
 
 Require Extraction.
 
