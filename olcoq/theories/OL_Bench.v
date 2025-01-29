@@ -56,8 +56,8 @@ Tactic Notation "benchSuperFast" uconstr(id) :=
   (*do 1 (bench1 id OL_Reflection_5_pointers.reduce_to_decideOL_pointer lazy);*)
   do 1 (bench1 id OL_Reflection_5_pointers.reduce_to_decideOL_pointer vm_compute);
   do 1 (header id "olcert_goal" "none"; time (run1 (olcert_goal)));
-  do 1 (header id "oltauto_cert" "none"; time (run1 (btauto)));
-  do 1 (header id "oltauto" "none"; time (run1 (btauto)));
+  do 1 (header id "oltauto_cert" "none"; time (run1 (oltauto_cert)));
+  do 1 (header id "oltauto" "none"; time (run1 (oltauto)));
   idtac.
 
 Tactic Notation "benchFast" uconstr(id) :=
