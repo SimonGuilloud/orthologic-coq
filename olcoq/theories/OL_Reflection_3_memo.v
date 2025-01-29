@@ -393,7 +393,7 @@ Qed.
 
 
 Ltac solveOL_memo OL := 
-  reify_goal OL; apply reduce_to_decideOL_memo; auto; vm_compute; (try reflexivity).
+  reify_goal OL; apply reduce_to_decideOL_memo; vm_compute; (try exact eq_refl).
 
 Example test1 {OL: Ortholattice} : forall a,  a <= a.
 Proof.

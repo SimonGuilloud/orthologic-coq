@@ -592,7 +592,7 @@ Proof.
 Qed.
 
 Ltac solveOL_fmap OL := 
-  reify_goal OL; apply reduce_to_decideOL_fmap; auto; vm_compute; (try reflexivity).
+  reify_goal OL; apply reduce_to_decideOL_fmap; vm_compute; (try exact eq_refl).
 
 Example test1 {OL: Ortholattice} : forall a,  a <= a.
 Proof.
