@@ -1,0 +1,11 @@
+ALL_BENCH_V := $(wildcard theories/bench/*.v)
+ALL_BENCH = $(ALL_BENCH_V:.v=.bench)
+
+theories/bench/%.bench: theories/bench/%.v OL_Bench.vo
+	$(COQC) $< | tee $@
+
+bench: $(ALL_BENCH) FORCE
+	echo $(ALL_BENCH)
+
+bench-clean:
+	rm -f $(ALL_BENCH)
