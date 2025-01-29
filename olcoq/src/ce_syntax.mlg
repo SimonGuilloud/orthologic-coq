@@ -48,6 +48,13 @@ END
 TACTIC EXTEND DestructAtom
 | [ "destruct_atom" ] -> 
   { 
-   Ce_api.destruct_atom
+   Ce_api.destruct_atom ()
+  }
+END
+
+TACTIC EXTEND OLTautoCert
+| [ "oltauto_cert" clause(cl)] -> 
+  { 
+   Ce_api.oltauto_cert cl
   }
 END

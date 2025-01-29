@@ -55,6 +55,7 @@ Qed.
 Register OLPlugin.tpair_to_eq as olplugin.tpair_to_eq.
 Register OLPlugin.tpair_to_leq as olplugin.tpair_to_leq.
 
+
   (* olget *)
 
 
@@ -86,24 +87,6 @@ Hint Rewrite negb_orb negb_andb negb_involutive negb_true_iff
 
 Ltac nnf := autorewrite with nnf_lemmas.
 
-
-  (* olcert *)
-
-(*
-Ltac olcert_goal_tpair := lazymatch goal with
-  | [ |- tpair ?a ?b ] => let hh := fresh "hh" in olcert (tpair a b) hh
-  | _ => fail "olcert_goal_tpair: Goal is not a tpair"
-
-end.
-
-
-Ltac olcert_goal := nnf; lazymatch goal with
-  | [ |- tpair ?a ?b ] => nnf; olcert_goal_tpair
-  | [ |- ?a = ?b ] => apply tpair_to_eq; nnf; olcert_goal_tpair
-  | [ |- ?a <= ?b ] => apply tpair_to_leq; nnf; olcert_goal_tpair
-  | _ => fail "olcert_goal: Goal not supported"
-end; auto.
-*)
 
 
 Example test1 : tpair true true.
@@ -178,32 +161,28 @@ Qed.
 
 Example test15 (a:bool) : a = a.
 Proof.
-  idtac "15: a=a". do 2 olcert_goal.
+  olcert_goal.
 Qed.
 
 Example test16 a b: (a && b) = (b && a).
 Proof.
-  idtac "16: a && b = b && a". olcert_goal.
+  olcert_goal.
 Qed.
 
 
 Example test17_1 (a b : bool) : tpair (negb a) (a && a).
 Proof.
-  idtac "17_1: tpair (negb a) (a && a)".
   olcert_goal. 
 Qed.
 
 Example test17_2 (a b : bool) : tpair a (negb (a && a)).
 Proof.
-  idtac "17_2 tpair a (negb (a && a))".
   olcert_goal. 
 Qed.
 Example test17 (a b : bool) : a && a = (a).
 Proof.
-  idtac "17: a && a = a".
   olcert_goal.
 Qed.
-
 
 Example test18 a: (a || a || negb a) = true.
 Proof.
@@ -215,13 +194,14 @@ Proof.
   olcert_goal.
 Qed.
 
-
-
-
+Example test20 : forall a b c: bool,  (a && a) = (a && a && a) .
+Proof.
+  intros.
+  olcert_goal.
+Qed.
 
 
 (* olnormalize *)
-
 
 Ltac ol_norm e := let e' := fresh "e" with Hol := fresh "Hol" in
   olget e e'; 
@@ -237,12 +217,9 @@ Ltac ol_norm2 e := match e with
   | _ => idtac
 end.
 
-
-
 Ltac ol_norm3 := (lazymatch goal with
   | [ |- ?e ] => ol_norm2 e
 end).
-
 
 
 Tactic Notation "olnormalize" constr(e) := ol_norm2 e.
@@ -250,6 +227,45 @@ Tactic Notation "olnormalize" := ol_norm3.
 
 Tactic Notation "olnormalize_cert" constr(e) := ol_norm_cert e.
 Tactic Notation "olnormalize_cert" := ol_norm_cert_goal.
+
+Example test_olnortmalize_1 a b : (a && b) = (b && a).
+Proof.
+  olnormalize (a && b).
+  olnormalize (b && a).
+  solveOLPointers BoolOL.
+Qed.
+
+Example test_olnortmalize_2 a b : (a && negb a) = (b && negb b).
+Proof.
+  olnormalize.
+  solveOLPointers BoolOL.
+Qed.
+
+Example test_olnortmalize_3 a b c: (a && (negb a)) = (((b && c) || b) && (negb b)).
+Proof.
+  olnormalize.
+  solveOLPointers BoolOL.
+Qed.
+
+Example test_olnortmalize_4 a b : (a && b) = (b && a).
+Proof.
+  olnormalize_cert (a && b).
+  solveOLPointers BoolOL.
+Qed.
+
+Example test_olnortmalize_5 a b : (a && negb a) = (b && negb b).
+Proof.
+  olnormalize_cert.
+  solveOLPointers BoolOL.
+Qed.
+
+Example test_olnortmalize_6 a b c: (a && (negb a)) = (((b && c) || b) && (negb b)).
+Proof.
+  olnormalize_cert.
+  solveOLPointers BoolOL.
+Qed.
+
+
 
 
 Ltac destr_subbool e := 
@@ -268,47 +284,33 @@ Ltac destr_subbool_goal := match goal with
   | [ |- ?e ] => destr_subbool e
 end.
 
+
   (* oltauto*)
 
-
 Ltac oltauto := 
-  repeat (olnormalize; lazymatch goal with
+  repeat (try solveOLPointers; olnormalize; lazymatch goal with
   | [ |- ?e1 = ?e1 ] => reflexivity
   | [ |- ?e1 <= ?e1 ] => apply P1
   | [ |- ?e ] => destr_subbool_goal
   end).
 
 
-Ltac oltauto_cert :=
-  repeat (olnormalize_cert; lazymatch goal with
-  | [ |- ?e1 = ?e1 ] => reflexivity
-  | [ |- ?e1 <= ?e1 ] => apply P1
-  | [ |- ?e ] => destr_subbool_goal
-  end).
 
 
   (* tests *)
-Example test20 : forall a b c: bool,  (a && a) = (a && a && a) .
-Proof.
-  intros.
-  oltauto_cert.
-Qed.
-
-
-  (* tests *)
-Example test21 : forall a b c: bool,  (a && (b || c) || (a && b) || (a && c)) = a && (b || c) && (a && b) || (a && c).
+Example test23 : forall a b c: bool,  (a && (b || c) || (a && b) || (a && c)) = a && (b || c) && (a && b) || (a && c).
 Proof.
   intros.
   ol_norm_cert_goal. destruct a; olcert_goal.
 Qed.
 
-Example test22 : forall a b c: bool,  (a && (b || c) || (a && b) || (a && c)) = a && (b || c) && (a && b) || (a && c).
+Example test24 : forall a b c: bool,  (a && (b || c) || (a && b) || (a && c)) = a && (b || c) && (a && b) || (a && c).
 Proof.
   intros.
   oltauto.
 Qed.
 
-Example test23 : forall a b c: bool,  (a && (negb a)) <= (c || (b && negb b)).
+Example test25 : forall a b c: bool,  (a && (negb a)) <= (c || (b && negb b)).
 Proof.
   intros.
   olnormalize (a && (negb a)).
@@ -317,7 +319,24 @@ Proof.
 Qed.
 
 
+Example oltauto1 : forall a b c: bool,  (a && (b || c) || (a && b) || (a && c)) = a && (b || c) && (a && b) || (a && c).
+Proof.
+  intros.
+  oltauto.
+Qed.
 
+Example oltauto_cert1 : forall a b c: bool,  (a && a) = (a && a && a) .
+Proof.
+  intros.
+  oltauto_cert.
+Qed.
+
+
+Example oltauto_cert2 : forall a b c: bool,  (a && (b || c) || (a && b) || (a && c)) = a && (b || c) && (a && b) || (a && c).
+Proof.
+  intros. 
+  oltauto_cert.
+Qed.
 
 
 
