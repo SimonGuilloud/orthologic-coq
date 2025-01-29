@@ -27,11 +27,22 @@ def parse_entry(entry_contents: str) -> dict[str, Any]:
 
 SOLVER_RENAME = {
     "btauto": "btauto",
+
+    "OL_Reflection_1_base.reduce_to_decideOL": "OL",
+    "OL_Reflection_2_opti.reduce_to_decideOL_opti": "OL+o",
+    "OL_Reflection_3_memo.reduce_to_decideOL_memo": "OL+o+l",
+    "OL_Reflection_4_fmap.reduce_to_decideOL_fmap": "OL+o+m",
+    "OL_Reflection_5_pointers.reduce_to_decideOL_pointer": "OL+o+m+φ",
+    "oltauto": "OLT",
+    "olcert_goal": "OCaml",
+    "oltauto_cert": "OCaml+n",
+
+    # Old names
     "OL_Reflection_1_base.reduce_to_decideOL": "OL",
     "OL_Reflection_2_memo.reduce_to_decideOL_memo": "OL+l",
     "OL_Reflection_3_fmap.reduce_to_decideOL_fmap": "OL+m",
     "OL_Reflection_4_pointers.reduce_to_decideOL_pointer": "OL+m+φ",
-    # Old names
+    # Old Old names
     "OL_Reflection_1_base.reduceToAlgo": "OL",
     "OL_Reflection_2_memo.reduceToAlgoMemo": "OL+l",
     "OL_Reflection_3_fmap.reduceToAlgoFmap": "OL+m",
@@ -168,19 +179,21 @@ def fit(df):
         # print(plot.reset_index())
         # print(plot.reset_index().columns)
         xdata, ydata, sigma = plot["size"], plot[("wall", "mean")], plot[("wall", "std")]
-        fits = [
-            *[ExpFit(algorithm, xdata, ydata)],
-            # *[PolyFullFit(algorithm, xdata, ydata)],
-            *[PolyFit(algorithm, xdata, ydata, n) for n in range(1, 7)],
-            # *[PolyLogFit(algorithm, xdata, ydata, n, m) for n in range(1, 7) for m in range(1, 3)],
-        ]
 
-        for ft in sorted(fits, reverse=True, key=lambda ft: ft.r2): #[:3]:
-            if ft.r2 >= 0.995:
-                print(ft.title)
-        # best_fit = max(fits, key=lambda ft: ft.r2)
-        # print(best_fit.title)
-        # print(np.diag(best_fit.pcov))
+        if len(ydata) >= 10:
+            fits = [
+                *[ExpFit(algorithm, xdata, ydata)],
+                # *[PolyFullFit(algorithm, xdata, ydata)],
+                *[PolyFit(algorithm, xdata, ydata, n) for n in range(1, 7)],
+                # *[PolyLogFit(algorithm, xdata, ydata, n, m) for n in range(1, 7) for m in range(1, 3)],
+            ]
+
+            for ft in sorted(fits, reverse=True, key=lambda ft: ft.r2): #[:3]:
+                if ft.r2 >= 0.99:
+                    print(ft.title)
+            # best_fit = max(fits, key=lambda ft: ft.r2)
+            # print(best_fit.title)
+            # print(np.diag(best_fit.pcov))
 
         # best_fit.plot()
         print()
