@@ -4,7 +4,8 @@ ALL_BENCH = $(ALL_BENCH_V:.v=.bench)
 
 bench_vo := _build/default/theories/OL_Bench.vo
 
-$(bench_vo):
+$(bench_vo): FORCE
+	rm -f theories/bench/*.vo theories/bench/*.vos theories/bench/*.vok theories/bench/*.glob theories/bench/*.aux
 	dune build
 
 theories/bench/%.bench: theories/bench/%.v $(bench_vo)
