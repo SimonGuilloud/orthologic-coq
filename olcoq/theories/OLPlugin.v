@@ -80,8 +80,12 @@ Proof.
   reflexivity.
 Qed.
 
+Search (_ || false).
+
 Hint Rewrite negb_orb negb_andb negb_involutive negb_true_iff 
              negb_false_iff xorb_decompose eqb_decompose negb_false negb_true
+             orb_false_l orb_false_r andb_false_l andb_false_r 
+             orb_true_l orb_true_r andb_true_l andb_true_r andb_true_l andb_true_r
             : nnf_lemmas.
 
 

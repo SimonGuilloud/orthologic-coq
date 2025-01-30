@@ -6,54 +6,82 @@ import scala.util.Random
 
 import java.nio.file.{Files, Paths}
 import java.nio.charset.StandardCharsets
-
+import scala.collection.immutable
+import Math.*
 
 object Main {
   def main(args: Array[String]): Unit = {
-    for i <- 1 to 50 do {
-      val txt = (getBenchFile(2*i))
-      val path = Paths.get(s"../theories/bench/test${f"${2 * i}%03d"}.v")
+
+    for v <- 1 to 50 do {
+      val txt = (getBenchFile(2*v))
+      val path = Paths.get(s"../theories/bench2/test${f"${2 * v}%03d"}.v")
       Files.createDirectories(path.getParent)
       Files.write(path, txt.getBytes(StandardCharsets.UTF_8))
     }
+
+
+    for v <- Range(2, 31, 2) do {
+      val txts = (getBenchFileTauto(v, 4))
+      txts.zipWithIndex.foreach((txt, i) => {
+        val path = Paths.get(s"../theories/bench2/test_tauto${f"${v}%03d"}_$i.v")
+        Files.createDirectories(path.getParent)
+        Files.write(path, txt.getBytes(StandardCharsets.UTF_8))
+      })
+    }
+    
+
   }
 
 
 
-  def getBenchFile(i:Int): String = {
-    val (f1, f2) = generate_long_cnf(i)
+  def getBenchFile(v:Int): String = {
+    val (f1, f2) = generate_long_cnf(v)
 
     s"""Require Import OL_Bench.
 
 
-Theorem test${f"${i}%03d"} (${(0 to i).map("x"+_).reduce(_ + " " + _)}: bool) :
+Theorem test${f"${v}%03d"} (${(0 to v).map("x"+_).reduce(_ + " " + _)}: bool) :
   ${prettyCoq(f1)} 
     = 
   ${prettyCoq(f2)}
 . Proof.
-    ${if (i>50) then "benchSuperFast" else if (i>40) then "benchFast" else if (i>12) "bench" else "benchSlow"} "test$i".
+    ${if (v>50) then "benchSuperFast" else if (v>40) then "benchFast" else if (v>12) "bench" else "benchSlow"} "test$v".
 Admitted.
 """
   }
 
 
-  def getBenchFileTauto(i:Int): String = {
-    val size = i
-    val numberVars = 20
-    val f = FormulaGenerator.randomFormula(size, numberVars)
-
-    s"""Require Import OL_Bench.
 
 
-  Theorem test${f"${i}%03d"} (${(0 to i).map("x"+_).reduce(_ + " " + _)}: bool) :
-    ${prettyCoq(f)} 
-      = 
-    true
-  . Proof.
-      ${if (i>60) then "benchSuperFast" else if (i>40) then "benchFast" else if (i>20) "bench" else "benchSlow"} "test$i".
-  Admitted.
-  """
-    }
+
+  def getBenchFileTauto(v: Int, i:Int): List[String] = {
+    val s = v*4
+    val list = find_small_r(s, 1000).toSet.toList
+    val best = list.sortBy(x => abs(x._2 - 1/v)).head
+    val (l, ru) = best
+    val m = ceil(ru*v).toInt
+    val size = l.foldLeft(1)(_ * _)*m
+    println(s"Generating formulas with params ${l.mkString("<", ", ", ">")},        v = $v,      ru = $ru,     m = $m,     ru*v = ${ru*v},     size = $size")
+    val formulas = Range(0, i).toList.map( i => {
+      val f = Neg(generate_conjunctive(m :: l, v))
+      (i, f)
+    })
+    
+    formulas.map((i, f) => {
+s"""Require Import OL_Bench.
+
+
+Theorem test_tauto${f"${v}%02d"}_$i (${(0 to v).map("x"+_).reduce(_ + " " + _)}: bool) :
+  ${prettyCoq(f)} 
+    = 
+  true
+. Proof.
+    benchtauto "test${f"${v}%02d"}_$i".
+Admitted.
+""" 
+    })
+
+  }
 
 
 
@@ -134,8 +162,47 @@ Admitted.
     val f2 = And(Random.shuffle(variables))
     (f1, f2)
   }
+
+  def compute_p(ks: List[Int]) : Double = 
+    ks match 
+      case Nil => 0.5
+      case head :: tl => 1.0 - Math.pow(compute_p(tl), head)
+  
+  def compute_r(ks: List[Int]) : Double = 
+    val p = compute_p(ks)
+    Math.log(2)/Math.log(1/p)
+
+
+  def random_list(s: Int) : List[Int] = 
+    if s <= 1 then Nil
+    else 
+      val rand = Random.nextFloat()
+      if rand < 0.15 && s >= 3 then 4 :: random_list(s/4)
+      else if rand < 0.3 && s >= 2 then 3 :: random_list(s/3)
+      else 2 :: random_list(s/2)
+
+  def find_small_r(s: Int, tries: Int): IndexedSeq[(List[Int], Double)] =
+    Range(0, tries).map(_ => random_list(s)).map(ks => (ks.reverse, compute_r(ks)))
+
+  def generate_disjunctive(ks : List[Int], n: Int) : Formula = 
+    ks match
+      case head :: tail => 
+        Or(Range(0, head).map(i => generate_conjunctive(tail, n)).toList)
+      case Nil =>
+        if Random.nextBoolean() then 
+          Variable(Random.nextInt(n))
+        else
+          Neg(Variable(Random.nextInt(n)))
     
-
-
+  
+  def generate_conjunctive(ks : List[Int], n: Int) : Formula =
+    ks match
+      case head :: tail => 
+        And(Range(0, head).map(i => generate_disjunctive(tail, n)).toList)
+      case Nil =>
+        if Random.nextBoolean() then 
+          Variable(Random.nextInt(n))
+        else
+          Neg(Variable(Random.nextInt(n)))
 
 }
