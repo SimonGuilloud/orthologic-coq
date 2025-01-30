@@ -1,4 +1,0 @@
-[0m[[0m[0mdebug[0m] [0m[0m[generation-build] Classpath dependencies List()[0m
-[0m[[0m[0mdebug[0m] [0m[0m[generation-build] Dependencies from configurations List()[0m
-[0m[[0m[0mdebug[0m] [0m[0mBloop wrote the configuration of project 'generation-build' to '/home/sguilloud/ITPcourse/orthologic-coq/generation/project/.bloop/generation-build.json'[0m
-[0m[[0m[32msuccess[0m] [0m[0mGenerated .bloop/generation-build.json[0m
