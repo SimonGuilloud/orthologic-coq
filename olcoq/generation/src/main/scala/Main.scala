@@ -14,7 +14,7 @@ object Main {
 
     for v <- 1 to 50 do {
       val txt = (getBenchFile(2*v))
-      val path = Paths.get(s"../theories/bench2/test${f"${2 * v}%03d"}.v")
+      val path = Paths.get(s"../theories/bench/test${f"${2 * v}%03d"}.v")
       Files.createDirectories(path.getParent)
       Files.write(path, txt.getBytes(StandardCharsets.UTF_8))
     }
@@ -23,7 +23,7 @@ object Main {
     for v <- Range(2, 21, 2) do {
       val txts = (getBenchFileTauto(v, 4))
       txts.zipWithIndex.foreach((txt, i) => {
-        val path = Paths.get(s"../theories/bench2/test_tauto${f"${v}%03d"}_$i.v")
+        val path = Paths.get(s"../theories/bench/test_tauto${f"${v}%03d"}_$i.v")
         Files.createDirectories(path.getParent)
         Files.write(path, txt.getBytes(StandardCharsets.UTF_8))
       })
