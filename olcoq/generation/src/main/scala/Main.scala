@@ -20,7 +20,7 @@ object Main {
     }
 
 
-    for v <- Range(2, 31, 2) do {
+    for v <- Range(2, 21, 2) do {
       val txts = (getBenchFileTauto(v, 4))
       txts.zipWithIndex.foreach((txt, i) => {
         val path = Paths.get(s"../theories/bench2/test_tauto${f"${v}%03d"}_$i.v")
@@ -55,13 +55,14 @@ Admitted.
 
 
   def getBenchFileTauto(v: Int, i:Int): List[String] = {
-    val s = v*4
+    val s = v*6
     val list = find_small_r(s, 1000).toSet.toList
     val best = list.sortBy(x => abs(x._2 - 1/v)).head
     val (l, ru) = best
-    val m = ceil(ru*v).toInt
+    val m = ceil(ru*v).toInt+1
     val size = l.foldLeft(1)(_ * _)*m
-    println(s"Generating formulas with params ${l.mkString("<", ", ", ">")},        v = $v,      ru = $ru,     m = $m,     ru*v = ${ru*v},     size = $size")
+    val p = pow(1-compute_p(l), m)
+    println(s"Generating formulas with params ${l.mkString("<", ", ", ">")},        v = $v,     p = $p,      ru = $ru,     m = $m,     ru*v = ${ru*v},     size = $size")
     val formulas = Range(0, i).toList.map( i => {
       val f = Neg(generate_conjunctive(m :: l, v))
       (i, f)

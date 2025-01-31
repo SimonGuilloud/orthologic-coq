@@ -1,11 +1,14 @@
 Declare ML Module "coq_ol:coq-ol.plugin".
 
 Require Import OL_Theory.
+Require Import OL_Reflection_4_fmap.
 Require Import OL_Reflection_5_pointers.
 Require Import OL_Reflection_1_base.
 Require Import Bool.
 Require Import Btauto.
 Open Scope bool_scope.
+
+Require Import NArith.
 
 Definition tpair a b := (a || b) = true.
 
@@ -80,8 +83,6 @@ Proof.
   reflexivity.
 Qed.
 
-Search (_ || false).
-
 Hint Rewrite negb_orb negb_andb negb_involutive negb_true_iff 
              negb_false_iff xorb_decompose eqb_decompose negb_false negb_true
              orb_false_l orb_false_r andb_false_l andb_false_r 
@@ -91,7 +92,7 @@ Hint Rewrite negb_orb negb_andb negb_involutive negb_true_iff
 
 Ltac nnf := autorewrite with nnf_lemmas.
 
-
+(*
 
 Example test1 : tpair true true.
 Proof.
@@ -203,6 +204,8 @@ Proof.
   intros.
   olcert_goal.
 Qed.
+*)
+
 
 
 (* olnormalize *)
@@ -232,6 +235,35 @@ Tactic Notation "olnormalize" := ol_norm3.
 Tactic Notation "olnormalize_cert" constr(e) := ol_norm_cert e.
 Tactic Notation "olnormalize_cert" := ol_norm_cert_goal.
 
+
+Notation "! a" := (negb a) (at level 9).
+
+
+Example test2345  (x1 x2 x3 x4 : bool) : 
+ tpair 
+      (x1 && x3) 
+      ((x1 || !x2) || x2 ).
+Proof.
+
+  Fail (olcert (
+    tpair 
+      (x2 && x1) 
+      ((x1 || !x3) || x3 )
+  ) h2).
+  olnormalize.
+  unfold tpair; btauto.
+Qed.
+
+
+
+
+
+
+
+
+
+
+(*
 Example test_olnortmalize_1 a b : (a && b) = (b && a).
 Proof.
   olnormalize (a && b).
@@ -269,6 +301,24 @@ Proof.
   solveOLPointers BoolOL.
 Qed.
 
+*)
+
+
+(*
+Example test12341 x0 x2 x4 x5 : 
+ ((! x5 || x4) && (! x5 || ! x0) && x5 && (! x0 || ! x2 && ! false) &&
+ (x0 && x4 && (! x5 || x2) || ! x4 || ! x2)
+ || (false || (! x4 || x2) && (! x0 || ! x5) && x2) &&
+    (! x2 && true || (! x4 || ! false) && (x4 || x0) && ! x2) &&
+    (! false || x2))
+ =
+ ((! x5 || x4) && (! x5 || ! x0) && x5 && (! x0 || ! x2) &&
+ (x0 && x4 && (! x5 || x2) || ! x4 || ! x2)).
+Proof.
+  apply tpair_to_eq; nnf.
+  olcert_goal. olcert_goal.
+Qed.
+*)
 
 
 
@@ -289,10 +339,24 @@ Ltac destr_subbool_goal := match goal with
 end.
 
 
-  (* oltauto*)
 
 Ltac oltauto := 
-  repeat (try solve [solveOLPointers BoolOL] ; olnormalize; destr_subbool_goal).
+  repeat ((try solve [solveOLPointers BoolOL]) ; olnormalize; (try destr_subbool_goal)).
+
+
+Ltac oltauto2 := 
+  ((try solve [solveOLPointers BoolOL]) ; olnormalize; (try destr_subbool_goal)).
+
+
+(*
+Theorem test_tauto06_1 (x0 x1 x2 x3 x4 x5 x6: bool) :
+  !(((((x3&&x4)||(!x1&&x5)||(!x5&&!x3))&&((x5&&!x4)||(x5&&x0)||(!x3&&!x5)))||(((x0&&x0)||(x5&&!x5)||(x3&&x3))&&((!x1&&x2)||(x5&&x3)||(!x1&&x3)))||(((!x0&&!x1)||(!x4&&!x1)||(x5&&!x2))&&((!x4&&x1)||(x4&&x2)||(x1&&x5)))||(((!x4&&x4)||(x3&&x5)||(x2&&x1))&&((!x2&&!x1)||(x2&&!x5)||(!x5&&x2))))&&((((x5&&!x1)||(!x3&&!x1)||(x3&&x4))&&((x4&&!x2)||(x0&&x5)||(!x2&&!x3)))||(((x2&&x4)||(x2&&x2)||(x0&&x3))&&((x4&&x3)||(!x4&&!x0)||(x2&&!x1)))||(((x1&&!x4)||(x3&&!x2)||(x0&&!x0))&&((!x2&&!x2)||(x0&&x5)||(!x1&&!x3)))||(((x4&&!x5)||(!x1&&!x2)||(!x3&&!x5))&&((!x3&&!x2)||(!x5&&x1)||(x1&&x0))))) 
+    = 
+  true
+. Proof.
+  oltauto_cert.
+
+Qed.
 
 
   (* tests *)
@@ -323,6 +387,8 @@ Proof.
   oltauto.
 Qed.
 
+
+
 Example oltauto_cert1 : forall a b c: bool,  (a && a) = (a && a && a) .
 Proof.
   intros.
@@ -334,7 +400,7 @@ Example oltauto_cert2 : forall a b c: bool,  (a && (b || c) || (a && b) || (a &&
 Proof.
   intros. 
   oltauto_cert.
-Qed.
+Qed.*)
 
 
 
