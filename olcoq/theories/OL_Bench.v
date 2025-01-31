@@ -31,6 +31,14 @@ Tactic Notation "run1" tactic(t) :=
              | fail 2 "not solved" ]
     | idtac "timeout" ].
 
+Tactic Notation "run2" tactic(t) :=
+  idtac;
+  first
+    [ timeout 30
+        first[ assert_succeeds (idtac; solve[t]); idtac "solved"
+             | fail "not solved" ]
+    | idtac "timeout" ].
+
 Require Export String.
 Open Scope string_scope.
 
@@ -55,17 +63,17 @@ Tactic Notation "bench1" uconstr(id) constr(thm) constr(reduction)  :=
 Tactic Notation "bench_oltauto" uconstr(id) :=
   idtac "--------------------------------------------------------------------------------";
   idtac "::" id "::: oltauto";
-  time (run1 (oltauto)).
+  time (run2 (oltauto)).
 
 Tactic Notation "bench_oltauto_cert" uconstr(id) :=
   idtac "--------------------------------------------------------------------------------";
   idtac "::" id "::: oltauto_cert";
-  time (run1 (oltauto_cert)).
+  time (run2 (oltauto_cert)).
 
 Tactic Notation "bench_btauto" uconstr(id) :=
   idtac "--------------------------------------------------------------------------------";
   idtac "::" id "::: btauto";
-  time (run1 (btauto)).
+  time (run2 (btauto)).
   
 Tactic Notation "benchtauto" uconstr(id) :=
   bench_oltauto id;

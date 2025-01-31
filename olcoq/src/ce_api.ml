@@ -623,8 +623,8 @@ let oltauto_cert cl : unit PV.tactic =
               (ol_cert_goal_tactic cl) 
               (fun () -> aux ())
               (fun er -> (
-                Tactics.pose_tac (Names.Name.mk_name (Names.Id.of_string "Nothing")) (EConstr.of_constr (Lazy.force trueb)))
-              )
+                (Autorewrite.auto_multi_rewrite ["nnf_lemmas"] cl;)
+              ))
             ) in
         let t1, t2 = 
           let f1_e = EConstr.of_constr f1 in
@@ -638,15 +638,11 @@ let oltauto_cert cl : unit PV.tactic =
         Tacticals.tclTHENLIST [
           t1; 
           t2;
-            (Proofview.tclIFCATCH
-              (Tacticals.tclTHEN (destruct_atom ()) (Autorewrite.auto_multi_rewrite ["nnf_lemmas"] cl;))
-              (fun () -> aux ())
-              (fun er -> (
-                let (e, info) = er in
-                let _msg = Pp.string_of_ppcmds (CErrors.print e) in
-                Tactics.pose_tac (Names.Name.mk_name (Names.Id.of_string "Nothing")) (EConstr.of_constr (Lazy.force trueb)))
-              )
-            )
+          (Proofview.tclIFCATCH
+            (destruct_atom ())
+            (fun () -> aux ())
+            (fun er -> (Proofview.tclUNIT ()))
+          )
         ]
       )
     | _ ->
