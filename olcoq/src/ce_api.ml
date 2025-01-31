@@ -259,17 +259,31 @@ let cert_formula_to_string (f: cert_formula) : string =
   | CertLiteral {b = b; _} -> Printf.sprintf "Lit(%b)" b
   in aux f
 
-
+type three =
+| Sure of types
+| Maybe 
+| No
 
 (* Returns the first option if it is defined, the second otherwise *)
 let first_some opt1 opt2 =
   match opt1 with
-  | Some _ -> opt1
-  | None -> Lazy.force opt2 
+  | Sure _ -> opt1
+  | Maybe -> 
+    (let r2 = Lazy.force opt2 in
+      match r2 with
+      | Sure _ -> r2
+      | _ -> Maybe)
+  | No -> Lazy.force opt2
+    
+  let threemap f x = match x with
+  | Sure x -> Sure (f x)  
+  | Maybe -> Maybe
+  | No -> No
 
 (* Produces a proof that f1 = f2, using the laws of orthologic.
    If no such proof is found, return None. *)
 let proof_ol (f1: cert_formula) (f2: cert_formula): types option =
+  Printf.eprintf "Proofing %s --- %s\n" (cert_formula_to_string f1) (cert_formula_to_string f2);
   let left_true_or = Lazy.force left_true_or in
   let right_true_or = Lazy.force right_true_or in
   let left_neg_or = Lazy.force left_neg_or in
@@ -283,51 +297,92 @@ let proof_ol (f1: cert_formula) (f2: cert_formula): types option =
   let contract_or_1 = Lazy.force contract_or_1 in
   let contract_or_2 = Lazy.force contract_or_2 in
 
-  let rec aux f1 f2: types option =
+  let seen : (_, unit) Hashtbl.t =  Hashtbl.create 50 in
+
+
+
+  let rec aux f1 f2: three = (
     match lt_cached_cert f1 f2 with
-    | Some res -> res
-    | None ->
-      set_lt_cached_cert f1 f2 None;
+    | Some res -> (match res with | Some r -> Sure r | None -> No)
+    | None -> (
+      Printf.eprintf "Auxi  n %s --- %s\n%!" (cert_formula_to_string f1) (cert_formula_to_string f2);
+      (*set_lt_cached_cert f1 f2 None;*)
       let gct = get_coq_term in
       let res = match f1, f2 with
-      | CertLiteral a, _ when a.b -> Some (Constr.mkApp(left_true_or, [|gct f2|]))
-      | _, CertLiteral a when a.b -> Some (Constr.mkApp(right_true_or, [|gct f1|]))
+      | CertLiteral a, _ when a.b -> Sure (Constr.mkApp(left_true_or, [|gct f2|]))
+      | _, CertLiteral a when a.b -> Sure (Constr.mkApp(right_true_or, [|gct f1|]))
       | CertNeg {child = CertVariable a; _}, CertVariable b when a.id = b.id -> 
-        Some (Constr.mkApp(left_neg_or, [|gct f2|]))
+        Sure (Constr.mkApp(left_neg_or, [|gct f2|]))
       | CertVariable a, CertNeg {child = CertVariable b; _} when a.id = b.id -> 
-        Some (Constr.mkApp(right_neg_or, [|gct f1|]))
+        Sure (Constr.mkApp(right_neg_or, [|gct f1|]))
       | CertAnd a, _ -> 
-        (match aux a.c1 f2, aux a.c2 f2 with
-        | Some x, Some y -> Some (Constr.mkApp(left_and_or, [|gct a.c1; gct a.c2; gct f2; x; y|]))
-        | _ -> None)
+        Printf.eprintf "it's an and\n";
+        let r1 = aux a.c1 f2 in
+        Printf.eprintf "\n\n mid \n";
+        let r2 = aux a.c2 f2 in
+        (match r1, r2 with
+        | Sure x, Sure y -> Sure (Constr.mkApp(left_and_or, [|gct a.c1; gct a.c2; gct f2; x; y|]))
+        | _, No -> No
+        | No, _ -> No
+        | _ -> Maybe)
       | _, CertAnd a ->
-        (match aux f1 a.c1, aux f1 a.c2 with
-        | Some x, Some y -> Some (Constr.mkApp(right_and_or, [|gct f1; gct a.c1; gct a.c2; x; y|]))
-        | _ -> None)
+        let r1 = aux f1 a.c1 in 
+        let r2 = aux f1 a.c2 in
+        (match r1, r2 with
+        | Sure x, Sure y -> Sure (Constr.mkApp(right_and_or, [|gct f1; gct a.c1; gct a.c2; x; y|]))
+        | _, No -> No
+        | No, _ -> No
+        | _ -> Maybe)
       | _ -> (first_some (first_some (first_some
         (match f1 with | CertOr a -> 
-          first_some (Option.map (fun x -> Constr.mkApp(left_or_or_1, [|gct a.c1; gct a.c2; gct f2; x|])) (aux a.c1 f2))
-                      (lazy (Option.map (fun x -> Constr.mkApp(left_or_or_2, [|gct a.c1; gct a.c2; gct f2; x|])) (aux a.c2 f2)))
-        | _ -> None)
+          first_some (threemap (fun x -> Constr.mkApp(left_or_or_1, [|gct a.c1; gct a.c2; gct f2; x|])) (aux a.c1 f2))
+                      (lazy (threemap (fun x -> Constr.mkApp(left_or_or_2, [|gct a.c1; gct a.c2; gct f2; x|])) (aux a.c2 f2)))
+        | _ -> No)
         
         (lazy (match f2 with | CertOr b -> 
-          first_some (Option.map (fun x -> Constr.mkApp(right_or_or_1, [|gct f1; gct b.c1; gct b.c2; x|])) (aux f1 b.c1))
-                      (lazy (Option.map (fun x -> Constr.mkApp(right_or_or_2, [|gct f1; gct b.c1; gct b.c2; x|])) (aux f1 b.c2)))
-        | _ -> None))
+          first_some (threemap (fun x -> Constr.mkApp(right_or_or_1, [|gct f1; gct b.c1; gct b.c2; x|])) (aux f1 b.c1))
+                      (lazy (threemap (fun x -> Constr.mkApp(right_or_or_2, [|gct f1; gct b.c1; gct b.c2; x|])) (aux f1 b.c2)))
+        | _ -> No))
       )
-        (lazy (Option.map (fun x -> Constr.mkApp(contract_or_1, [|gct f1; gct f2; x|])) (aux f1 f1)))
+        (lazy (
+          if Hashtbl.mem seen f1 then Maybe
+          else (
+            Hashtbl.add seen f1 (); 
+            let r = threemap (fun x -> Constr.mkApp(contract_or_1, [|gct f1; gct f2; x|])) (aux f1 f1) in
+            Hashtbl.remove seen f1;
+            r
+          )
+        ))
       )
-        (lazy (Option.map (fun x -> Constr.mkApp(contract_or_2, [|gct f1; gct f2; x|])) (aux f2 f2)))
+        (lazy (
+          if Hashtbl.mem seen f2 then Maybe
+          else (
+            Hashtbl.add seen f2 (); 
+            let r = threemap (fun x -> Constr.mkApp(contract_or_2, [|gct f1; gct f2; x|])) (aux f2 f2) in
+            Hashtbl.remove seen f2;
+            r
+          )
+        ))
       )
       in
-      set_lt_cached_cert f1 f2 res;
+      Printf.eprintf "Auxout %s --- %s      is %s\n%!" (cert_formula_to_string f1) (cert_formula_to_string f2) (match res with | Sure _ -> "sure" | Maybe -> "maybe" | No -> "no");
+      (match res with
+      | Sure r -> set_lt_cached_cert f1 f2 (Some r)
+      | Maybe -> ()
+      | No -> set_lt_cached_cert f1 f2 None);
       res
-  in aux f1 f2
+      
+    )
+  ) in 
+  (match (aux f1 f2) with 
+  | Sure r -> Some r
+  | _ -> None)
+
 
 (* Find the atom in a formula (i.e. variable) that appears most often *)
-let best_atom (l: cert_formula list) : cert_formula option =
+let best_atom (l: cert_formula list) : cert_formula option = (
 
-  let counts = Hashtbl.create 50 in
+  let counts : ((int, int * cert_formula) Hashtbl.t) = Hashtbl.create 50 in
   let rec aux f = 
     match f with
     | CertVariable a -> 
@@ -351,6 +406,7 @@ let best_atom (l: cert_formula list) : cert_formula option =
     end
   ) counts;
   !max_key
+)
 
 
 (* Tactic: Introduces the normal form of a t as h, without proving equality*)
@@ -439,7 +495,9 @@ let ol_cert_goal_tactic cl : unit PV.tactic =
             Tactics.exact_check res;
           ]
         | None ->
-          let msg = str (Printf.sprintf "No proof of tpair %s %s found" (cert_formula_to_string f1) (cert_formula_to_string f2)) in
+          let f1_s = Pp.string_of_ppcmds (Printer.pr_constr_env env sigma args.(0)) in
+          let f2_s = Pp.string_of_ppcmds (Printer.pr_constr_env env sigma args.(1)) in
+          let msg = str (Printf.sprintf "No proof of tpair %s %s found" f1_s f2_s) in
           Tacticals.tclFAIL msg)
       | _ ->
         let typ_str = Pp.string_of_ppcmds (Printer.pr_constr_env env sigma concl2) in
@@ -509,7 +567,7 @@ let destruct_atom () : unit PV.tactic =
         let res = EConstr.of_constr res in
         Tactics.destruct false None res None None;
       | None ->
-        let msg = str "Nothing to destruct" in
+        let msg = str "No atom found" in
         Tacticals.tclFAIL msg)
     | _ ->
       let msg = str "Not an equality of boolean expressions" in
@@ -584,7 +642,7 @@ let oltauto_cert cl : unit PV.tactic =
 
   let eq = Lazy.force eq in
   let bool_typ = Lazy.force bool_typ in
-  let rec aux () = Proofview.Goal.enter begin fun gl ->
+  let rec aux () : unit PV.tactic = Proofview.Goal.enter begin fun gl ->
     let env = Tacmach.pf_env gl in
     let sigma = Tacmach.project gl in
     let concl = Proofview.Goal.concl gl in
@@ -604,27 +662,67 @@ let oltauto_cert cl : unit PV.tactic =
       else (
         let f1_n = unquote f1_q_r in
         let f2_n = unquote f2_q_r in
-        if f1_n === f1 && f2_n === f2 then
-          let msg = str "Can't prove the two formulas equivalent" in
-          Tacticals.tclFAIL msg
-        else
-          let f1_n_e = EConstr.of_constr f1_n in
-          let f2_n_e = EConstr.of_constr f2_n in
-          let tac = ol_cert_goal_tactic cl in
-          let t1, t2 = 
-            let f1_e = EConstr.of_constr f1 in
-            let f2_e = EConstr.of_constr f2 in
-            if (size f1_q) > (size f2_q) then 
-              Equality.replace_by f1_e f1_n_e tac, Equality.replace_by f2_e f2_n_e tac
-            else 
-              Equality.replace_by f2_e f2_n_e tac, Equality.replace_by f1_e f1_n_e tac
-            in
+        let f1_n_e = EConstr.of_constr f1_n in
+        let f2_n_e = EConstr.of_constr f2_n in
 
-            Tacticals.tclTHENLIST [
-              t1;
-              t2;
-              Tacticals.tclTHENFIRSTn (destruct_atom ()) [| aux (); aux () |]
-            ]
+        Printf.eprintf "--\n" ;
+        Printf.eprintf "f1_q: %s\n%!" (formula_to_string f1_q);
+        Printf.eprintf "f1_q_r: %s\n%!" (formula_to_string f1_q_r);
+        let tac = 
+          (Proofview.tclIFCATCH
+              (ol_cert_goal_tactic cl) 
+              (fun () -> aux ())
+              (fun er -> (
+                let (e, info) = er in
+                let msg = Pp.string_of_ppcmds (CErrors.print e) in
+                Printf.eprintf "\n\n -----------------------------------------\n%!";
+                Printf.eprintf "error in tac. %s\n%!" msg;
+                let f1_s = Pp.string_of_ppcmds (Printer.pr_constr_env env sigma f1) in
+                let f1_n_s = Pp.string_of_ppcmds (Printer.pr_constr_env env sigma f1_n) in
+                Printf.eprintf "f1: \n %s\n\n%!" f1_s;
+                Printf.eprintf "f1_n: \n %s\n\n%!" f1_n_s;
+                Printf.eprintf "f1_q: \n %s\n\n%!" (formula_to_string f1_q);
+                Printf.eprintf "f1_q_r: \n %s\n\n%!" (formula_to_string f1_q_r);
+                
+                let _or a b = new_or [a; b] in
+                let _and a b = new_and [a; b] in
+                let _neg a = new_neg a in
+                let v_5 = new_variable 5 in
+                let v_7 = new_variable 7 in
+                let v_8 = new_variable 8 in
+                let v_9 = new_variable 9 in
+                let falb = new_literal false in
+                let trub = new_literal true in
+                let g = (_or (_and (_and (_and (_and (_or (_neg v_7) v_5) (_or (_neg v_7) (_neg v_8))) v_7) (_or (_neg v_8) (_and (_neg v_9) (_neg falb)))) (_or (_or (_and (_and v_8 v_5) (_or (_neg v_7) v_9)) (_neg v_5)) (_neg v_9))) (_and (_and (_or falb (_and (_and (_or (_neg v_5) v_9) (_or (_neg v_8) (_neg v_7))) v_9)) (_or (_and (_neg v_9) trub) (_and (_and (_or (_neg v_5) (_neg falb)) (_or v_5 v_8)) (_neg v_9)))) (_or (_neg falb) v_9))) in
+                let res = reduced_form g in
+                (Printf.eprintf "g: \n %s\n" (formula_to_string g));
+                (Printf.eprintf "res: \n %s\n" (formula_to_string res));
+                Tactics.pose_tac (Names.Name.mk_name (Names.Id.of_string "Nothing")) (EConstr.of_constr (Lazy.force trueb)))
+              )
+            ) in
+        let t1, t2 = 
+          let f1_e = EConstr.of_constr f1 in
+          let f2_e = EConstr.of_constr f2 in
+          if (size f1_q) > (size f2_q) then 
+            (Equality.replace_by f1_e f1_n_e tac, Equality.replace_by f2_e f2_n_e tac)
+          else 
+            (Equality.replace_by f2_e f2_n_e tac, Equality.replace_by f1_e f1_n_e tac)
+          in
+
+        Tacticals.tclTHENLIST [
+          t1; 
+          t2;
+            (Proofview.tclIFCATCH
+              (Tacticals.tclTHEN (destruct_atom ()) (Autorewrite.auto_multi_rewrite ["nnf_lemmas"] cl;))
+              (fun () -> aux ())
+              (fun er -> (
+                let (e, info) = er in
+                let msg = Pp.string_of_ppcmds (CErrors.print e) in
+                Printf.eprintf "error in destruct. %s\n%!" msg;
+                Tactics.pose_tac (Names.Name.mk_name (Names.Id.of_string "Nothing")) (EConstr.of_constr (Lazy.force trueb)))
+              )
+            )
+        ]
       )
     | _ ->
       let typ_str = Pp.string_of_ppcmds (Printer.pr_constr_env env sigma concl) in

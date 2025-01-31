@@ -26,7 +26,7 @@ Ltac solve_OL OL thm reduction :=
 Tactic Notation "run1" tactic(t) :=
   idtac;
   first
-    [ timeout 60
+    [ timeout 30
         first[ assert_succeeds (idtac; solve[t]); idtac "solved"
              | fail 2 "not solved" ]
     | idtac "timeout" ].
@@ -51,6 +51,26 @@ Tactic Notation "bench1" uconstr(id) constr(thm) constr(reduction)  :=
                   | none => fun _ => idtac
                   end in
   time (run1 (solve_OL BoolOL thm reduction)).
+
+Tactic Notation "bench_oltauto" uconstr(id) :=
+  idtac "--------------------------------------------------------------------------------";
+  idtac "::" id "::: oltauto";
+  time (run1 (oltauto)).
+
+Tactic Notation "bench_oltauto_cert" uconstr(id) :=
+  idtac "--------------------------------------------------------------------------------";
+  idtac "::" id "::: oltauto_cert";
+  time (run1 (oltauto_cert)).
+
+Tactic Notation "bench_btauto" uconstr(id) :=
+  idtac "--------------------------------------------------------------------------------";
+  idtac "::" id "::: btauto";
+  time (run1 (btauto)).
+  
+Tactic Notation "benchtauto" uconstr(id) :=
+  bench_oltauto id;
+  bench_oltauto_cert id;
+  bench_btauto id.
 
 Tactic Notation "benchSuperFast" uconstr(id) :=
   do 5 (bench1 id OL_Reflection_4_fmap.reduce_to_decideOL_fmap lazy);

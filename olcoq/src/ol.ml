@@ -250,41 +250,41 @@ let set_lt_cached nf1 nf2 b =
 
 let rec formula_to_string f =
   match f with
-  | Variable v -> Printf.sprintf "V_%d" v.id 
-  | Neg neg -> Printf.sprintf "Neg(%s)" (formula_to_string neg.child)
-  | Or or_f -> Printf.sprintf "Or(%s)" 
-                  (String.concat ", " (List.map formula_to_string or_f.children))
-  | And and_f -> Printf.sprintf "And(%s)" 
-                  (String.concat ", " (List.map formula_to_string and_f.children))
-  | Literal lit -> if lit.b then "True" else "False"
+  | Variable v -> Printf.sprintf "v_%d" v.id 
+  | Neg neg -> Printf.sprintf "(_neg %s)" (formula_to_string neg.child)
+  | Or or_f -> Printf.sprintf "(_or %s)" 
+                  (String.concat " " (List.map formula_to_string or_f.children))
+  | And and_f -> Printf.sprintf "(_and %s)" 
+                  (String.concat " " (List.map formula_to_string and_f.children))
+  | Literal lit -> if lit.b then "trub" else "falb"
 
 let rec polar_formula_to_string pf =
   match pf with
   | PolarVariable v -> if v.polarity then 
-                        Printf.sprintf "PV_(%d)" v.id 
+                        Printf.sprintf "Pv_(%d)" v.id 
                       else 
-                        Printf.sprintf "!PV_(%d)" v.id
+                        Printf.sprintf "!Pv_(%d)" v.id
   | PolarAnd and_f -> if and_f.polarity then 
                         Printf.sprintf "PAnd(%s)" 
                           (String.concat ", " (List.map polar_formula_to_string and_f.children))
                       else 
                         Printf.sprintf "!PAnd(%s)" 
                         (String.concat ", " (List.map polar_formula_to_string and_f.children))
-  | PolarLiteral lit -> if lit.b then "PTrue" else "PFalse"
+  | PolarLiteral lit -> if lit.b then "Ptrub" else "Pfalb"
 
 let rec normal_formula_to_string nf =
   match nf with
   | NormalVariable v -> if v.polarity then 
-                        Printf.sprintf "NV_(%d)" v.id 
+                        Printf.sprintf "Nv_(%d)" v.id 
                       else 
-                        Printf.sprintf "!NV_(%d)" v.id
+                        Printf.sprintf "!Nv_(%d)" v.id
   | NormalAnd and_f -> if and_f.polarity then 
                         Printf.sprintf "NAnd(%s)" 
                           (String.concat ", " (List.map normal_formula_to_string and_f.children))
                       else 
                         Printf.sprintf "!NAnd(%s)" 
                         (String.concat ", " (List.map normal_formula_to_string and_f.children))
-  | NormalLiteral lit -> if lit.b then "NTrue" else "NFalse"
+  | NormalLiteral lit -> if lit.b then "Ntrub" else "Nfalb"
 
 
 
@@ -385,7 +385,7 @@ let rec lattices_leq (nf1: normal_formula) (nf2: normal_formula) =
           List.exists (fun x -> lattices_leq x nf2) and_f1.children || List.exists (fun x -> lattices_leq nf1 (get_normal_inverse x)) and_f2.children
         | _ -> raise (Failure "Impossible case")
       in
-      set_lt_cached nf1 nf2 r;
+      (*set_lt_cached nf1 nf2 r;*)
       r
 
 let simplify (children: normal_formula list) (polarity: bool) =
@@ -451,7 +451,7 @@ let rec polar_to_normal_form (pf: polar_formula) =
         if check_for_contradiction simp then new_n_literal (not and_f.polarity) else simp
       | PolarLiteral lit -> new_n_literal lit.b
     in
-    set_p_normal_form pf (Some r);
+    (*set_p_normal_form pf (Some r);*)
     r
 
 let reduced_form (f: formula) =
@@ -472,6 +472,12 @@ let show_ol () =
   let _f = new_or [new_and [a; b ]; new_neg (new_and [a; b ])] in
   (Printf.printf "Formula: %s\n" (formula_to_string _f));
   (Printf.printf "Polarized: %s\n" (polar_formula_to_string (polarize _f true)));
-  (Printf.printf "Normal Form: %s\n\n" (formula_to_string (reduced_form _f)));
+  (Printf.printf "Normal Form: %s\n\n" (formula_to_string (reduced_form _f)))
+
+  (*
+  Or(And(And(And(And(Or(Neg(V_7), V_5), Or(Neg(V_7), Neg(V_8))), Or(False, V_7)), Or(And(Neg(V_8), Neg(False)), And(Neg(V_9), Neg(False)))), Or(Or(And(And(V_8, V_5), Or(Neg(V_7), V_9)), Neg(V_5)), Neg(V_9))), And(And(Or(And(And(Neg(V_7), False), Or(Neg(False), Neg(V_5))), And(And(Or(Neg(V_5), V_9), Or(Neg(V_8), Neg(V_7))), Or(V_9, False))), Or(And(Neg(V_9), Or(Neg(V_8), Neg(False))), And(And(Or(Neg(V_5), Neg(False)), Or(V_5, V_8)), Neg(V_9)))), Or(Neg(False), V_9)))
+  *)
 
 
+
+  
