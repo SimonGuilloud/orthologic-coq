@@ -180,7 +180,9 @@ def fit(df):
         # print(plot.reset_index().columns)
         xdata, ydata, sigma = plot["size"], plot[("wall", "mean")], plot[("wall", "std")]
 
-        if len(ydata) >= 10:
+        if len(ydata) < 10:
+            print(f"Skipping fit estimation for {algorithm}: not enough data")
+        else:
             fits = [
                 *[ExpFit(algorithm, xdata, ydata)],
                 # *[PolyFullFit(algorithm, xdata, ydata)],
@@ -205,10 +207,17 @@ def main():
     args = parse_arguments()
     df = read_df(args.infile)
     fit(df)
-    print(df[(df["size"] == 30) &
-             (df["reduction"].isin(("vm_compute", "none")))].groupby(["solver+reduction", "size"])[["wall"]].agg(("mean", "std")).round(3))
+    table = df[
+        (df["size"] == 30) &
+        (df["reduction"].isin(("vm_compute", "none")))
+    ].groupby(
+        ["solver+reduction"]
+    )[["wall"]].agg(
+        ("mean", "std")
+    ).droplevel(axis=1, level=0).sort_values("mean", ascending=False).round(3)
+    print(table)
+    print(table.to_latex())
     plot(df)
-
 
 if __name__ == '__main__':
     main()

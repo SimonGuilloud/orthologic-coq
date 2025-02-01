@@ -93,8 +93,8 @@ Tactic Notation "benchFast" uconstr(id) :=
   idtac.
 
 Tactic Notation "bench" uconstr(id) :=
-  benchFast id;
   do 5 (header id "btauto" "none"; time (run1 (btauto)));
+  benchFast id;
   idtac.
 
 Tactic Notation "benchSlow" uconstr(id) :=
