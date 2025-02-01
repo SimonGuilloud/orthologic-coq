@@ -1,0 +1,60 @@
+--------------------------------------------------------------------------------
+:: "test04_3" ::: oltauto ::: "none"
+not solved
+Tactic call ran for 4.299 secs (4.274u,0.023s) (success)
+--------------------------------------------------------------------------------
+:: "test04_3" ::: oltauto ::: "none"
+not solved
+Tactic call ran for 4.067 secs (4.04u,0.025s) (success)
+--------------------------------------------------------------------------------
+:: "test04_3" ::: oltauto ::: "none"
+not solved
+Tactic call ran for 4.041 secs (4.012u,0.027s) (success)
+--------------------------------------------------------------------------------
+:: "test04_3" ::: oltauto ::: "none"
+not solved
+Tactic call ran for 4.133 secs (4.121u,0.01s) (success)
+--------------------------------------------------------------------------------
+:: "test04_3" ::: oltauto ::: "none"
+not solved
+Tactic call ran for 4.457 secs (4.434u,0.02s) (success)
+--------------------------------------------------------------------------------
+:: "test04_3" ::: oltauto_cert ::: "none"
+not solved
+Tactic call ran for 0.661 secs (0.66u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test04_3" ::: oltauto_cert ::: "none"
+not solved
+Tactic call ran for 0.65 secs (0.649u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test04_3" ::: oltauto_cert ::: "none"
+not solved
+Tactic call ran for 0.632 secs (0.627u,0.004s) (success)
+--------------------------------------------------------------------------------
+:: "test04_3" ::: oltauto_cert ::: "none"
+not solved
+Tactic call ran for 0.643 secs (0.642u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test04_3" ::: oltauto_cert ::: "none"
+not solved
+Tactic call ran for 0.657 secs (0.656u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test04_3" ::: btauto ::: "none"
+not solved
+Tactic call ran for 10.413 secs (10.412u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test04_3" ::: btauto ::: "none"
+not solved
+Tactic call ran for 10.806 secs (10.797u,0.002s) (success)
+--------------------------------------------------------------------------------
+:: "test04_3" ::: btauto ::: "none"
+not solved
+Tactic call ran for 9.677 secs (9.583u,0.092s) (success)
+--------------------------------------------------------------------------------
+:: "test04_3" ::: btauto ::: "none"
+not solved
+Tactic call ran for 9.555 secs (9.549u,0.006s) (success)
+--------------------------------------------------------------------------------
+:: "test04_3" ::: btauto ::: "none"
+not solved
+Tactic call ran for 10.048 secs (9.85u,0.192s) (success)
