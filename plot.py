@@ -75,7 +75,7 @@ def parse_log(contents: str) -> pd.DataFrame:
 def parse_logs(contents: list[str]) -> pd.DataFrame:
     return pd.concat(parse_log(l) for l in contents)
 
-def plot(df):
+def plot_lines(df):
     plt.figure(figsize=(6, 4))
 
     # df = df[df["reduction"].isin(("btauto", "vm_compute"))]
@@ -86,6 +86,7 @@ def plot(df):
         data=df, x='size', y='wall', hue='solver',
         style='reduction',
     )
+
     # ax.set_yscale('log')
     ax.set_xlim(0, 100)
     ax.set_ylim(0, 28)
@@ -97,12 +98,17 @@ def plot(df):
     # plt.legend(title='Solver')
     plt.tight_layout()
 
-    # Show plot
+    plt.legend(loc = 'upper right')
+    plt.savefig("lines.pdf")
     plt.show()
     return
 
+def plot_cloud(df):
+    print(df)
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Plot Coq-OL benchmark results.')
+    parser.add_argument("style", choices=["cloud", "lines"])
     parser.add_argument("infile", nargs='+', type=Path,
                         help="File to read benchmarks from.")
     return parser.parse_args()
@@ -206,18 +212,21 @@ def read_df(infiles: list[Path]):
 def main():
     args = parse_arguments()
     df = read_df(args.infile)
-    fit(df)
-    table = df[
-        (df["size"] == 30) &
-        (df["reduction"].isin(("vm_compute", "none")))
-    ].groupby(
-        ["solver+reduction"]
-    )[["wall"]].agg(
-        ("mean", "std")
-    ).droplevel(axis=1, level=0).sort_values("mean", ascending=False).round(3)
-    print(table)
-    print(table.to_latex())
-    plot(df)
+    if args.style == "lines":
+        fit(df)
+        table = df[
+            (df["size"] == 30) &
+            (df["reduction"].isin(("vm_compute", "none")))
+        ].groupby(
+            ["solver+reduction"]
+        )[["wall"]].agg(
+            ("mean", "std")
+        ).droplevel(axis=1, level=0).sort_values("mean", ascending=False).round(3)
+        print(table)
+        print(table.to_latex())
+        plot_lines(df)
+    elif args.style == "cloud":
+        plot_cloud(df)
 
 if __name__ == '__main__':
     main()
