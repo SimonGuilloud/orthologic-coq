@@ -1,0 +1,100 @@
+--------------------------------------------------------------------------------
+:: "test94" ::: OL_Reflection_4_fmap.reduce_to_decideOL_fmap ::: lazy
+timeout
+Tactic call ran for 60. secs (59.854u,0.142s) (success)
+--------------------------------------------------------------------------------
+:: "test94" ::: OL_Reflection_4_fmap.reduce_to_decideOL_fmap ::: lazy
+timeout
+Tactic call ran for 60. secs (59.939u,0.057s) (success)
+--------------------------------------------------------------------------------
+:: "test94" ::: OL_Reflection_4_fmap.reduce_to_decideOL_fmap ::: lazy
+timeout
+Tactic call ran for 60. secs (59.966u,0.031s) (success)
+--------------------------------------------------------------------------------
+:: "test94" ::: OL_Reflection_4_fmap.reduce_to_decideOL_fmap ::: lazy
+timeout
+Tactic call ran for 60. secs (59.997u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test94" ::: OL_Reflection_4_fmap.reduce_to_decideOL_fmap ::: lazy
+timeout
+Tactic call ran for 60. secs (59.997u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test94" ::: OL_Reflection_4_fmap.reduce_to_decideOL_fmap ::: vm_compute
+solved
+Tactic call ran for 5.931 secs (5.93u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test94" ::: OL_Reflection_4_fmap.reduce_to_decideOL_fmap ::: vm_compute
+solved
+Tactic call ran for 5.962 secs (5.962u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test94" ::: OL_Reflection_4_fmap.reduce_to_decideOL_fmap ::: vm_compute
+solved
+Tactic call ran for 5.916 secs (5.916u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test94" ::: OL_Reflection_4_fmap.reduce_to_decideOL_fmap ::: vm_compute
+solved
+Tactic call ran for 5.887 secs (5.887u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test94" ::: OL_Reflection_4_fmap.reduce_to_decideOL_fmap ::: vm_compute
+solved
+Tactic call ran for 5.92 secs (5.919u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test94" ::: OL_Reflection_5_pointers.reduce_to_decideOL_pointer ::: lazy
+solved
+Tactic call ran for 29.044 secs (29.044u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test94" ::: OL_Reflection_5_pointers.reduce_to_decideOL_pointer ::: lazy
+solved
+Tactic call ran for 29.406 secs (29.354u,0.05s) (success)
+--------------------------------------------------------------------------------
+:: "test94" ::: OL_Reflection_5_pointers.reduce_to_decideOL_pointer ::: lazy
+solved
+Tactic call ran for 29.33 secs (29.329u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test94" ::: OL_Reflection_5_pointers.reduce_to_decideOL_pointer ::: lazy
+solved
+Tactic call ran for 29.163 secs (29.162u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test94" ::: OL_Reflection_5_pointers.reduce_to_decideOL_pointer ::: lazy
+solved
+Tactic call ran for 29.494 secs (29.493u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test94" ::: OL_Reflection_5_pointers.reduce_to_decideOL_pointer ::: vm_compute
+solved
+Tactic call ran for 2.232 secs (2.232u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test94" ::: OL_Reflection_5_pointers.reduce_to_decideOL_pointer ::: vm_compute
+solved
+Tactic call ran for 2.248 secs (2.248u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test94" ::: OL_Reflection_5_pointers.reduce_to_decideOL_pointer ::: vm_compute
+solved
+Tactic call ran for 2.176 secs (2.176u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test94" ::: OL_Reflection_5_pointers.reduce_to_decideOL_pointer ::: vm_compute
+solved
+Tactic call ran for 2.726 secs (2.663u,0.062s) (success)
+--------------------------------------------------------------------------------
+:: "test94" ::: OL_Reflection_5_pointers.reduce_to_decideOL_pointer ::: vm_compute
+solved
+Tactic call ran for 2.242 secs (2.242u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test94" ::: "olcert_goal" ::: "none"
+solved
+Tactic call ran for 0.539 secs (0.539u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test94" ::: "olcert_goal" ::: "none"
+solved
+Tactic call ran for 0.538 secs (0.538u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test94" ::: "olcert_goal" ::: "none"
+solved
+Tactic call ran for 0.558 secs (0.558u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test94" ::: "olcert_goal" ::: "none"
+solved
+Tactic call ran for 0.557 secs (0.557u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test94" ::: "olcert_goal" ::: "none"
+solved
+Tactic call ran for 0.555 secs (0.555u,0.s) (success)
