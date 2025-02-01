@@ -36,7 +36,7 @@ Tactic Notation "run2" tactic(t) :=
   first
     [ timeout 30
         first[ assert_succeeds (idtac; solve[t]); idtac "solved"
-             | fail "not solved" ]
+             | idtac "not solved" ]
     | idtac "timeout" ].
 
 Require Export String.
@@ -60,25 +60,21 @@ Tactic Notation "bench1" uconstr(id) constr(thm) constr(reduction)  :=
                   end in
   time (run1 (solve_OL BoolOL thm reduction)).
 
-Tactic Notation "bench_oltauto" uconstr(id) :=
-  idtac "--------------------------------------------------------------------------------";
-  idtac "::" id "::: oltauto";
-  time (run2 (oltauto)).
+Inductive strategy := oltauto | oltauto_cert | btauto.
 
-Tactic Notation "bench_oltauto_cert" uconstr(id) :=
-  idtac "--------------------------------------------------------------------------------";
-  idtac "::" id "::: oltauto_cert";
-  time (run2 (oltauto_cert)).
+Tactic Notation "bench2" uconstr(id) constr(strategy) :=
+  header id strategy "none";
+  let strategy := lazymatch strategy with
+                 | oltauto => fun _ => oltauto
+                 | oltauto_cert => fun _ => oltauto_cert
+                 | btauto => fun _ => btauto
+                 end in
+  time (run2 (idtac; strategy ())).
 
-Tactic Notation "bench_btauto" uconstr(id) :=
-  idtac "--------------------------------------------------------------------------------";
-  idtac "::" id "::: btauto";
-  time (run2 (btauto)).
-  
 Tactic Notation "benchtauto" uconstr(id) :=
-  bench_oltauto id;
-  bench_oltauto_cert id;
-  bench_btauto id.
+  do 5 (bench2 id oltauto);
+  do 5 (bench2 id oltauto_cert);
+  do 5 (bench2 id btauto).
 
 Tactic Notation "benchSuperFast" uconstr(id) :=
   do 5 (bench1 id OL_Reflection_4_fmap.reduce_to_decideOL_fmap lazy);
