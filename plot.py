@@ -13,7 +13,7 @@ import pandas as pd
 
 BENCHMARK_ENTRY = re.compile(
     r"""::[ ]"(?P<experiment>.*?)"[ ]:::[ ]"?(?P<solver>.*?)"?[ ]:::[ ]"?(?P<reduction>.*?)"?[\n]
-        (?P<status>solved|timeout)[\n]
+        (?P<status>solved|not[ ]solved|timeout)[\n]
         Tactic[ ]call[ ]ran[ ]for[ ](?P<wall>.*?)[ ]secs[ ][(](?P<user>.*?)u,(?P<system>.*?)s[)]""",
     re.VERBOSE
 )
@@ -22,7 +22,7 @@ SEPARATOR = "-" * 80 + "\n"
 
 def parse_entry(entry_contents: str) -> dict[str, Any]:
     m = BENCHMARK_ENTRY.match(entry_contents)
-    # assert m, f"Unparseable entry: {entry_contents}"
+    assert m, f"Unparseable entry: {entry_contents}"
     return m.groupdict() if m else None
 
 SOLVER_RENAME = {
@@ -64,6 +64,10 @@ def parse_log(contents: str) -> pd.DataFrame:
     )
     df["solver"] = df["solver"].map(SOLVER_RENAME) # type: ignore
     df["solver+reduction"] = df["solver"] + df["reduction"].map(REDUCTION_RENAME) # type: ignore
+    if df.experiment.str.contains("_").any():
+        df[["experiment", "variation"]] = df["experiment"].str.split("_(?=[0-9])", n=1, expand=True)
+    else:
+        df["variation"] = 1
     df[["experiment", "size"]] = df["experiment"].str.split("(?=[0-9])", n=1, expand=True)
     df["size"] = pd.to_numeric(df["size"])
     df["wall"] = pd.to_numeric(df["wall"])
@@ -104,7 +108,18 @@ def plot_lines(df):
     return
 
 def plot_cloud(df):
-    print(df)
+    solvers = df["solver"].unique()
+    df = df[["solver", "variation", "size", "wall"]]
+    df = df.groupby(["size", "variation", "solver"])[["wall"]].mean().unstack().reset_index()
+    df = df.droplevel(axis=1, level=0)
+    for s1 in solvers:
+        for s2 in solvers:
+            if s1 >= s2:
+                continue
+            print(s1, s2, s1 >= s2)
+            sns.scatterplot(data=df, x=s1, y=s2)
+            plt.savefig(f"{s1}+{s2}.pdf")
+            plt.show()
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description='Plot Coq-OL benchmark results.')
