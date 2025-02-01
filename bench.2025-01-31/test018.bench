@@ -1,0 +1,160 @@
+--------------------------------------------------------------------------------
+:: "test18" ::: "btauto" ::: "none"
+solved
+Tactic call ran for 0.032 secs (0.032u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: "btauto" ::: "none"
+solved
+Tactic call ran for 0.027 secs (0.027u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: "btauto" ::: "none"
+solved
+Tactic call ran for 0.048 secs (0.046u,0.001s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: "btauto" ::: "none"
+solved
+Tactic call ran for 0.027 secs (0.027u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: "btauto" ::: "none"
+solved
+Tactic call ran for 0.027 secs (0.027u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_3_memo.reduce_to_decideOL_memo ::: lazy
+solved
+Tactic call ran for 9.272 secs (9.271u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_3_memo.reduce_to_decideOL_memo ::: lazy
+solved
+Tactic call ran for 8.912 secs (8.909u,0.002s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_3_memo.reduce_to_decideOL_memo ::: lazy
+solved
+Tactic call ran for 8.85 secs (8.843u,0.006s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_3_memo.reduce_to_decideOL_memo ::: lazy
+solved
+Tactic call ran for 8.896 secs (8.895u,0.001s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_3_memo.reduce_to_decideOL_memo ::: lazy
+solved
+Tactic call ran for 8.983 secs (8.976u,0.006s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_3_memo.reduce_to_decideOL_memo ::: vm_compute
+solved
+Tactic call ran for 0.971 secs (0.971u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_3_memo.reduce_to_decideOL_memo ::: vm_compute
+solved
+Tactic call ran for 0.96 secs (0.96u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_3_memo.reduce_to_decideOL_memo ::: vm_compute
+solved
+Tactic call ran for 0.974 secs (0.973u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_3_memo.reduce_to_decideOL_memo ::: vm_compute
+solved
+Tactic call ran for 0.971 secs (0.971u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_3_memo.reduce_to_decideOL_memo ::: vm_compute
+solved
+Tactic call ran for 0.977 secs (0.977u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_4_fmap.reduce_to_decideOL_fmap ::: lazy
+solved
+Tactic call ran for 0.8 secs (0.792u,0.008s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_4_fmap.reduce_to_decideOL_fmap ::: lazy
+solved
+Tactic call ran for 0.795 secs (0.789u,0.005s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_4_fmap.reduce_to_decideOL_fmap ::: lazy
+solved
+Tactic call ran for 0.791 secs (0.789u,0.001s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_4_fmap.reduce_to_decideOL_fmap ::: lazy
+solved
+Tactic call ran for 0.8 secs (0.792u,0.007s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_4_fmap.reduce_to_decideOL_fmap ::: lazy
+solved
+Tactic call ran for 0.779 secs (0.776u,0.003s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_4_fmap.reduce_to_decideOL_fmap ::: vm_compute
+solved
+Tactic call ran for 0.067 secs (0.067u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_4_fmap.reduce_to_decideOL_fmap ::: vm_compute
+solved
+Tactic call ran for 0.066 secs (0.066u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_4_fmap.reduce_to_decideOL_fmap ::: vm_compute
+solved
+Tactic call ran for 0.066 secs (0.066u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_4_fmap.reduce_to_decideOL_fmap ::: vm_compute
+solved
+Tactic call ran for 0.066 secs (0.066u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_4_fmap.reduce_to_decideOL_fmap ::: vm_compute
+solved
+Tactic call ran for 0.066 secs (0.066u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_5_pointers.reduce_to_decideOL_pointer ::: lazy
+solved
+Tactic call ran for 0.591 secs (0.587u,0.003s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_5_pointers.reduce_to_decideOL_pointer ::: lazy
+solved
+Tactic call ran for 0.585 secs (0.585u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_5_pointers.reduce_to_decideOL_pointer ::: lazy
+solved
+Tactic call ran for 0.581 secs (0.579u,0.001s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_5_pointers.reduce_to_decideOL_pointer ::: lazy
+solved
+Tactic call ran for 0.604 secs (0.598u,0.006s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_5_pointers.reduce_to_decideOL_pointer ::: lazy
+solved
+Tactic call ran for 0.607 secs (0.604u,0.003s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_5_pointers.reduce_to_decideOL_pointer ::: vm_compute
+solved
+Tactic call ran for 0.06 secs (0.06u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_5_pointers.reduce_to_decideOL_pointer ::: vm_compute
+solved
+Tactic call ran for 0.058 secs (0.058u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_5_pointers.reduce_to_decideOL_pointer ::: vm_compute
+solved
+Tactic call ran for 0.056 secs (0.056u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_5_pointers.reduce_to_decideOL_pointer ::: vm_compute
+solved
+Tactic call ran for 0.057 secs (0.057u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: OL_Reflection_5_pointers.reduce_to_decideOL_pointer ::: vm_compute
+solved
+Tactic call ran for 0.057 secs (0.057u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: "olcert_goal" ::: "none"
+solved
+Tactic call ran for 0.023 secs (0.023u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: "olcert_goal" ::: "none"
+solved
+Tactic call ran for 0.023 secs (0.023u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: "olcert_goal" ::: "none"
+solved
+Tactic call ran for 0.023 secs (0.023u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: "olcert_goal" ::: "none"
+solved
+Tactic call ran for 0.023 secs (0.023u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18" ::: "olcert_goal" ::: "none"
+solved
+Tactic call ran for 0.024 secs (0.023u,0.s) (success)
