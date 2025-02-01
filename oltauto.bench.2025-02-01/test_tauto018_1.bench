@@ -1,0 +1,60 @@
+--------------------------------------------------------------------------------
+:: "test18_1" ::: oltauto ::: "none"
+timeout
+Tactic call ran for 30. secs (29.845u,0.152s) (success)
+--------------------------------------------------------------------------------
+:: "test18_1" ::: oltauto ::: "none"
+timeout
+Tactic call ran for 30. secs (29.969u,0.027s) (success)
+--------------------------------------------------------------------------------
+:: "test18_1" ::: oltauto ::: "none"
+timeout
+Tactic call ran for 30. secs (29.988u,0.009s) (success)
+--------------------------------------------------------------------------------
+:: "test18_1" ::: oltauto ::: "none"
+timeout
+Tactic call ran for 30. secs (29.987u,0.006s) (success)
+--------------------------------------------------------------------------------
+:: "test18_1" ::: oltauto ::: "none"
+timeout
+Tactic call ran for 30. secs (29.97u,0.019s) (success)
+--------------------------------------------------------------------------------
+:: "test18_1" ::: oltauto_cert ::: "none"
+timeout
+Tactic call ran for 30. secs (29.992u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18_1" ::: oltauto_cert ::: "none"
+timeout
+Tactic call ran for 30. secs (29.926u,0.065s) (success)
+--------------------------------------------------------------------------------
+:: "test18_1" ::: oltauto_cert ::: "none"
+timeout
+Tactic call ran for 30. secs (29.956u,0.035s) (success)
+--------------------------------------------------------------------------------
+:: "test18_1" ::: oltauto_cert ::: "none"
+not solved
+Tactic call ran for 19.231 secs (19.227u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18_1" ::: oltauto_cert ::: "none"
+timeout
+Tactic call ran for 30. secs (29.994u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18_1" ::: btauto ::: "none"
+timeout
+Tactic call ran for 30.001 secs (29.995u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18_1" ::: btauto ::: "none"
+timeout
+Tactic call ran for 30. secs (29.994u,0.001s) (success)
+--------------------------------------------------------------------------------
+:: "test18_1" ::: btauto ::: "none"
+timeout
+Tactic call ran for 30. secs (29.998u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test18_1" ::: btauto ::: "none"
+timeout
+Tactic call ran for 30. secs (29.949u,0.048s) (success)
+--------------------------------------------------------------------------------
+:: "test18_1" ::: btauto ::: "none"
+timeout
+Tactic call ran for 30.002 secs (29.995u,0.s) (success)

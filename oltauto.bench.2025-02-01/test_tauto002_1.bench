@@ -1,0 +1,60 @@
+--------------------------------------------------------------------------------
+:: "test02_1" ::: oltauto ::: "none"
+solved
+Tactic call ran for 0.037 secs (0.037u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test02_1" ::: oltauto ::: "none"
+solved
+Tactic call ran for 0.02 secs (0.02u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test02_1" ::: oltauto ::: "none"
+solved
+Tactic call ran for 0.048 secs (0.043u,0.004s) (success)
+--------------------------------------------------------------------------------
+:: "test02_1" ::: oltauto ::: "none"
+solved
+Tactic call ran for 0.023 secs (0.023u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test02_1" ::: oltauto ::: "none"
+solved
+Tactic call ran for 0.02 secs (0.02u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test02_1" ::: oltauto_cert ::: "none"
+solved
+Tactic call ran for 0.039 secs (0.039u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test02_1" ::: oltauto_cert ::: "none"
+solved
+Tactic call ran for 0.047 secs (0.047u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test02_1" ::: oltauto_cert ::: "none"
+solved
+Tactic call ran for 0.034 secs (0.034u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test02_1" ::: oltauto_cert ::: "none"
+solved
+Tactic call ran for 0.046 secs (0.045u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test02_1" ::: oltauto_cert ::: "none"
+solved
+Tactic call ran for 0.033 secs (0.033u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test02_1" ::: btauto ::: "none"
+solved
+Tactic call ran for 0. secs (0.u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test02_1" ::: btauto ::: "none"
+solved
+Tactic call ran for 0. secs (0.u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test02_1" ::: btauto ::: "none"
+solved
+Tactic call ran for 0. secs (0.u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test02_1" ::: btauto ::: "none"
+solved
+Tactic call ran for 0. secs (0.u,0.s) (success)
+--------------------------------------------------------------------------------
+:: "test02_1" ::: btauto ::: "none"
+solved
+Tactic call ran for 0. secs (0.u,0.s) (success)
