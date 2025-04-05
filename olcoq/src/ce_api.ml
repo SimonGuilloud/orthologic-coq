@@ -161,15 +161,15 @@ let unquote (f: formula) : Constr.t =
 (* Formulas used for the proof-producing certification algorithm *)
 type cert_formula = 
 | CertVariable of { polarity : bool; id : int;
-      unique_key : int; lt_cache : (int, types option) Hashtbl.t; coqterm : types }
+      unique_key : int; lt_cache : (int * bool * bool, types option) Hashtbl.t; coqterm : types }
 | CertNeg of { child: cert_formula; 
-      unique_key : int; lt_cache : (int, types option) Hashtbl.t; coqterm : types }
+      unique_key : int; lt_cache : ((int * bool * bool), types option) Hashtbl.t; coqterm : types }
 | CertOr of { c1: cert_formula; c2:cert_formula; 
-      unique_key : int; lt_cache : (int, types option) Hashtbl.t; coqterm : types }
+      unique_key : int; lt_cache : ((int * bool * bool), types option) Hashtbl.t; coqterm : types }
 | CertAnd of { c1: cert_formula; c2:cert_formula; 
-      unique_key : int; lt_cache : (int, types option) Hashtbl.t; coqterm : types }
+      unique_key : int; lt_cache : ((int * bool * bool), types option) Hashtbl.t; coqterm : types }
 | CertLiteral of { b : bool; 
-      unique_key : int; lt_cache : (int, types option) Hashtbl.t; coqterm : types }
+      unique_key : int; lt_cache : ((int * bool * bool), types option) Hashtbl.t; coqterm : types }
 
 let tot_cert = ref 0
 let tot_id = ref 0
@@ -242,12 +242,12 @@ let get_lt_cache_cert cf =
   | CertAnd {lt_cache = c; _} -> c
   | CertLiteral {lt_cache = c; _} -> c
 
-let lt_cached_cert cf1 cf2 =
-  Hashtbl.find_opt (get_lt_cache_cert cf1) (get_cert_key cf2)
+let lt_cached_cert cf1 cf2 b1 b2=
+  Hashtbl.find_opt (get_lt_cache_cert cf1) (get_cert_key cf2, b1, b2)
 
 
-let set_lt_cached_cert cf1 cf2 res =
-  Hashtbl.add (get_lt_cache_cert cf1) (get_cert_key cf2) res
+let set_lt_cached_cert cf1 cf2 b1 b2 res =
+  Hashtbl.add (get_lt_cache_cert cf1) (get_cert_key cf2, b1, b2) res
 
 
 let cert_formula_to_string (f: cert_formula) : string =
@@ -269,7 +269,7 @@ let first_some opt1 opt2 =
 
 (* Produces a proof that f1 = f2, using the laws of orthologic.
    If no such proof is found, return None. *)
-let proof_ol (f1: cert_formula) (f2: cert_formula): types option =
+let proof_ol (f1: cert_formula) (f2: cert_formula) : types option =
   let left_true_or = Lazy.force left_true_or in
   let right_true_or = Lazy.force right_true_or in
   let left_neg_or = Lazy.force left_neg_or in
@@ -283,11 +283,10 @@ let proof_ol (f1: cert_formula) (f2: cert_formula): types option =
   let contract_or_1 = Lazy.force contract_or_1 in
   let contract_or_2 = Lazy.force contract_or_2 in
 
-  let rec aux f1 f2: types option = 
-    match lt_cached_cert f1 f2 with
+  let rec aux f1 f2 (b1: bool) (b2: bool): types option = 
+    match lt_cached_cert f1 f2 b1 b2 with
     | Some res -> res
     | None ->
-      set_lt_cached_cert f1 f2 None;
       let gct = get_coq_term in
       let res = match f1, f2 with
       | CertLiteral a, _ when a.b -> Some (Constr.mkApp(left_true_or, [|gct f2|]))
@@ -297,42 +296,42 @@ let proof_ol (f1: cert_formula) (f2: cert_formula): types option =
       | CertVariable a, CertNeg {child = CertVariable b; _} when a.id = b.id -> 
         Some (Constr.mkApp(right_neg_or, [|gct f1|]))
       | CertAnd a, _ -> 
-        let r1 = aux a.c1 f2 in
+        let r1 = aux a.c1 f2 false b2 in
         (match r1 with
         | Some x -> 
-          let r2 = aux a.c2 f2 in
+          let r2 = aux a.c2 f2 false b2 in
           (match r2 with
           | Some y -> Some (Constr.mkApp(left_and_or, [|gct a.c1; gct a.c2; gct f2; x; y|]))
           | _ -> None)  
         | _ -> None)
       | _, CertAnd a ->
-        let r1 = aux f1 a.c1 in 
+        let r1 = aux f1 a.c1 b1 false in 
         (match r1 with
-        | Some x -> let r2 = aux f1 a.c2 in
+        | Some x -> let r2 = aux f1 a.c2 b1 false in
           (match r2 with
           | Some y -> Some (Constr.mkApp(right_and_or, [|gct f1; gct a.c1; gct a.c2; x; y|]))
           | _ -> None)
         | _ -> None)
       | _ -> (first_some (first_some (first_some
         (match f1 with | CertOr a -> 
-          first_some (Option.map (fun x -> Constr.mkApp(left_or_or_1, [|gct a.c1; gct a.c2; gct f2; x|])) (aux a.c1 f2))
-                      (lazy (Option.map (fun x -> Constr.mkApp(left_or_or_2, [|gct a.c1; gct a.c2; gct f2; x|])) (aux a.c2 f2)))
+          first_some (Option.map (fun x -> Constr.mkApp(left_or_or_1, [|gct a.c1; gct a.c2; gct f2; x|])) (aux a.c1 f2 false b2))
+                      (lazy (Option.map (fun x -> Constr.mkApp(left_or_or_2, [|gct a.c1; gct a.c2; gct f2; x|])) (aux a.c2 f2 false b2)))
         | _ -> None)
         
         (lazy (match f2 with | CertOr b -> 
-          first_some (Option.map (fun x -> Constr.mkApp(right_or_or_1, [|gct f1; gct b.c1; gct b.c2; x|])) (aux f1 b.c1))
-                      (lazy (Option.map (fun x -> Constr.mkApp(right_or_or_2, [|gct f1; gct b.c1; gct b.c2; x|])) (aux f1 b.c2)))
+          first_some (Option.map (fun x -> Constr.mkApp(right_or_or_1, [|gct f1; gct b.c1; gct b.c2; x|])) (aux f1 b.c1 b1 false))
+                      (lazy (Option.map (fun x -> Constr.mkApp(right_or_or_2, [|gct f1; gct b.c1; gct b.c2; x|])) (aux f1 b.c2 b1 false)))
         | _ -> None))
       )
-        (lazy (Option.map (fun x -> Constr.mkApp(contract_or_1, [|gct f1; gct f2; x|])) (aux f1 f1)))
+        (lazy (if b1 then None else (Option.map (fun x -> Constr.mkApp(contract_or_1, [|gct f1; gct f2; x|])) (aux f1 f1 true true))))
       )
-        (lazy (Option.map (fun x -> Constr.mkApp(contract_or_2, [|gct f1; gct f2; x|])) (aux f2 f2)))
+        (lazy (if b2 then None else (Option.map (fun x -> Constr.mkApp(contract_or_2, [|gct f1; gct f2; x|])) (aux f2 f2 true true))))
       )
       in
-      set_lt_cached_cert f1 f2 res;
+      set_lt_cached_cert f1 f2 b1 b2 res;
       res
   in 
-  aux f1 f2
+  aux f1 f2 false false
 
 (* Find the atom in a formula (i.e. variable) that appears most often *)
 let best_atom (l: cert_formula list) : cert_formula option =

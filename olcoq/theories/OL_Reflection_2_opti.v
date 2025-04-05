@@ -18,7 +18,7 @@ Import ListNotations.
 
 
 
-  Fixpoint decideOL_opti (fuel: nat) (g d: AnTerm) : bool :=
+  Fixpoint decideOL_opti (fuel: nat) (g d: AnTerm) (cg cd: bool)  : bool :=
   match fuel with
   | 0 => false
   | S n =>
@@ -31,57 +31,64 @@ Import ListNotations.
     | (R (Var a), N) => false
     | (N, L (Var a)) => false
     | (N, R (Var a)) => false
-    | (L (Join a b), _) => decideOL_opti n (L a) d && decideOL_opti n (L b) d
-    | (_, L (Join a b)) => decideOL_opti n g (L a) && decideOL_opti n g (L b)
-    | (R (Meet a b), _) => decideOL_opti n (R a) d && decideOL_opti n (R b) d
-    | (_, R (Meet a b)) => decideOL_opti n g (R a) && decideOL_opti n g (R b)
-    | (L (Not a), _) => decideOL_opti n (R a) d
-    | (_, L (Not a)) => decideOL_opti n g (R a)
-    | (R (Not a), _) => decideOL_opti n (L a) d
-    | (_, R (Not a)) => decideOL_opti n g (L a)
+    | (L (Join a b), _) => decideOL_opti n (L a) d false cd && decideOL_opti n (L b) d false cd
+    | (_, L (Join a b)) => decideOL_opti n g (L a) cg false && decideOL_opti n g (L b) cg false
+    | (R (Meet a b), _) => decideOL_opti n (R a) d false cd && decideOL_opti n (R b) d false cd
+    | (_, R (Meet a b)) => decideOL_opti n g (R a) cg false && decideOL_opti n g (R b) cg false
+    | (L (Not a), _) => decideOL_opti n (R a) d false cd
+    | (_, L (Not a)) => decideOL_opti n g (R a) cg false
+    | (R (Not a), _) => decideOL_opti n (L a) d false cd
+    | (_, R (Not a)) => decideOL_opti n g (L a) cg false
     | _ => (
       match g with 
-      | L (Meet a b) => decideOL_opti n (L a) d 
+      | L (Meet a b) => decideOL_opti n (L a) d false cd
       | _ => false
       end || (
       match g with 
-      | L (Meet a b) => decideOL_opti n (L b) d
+      | L (Meet a b) => decideOL_opti n (L b) d false cd
       | _ => false
       end || (
       match d with 
-      | L (Meet a b) => decideOL_opti n g (L a) 
+      | L (Meet a b) => decideOL_opti n g (L a) cg false 
       | _ => false
       end || (
       match d with 
-      | L (Meet a b) => decideOL_opti n g (L b) 
+      | L (Meet a b) => decideOL_opti n g (L b) cg false 
       | _ => false
       end || (
       match g with
-      | R (Join a b) => decideOL_opti n (R a) d
+      | R (Join a b) => decideOL_opti n (R a) d false cd
       | _ => false
       end || (
       match g with
-      | R (Join a b) => decideOL_opti n (R b) d
+      | R (Join a b) => decideOL_opti n (R b) d false cd
       | _ => false
       end || (
       match d with
-      | R (Join a b) => decideOL_opti n g (R a)
+      | R (Join a b) => decideOL_opti n g (R a) cg false
       | _ => false
       end || (
       match d with
-      | R (Join a b) => decideOL_opti n g (R b)
+      | R (Join a b) => decideOL_opti n g (R b) cg false
       | _ => false
       end || (
       match d with 
-      | N => decideOL_opti n g g 
+      | N => decideOL_opti n g g true true 
       | _ => false
       end || (
       match g with 
-      | N => decideOL_opti n d d
+      | N => decideOL_opti n d d true true
       | _ => false
-      end )))))))))) ||
-      decideOL_opti n g N || 
-      decideOL_opti n N d
+      end || (
+      match d with 
+      | N => false
+      | _ => decideOL_opti n g N cg true
+      end || (
+      match g with
+      | N => false
+      | _ => decideOL_opti n N d true cd
+      end
+      ))))))))))))
     end
   end.
 
@@ -109,7 +116,7 @@ Hint Rewrite
   Pos.eqb_eq Nat.eqb_eq : rw_bool.
 
 
-Theorem decideOL_opti_correct : forall n g d, (decideOL_opti n g d) = true -> squash (OLProof (g, d)).
+Theorem decideOL_opti_correct : forall n g d cg cd, (decideOL_opti n g d cg cd) = true -> squash (OLProof (g, d)).
 Proof.
   induction n; intros; simpl in *;
     repeat match goal with
@@ -117,13 +124,16 @@ Proof.
            | [ H: _ /\ _ |- _ ] => destruct H
            | [ H: _ \/ _ |- _ ] => destruct H
            | [ H: context[match ?x with _ => _ end] |- _ ] => destruct x; simpl in H
-           | [ H: _ = _, IH: forall _ _, _ = _ -> squash _ |- _ ] => apply IHn in H; inversion_clear H
+           | [ H: _ = _, IH: forall _ _ _ _, _ = _ -> squash _ |- _ ] => apply IHn in H; inversion_clear H
            | _ => autorewrite with rw_bool in *; subst
            end.
-  all: clear IHn; eauto 6 with olproof.
+  all: clear IHn; apply Squash.
+  all: eauto 5 with olproof.
 Qed.
 
-Lemma decideOL_opti_monotonic : forall (n2 n1: nat) g d, n2 >= n1 -> decideOL_opti n1 g d = true -> decideOL_opti n2 g d = true.
+
+
+Lemma decideOL_opti_monotonic : forall (n2 n1: nat) g d cg cd, n2 >= n1 -> decideOL_opti n1 g d cg cd = true -> decideOL_opti n2 g d cg cd = true.
   induction n2.
   - intros. simpl in *. assert (n1 = 0). lia. subst. simpl in *. congruence.
   - intros. destruct n1. simpl in *; congruence. destruct g as [ | t | t ]; try destruct t.
@@ -137,7 +147,7 @@ Lemma decideOL_opti_monotonic : forall (n2 n1: nat) g d, n2 >= n1 -> decideOL_op
 Qed.
 
 
-Definition decideOL_opti_simp (g d: AnTerm): bool := decideOL_opti (anterm_size g + anterm_size d) g d.
+Definition decideOL_opti_simp (g d: AnTerm): bool := decideOL_opti (anterm_size g + anterm_size d) g d false false.
 
   (* Reflection: solve goals using the algorithm in arbitrary Ortholattice *)
 
