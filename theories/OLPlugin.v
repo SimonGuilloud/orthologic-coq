@@ -1,4 +1,4 @@
-Declare ML Module "coq_ol:coq-ol.plugin".
+Declare ML Module "OLCoq:ol-coq.plugin".
 
 Require Import OL_Theory.
 Require Import OL_Reflection_5_pointers.

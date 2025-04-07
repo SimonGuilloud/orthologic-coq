@@ -1,14 +1,14 @@
 (library
- (name coq_ol)                   ; This is the name you will use in
+ (name OLCoq)                   ; This is the name you will use in
                                     ; Coq's `Declare ML Module`, and
                                     ; the name of the main OCaml
                                     ; module of your plugin.
 
- (public_name coq-ol.plugin) ; This makes the plugin
+ (public_name ol-coq.plugin) ; This makes the plugin
                                     ; installable; recommended, must
                                     ; match opam package name.
 
- (synopsis "My Coq plugin")         ; Synopsis, used in META generation.
+ (synopsis "Coq Plugin of Orthologic reasoning")         ; Synopsis, used in META generation.
 
  (flags :standard -w -27)           ; CoqPP generated code requires to
                                     ; disable warning 27 often.
