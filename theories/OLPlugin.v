@@ -1,7 +1,7 @@
 Declare ML Module "OLCoq:ol-coq.plugin".
 
-Require Import OL_Theory.
-Require Import OL_Reflection_5_pointers.
+Require Export OL_Theory.
+Require Export OL_Reflection_5_pointers.
 Require Import OL_Reflection_1_base.
 Require Import Bool.
 Require Import Btauto.
