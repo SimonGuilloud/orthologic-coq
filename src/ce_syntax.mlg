@@ -1,4 +1,4 @@
-DECLARE PLUGIN "coq-ol.plugin"
+DECLARE PLUGIN "ol-coq.plugin"
 
 
 {
