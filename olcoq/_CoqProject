@@ -1,3 +1,0 @@
--R _build/default/theories OLCoq
--I _build/default/src
-theories

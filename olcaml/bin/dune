@@ -1,6 +1,0 @@
-(executable
- (public_name olcaml)
- (name main)
- (libraries olcaml))
-
- (env (dev (flags (:standard -w -A))))
