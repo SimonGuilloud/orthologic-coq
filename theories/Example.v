@@ -90,7 +90,7 @@ Defined.
 
 (* Then SubsetsNatOL is isomorphic to (OL_Valued_Set nat BoolOL) *)
 
-(* And we can chain the construction to obtain that the "ol-powerset" of a set is an ortholattice: *)
+(* And we can chain the construction to obtain that the "ol-powerset" of any set is an ortholattice: *)
 
 Definition myOl S T := (OL_Valued_Set S (OL_Valued_Set T SubsetsNatOL)).
 

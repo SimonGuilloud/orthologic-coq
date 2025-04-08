@@ -4,10 +4,10 @@
                                    ; be MyPlugin.A, etc., when seen from the
                                    ; outside.
 
- (package ol-coq)           ; Adding this line will make your
+ (package orthologic-coq)           ; Adding this line will make your
                                    ; library installable in the opam package
 
- (plugins ol-coq.plugin)) ; Here you should declare all
+ (plugins orthologic-coq.plugin)) ; Here you should declare all
                                    ; OCaml plugin dependencies
                                    ; for your Coq files.
 

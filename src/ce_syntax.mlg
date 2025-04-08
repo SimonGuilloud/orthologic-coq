@@ -1,4 +1,4 @@
-DECLARE PLUGIN "ol-coq.plugin"
+DECLARE PLUGIN "orthologic-coq.plugin"
 
 
 {
