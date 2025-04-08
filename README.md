@@ -1,6 +1,8 @@
 # Verified and Optimized Implementation of Orthologic Proof Search
 This repository contains the formalization in Coq of the main result of [Orthologic with Axioms](https://infoscience.epfl.ch/entities/publication/0bf03832-b873-44e1-8286-4301ecc42709) (the cut elimination theorem for orthologic), and the implementation of an algorithm deciding orthologic inequalities, optimized using memoization and reference equality: The optimized algorithm is proven correct, and lifted to a Coq tactic using reflection. Independent proof search and normalization tactic implmented directly in OCaml are also provided.
 
+The theorems and tactics are available as a plugin.
+
 ### Building instructions
 This formalization has been carried using Coq 8.18, [Ocaml](https://ocaml.org/docs/installing-ocaml) 5.3 and [Dune](https://dune.build/install) 3.8. Using opam, run:
 ```shell
@@ -10,6 +12,9 @@ then
 ```shell
 $ dune build
 ```
+
+### Tutorial
+A short introduction to the plugin can be found in [Tutorial.v](theory/Tutorial.v). 
 
 ### Reference Paper
 [Verified and Optimized Implementation of Orthologic Proof Search](https://infoscience.epfl.ch/entities/publication/398b9d7c-1bd9-4570-9c12-7214e12d9caf) (Preprint, CAV 2025)

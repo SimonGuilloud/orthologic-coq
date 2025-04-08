@@ -1,11 +1,56 @@
 Require Import OLPlugin.
+Require Import OL_Reflection_1_base.
+
+(* The orthologic-coq plugin enables orthologic-based reasoning *)
+
+(* the `solveOLPointers` tactic allows to solve inequality in ortholattices: *)
+
+Example example1 {OL: Ortholattice} a b c: 
+  ¬(b ∪ ¬(c ∩ ¬b) ∪ a) <= (¬a ∪ ¬(b ∩ ¬a)).
+Proof.
+  intros. 
+  solveOLPointers OL.
+Qed.
+
+Example example2 (a b c: bool): 
+  ((a && b) || (negb a) || (negb b)) = true.
+Proof.
+  intros. 
+  solveOLPointers BoolOL.
+Qed.
+
+(* solveOLPointers is reflection-based. Alternatively, use the `olcert_goal` tactic which is proof-producing. *)
+Example example3 (a b c: bool): 
+  (a && (negb a)) = (((b && c) || b) && (negb b)).
+Proof.
+  intros. 
+  olcert_goal.
+Qed.
+
+(* if the goal is not an ol-tautology, it is still possible to make progress by normalizing it: *)
+Example example4 (f: bool -> nat) (a b c: bool) : f (a && (b || c) && (a && b) || (a && c)) >= 5.
+Proof.
+  olnormalize.
+  admit.
+Admitted.
+
+(* Finally, arbitrary boolean equality an be solved using oltauto.*)
+Example example5 : forall a b c: bool,  (a && (b || c) || (a && b) || (a && c)) = a && (b || c) && (a && b) || (a && c).
+Proof.
+  intros. 
+  oltauto.
+Qed.
+
+(* olnormalize_cert and oltauto_cert are also available, the difference being that they rely on 
+   olcert_goal rater than solveOlPointers. *)
 
 
+(* We can also define new ortholattices to benefit from the reflexive decision procedure. *)
 
-(* Subsets of a set S form an ortholattice. *)
+(* For example, the type of subsets of the natural numbers is an ortholattice. *)
 
-#[refine] Instance SubsetsNatOL (*{S: Set}*) : Ortholattice := {
-  A := nat -> bool; (*S -> bool;*)
+#[refine] Instance SubsetsNatOL  : Ortholattice := {
+  A := nat -> bool; 
   e := fun x => false;
   leq x y := forall e, x e = true -> y e = true;
   meet x y := fun e => x e && y e;
@@ -41,7 +86,7 @@ Proof.
   - destruct (y e); simpl; auto.
 Defined.
 
-Example test1 (a b c: nat -> bool): 
+Example example6 (a b c: nat -> bool): 
   c <= ((a ∩ b) ∪ (¬a) ∪ (¬b)).
 Proof.
   solveOLPointers SubsetsNatOL.
@@ -94,7 +139,7 @@ Defined.
 
 Definition myOl S T := (OL_Valued_Set S (OL_Valued_Set T SubsetsNatOL)).
 
-Example test2 (S T: Set) (a: S -> T -> (@A SubsetsNatOL)): 
+Example example7 (S T: Set) (a: S -> T -> (@A SubsetsNatOL)): 
   @leq (myOl S T) a a.
 Proof.
   solveOLPointers (myOl S T).
