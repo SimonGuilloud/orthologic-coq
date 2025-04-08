@@ -1,4 +1,4 @@
-Declare ML Module "OLCoq:ol-coq.plugin".
+Declare ML Module "OLCoq:orthologic-coq.plugin".
 
 Require Export OL_Theory.
 Require Export OL_Reflection_5_pointers.
