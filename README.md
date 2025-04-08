@@ -14,7 +14,7 @@ $ dune build
 ```
 
 ### Tutorial
-A short introduction to the plugin can be found in [Tutorial.v](theory/Tutorial.v). 
+A short introduction to the plugin can be found in [theories/Tutorial.v](theories/Tutorial.v). 
 
 ### Reference Paper
 [Verified and Optimized Implementation of Orthologic Proof Search](https://infoscience.epfl.ch/entities/publication/398b9d7c-1bd9-4570-9c12-7214e12d9caf) (Preprint, CAV 2025)

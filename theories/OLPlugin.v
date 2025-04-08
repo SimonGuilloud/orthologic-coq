@@ -353,23 +353,3 @@ Proof.
   intros. 
   oltauto_cert.
 Qed.
-
-
-
-
-
-
-
-
-
-Example test2342134 a b:
-true = (a && b) || (negb a) || (negb b).
-Proof.
-  olcert_goal.
-Qed.
-
-
-
-
-
-
