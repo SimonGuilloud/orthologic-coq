@@ -5,7 +5,7 @@ version: "dev"
 homepage: "https://github.com/SimonGuilloud/orthologic-coq"
 dev-repo: "git+https://github.com/SimonGuilloud/orthologic-coq.git"
 bug-reports: "https://github.com/SimonGuilloud/orthologic-coq/issues"
-license: "Unlicense"
+license: "CC-BY-4.0"
 
 synopsis: "A plugin to add orthologic-based tactics to Coq"
 description: """

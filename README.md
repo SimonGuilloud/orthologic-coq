@@ -6,11 +6,20 @@ The theorems and tactics are available as a plugin.
 ### Building instructions
 This formalization has been carried using Coq 8.18, [Ocaml](https://ocaml.org/docs/installing-ocaml) 5.3 and [Dune](https://dune.build/install) 3.8. Using opam, run:
 ```shell
-$ opam install dune.3.8.2 coq.8.17.1
+$ opam install dune.3.8.2 coq.8.18.0
 ```
 then
 ```shell
 $ dune build
+```
+
+You can also try the plugin by running:
+```shell
+$ coqtop -R _build/default/theories/ OLCoq -I _build/default/src/
+```
+and then
+```coq
+Coq < Require Import OLCoq.OLPlugin.v.
 ```
 
 ### Tutorial
