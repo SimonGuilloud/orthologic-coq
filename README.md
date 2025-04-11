@@ -3,24 +3,35 @@ This repository contains the formalization in Coq of the main result of [Ortholo
 
 The theorems and tactics are available as a plugin.
 
-### Building instructions
+### Requirements:
 This formalization has been carried using Coq 8.18, [Ocaml](https://ocaml.org/docs/installing-ocaml) 5.3 and [Dune](https://dune.build/install) 3.8. Using opam, run:
 ```shell
 $ opam install dune.3.8.2 coq.8.18.0
 ```
-then
+Alternatively, you can use the Docker image provided in this repository using:
+```shell
+$ docker load load < orthologic-coq.tar.gz
+```
+To run the image, use:
+```shell
+$ docker run -it orthologic-coq:latest
+```
+
+### Building the project
+Build and verify the entire project using:
+
 ```shell
 $ dune build
 ```
-
 You can also try the plugin by running:
 ```shell
 $ coqtop -R _build/default/theories/ OLCoq -I _build/default/src/
 ```
 and then
 ```coq
-Coq < Require Import OLCoq.OLPlugin.v.
+Coq < Require Import OLCoq.OLPlugin.
 ```
+
 
 ### Tutorial
 A short introduction to the plugin can be found in [theories/Tutorial.v](theories/Tutorial.v). 
@@ -30,4 +41,5 @@ A short introduction to the plugin can be found in [theories/Tutorial.v](theorie
 
 ### Benchmarks
 Benchmarks where generated according to [Main.scala](generation/src/main/scala/Main.scala) using [Scala](https://www.scala-lang.org/download/). Regenerate using `sbt run`. Benchmarks can be found in [theories/olsolve_bench](theories/olsolve_bench) and [theories/oltauto_bench](theories/oltauto_bench).
-The raw results of the benchmarks are in [bench.2025-01-31](bench.2025-01-31) and [oltauto.bench.2025-02-01](oltauto.bench.2025-02-01). Plots are plotted with [plot.py](plot.py).
+The raw results of the benchmarks are in [bench.2025-01-31](bench.2025-01-31) and [oltauto.bench.2025-02-01](oltauto.bench.2025-02-01). They can be reevaluated with `make tauto-bench` and `make solve-bench`.
+Plots are plotted using [plot.py](plot.py).

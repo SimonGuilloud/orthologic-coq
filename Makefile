@@ -9,7 +9,7 @@ tauto_bench = $(tauto_bench_v:.v=.bench)
 bench_vo := _build/default/theories/OL_Bench.vo
 
 $(bench_vo): FORCE
-	rm -f theories/bench/*.vo theories/bench/*.vos theories/bench/*.vok theories/bench/*.glob theories/bench/*.aux
+	rm -f theories/bench/*.vo theories/bench/*.vos theories/bench/*.vok theories/bench/*.glob theories/bench/*.aux theories/*.vo theories/*.vos theories/*.vok theories/*.glob theories/*.aux
 	dune build
 
 %.bench: %.v $(bench_vo)
