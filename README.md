@@ -18,7 +18,7 @@ $ docker run -it orthologic-coq:latest
 ```
 
 ### Building the project
-Build and verify the entire project using (takes a couple minutes):
+Build and verify the project using (takes a couple minutes):
 
 ```shell
 $ dune build
@@ -40,8 +40,8 @@ A short introduction to the plugin can be found in [theories/Tutorial.v](theorie
 [Verified and Optimized Implementation of Orthologic Proof Search](https://infoscience.epfl.ch/entities/publication/398b9d7c-1bd9-4570-9c12-7214e12d9caf) (Preprint, CAV 2025)
 
 ### Benchmarks
-Benchmarks where generated according to [Main.scala](generation/src/main/scala/Main.scala) using [Scala](https://www.scala-lang.org/download/). Regenerate using `sbt run`. Benchmarks can be found in [theories/olsolve_bench](theories/olsolve_bench) and [theories/oltauto_bench](theories/oltauto_bench).
-The raw results of the benchmarks are in [bench.2025-01-31](bench.2025-01-31) and [oltauto.bench.2025-02-01](oltauto.bench.2025-02-01). They can be reevaluated with (takes arround 12 hours on a desktop machine)
+Benchmarks where generated according to [Main.scala](generation/src/main/scala/Main.scala) using [Scala](https://www.scala-lang.org/download/) and can be regenerate using `sbt run`. Benchmarks can be found in [theories/olsolve_bench](theories/olsolve_bench) and [theories/oltauto_bench](theories/oltauto_bench).
+The raw results of the benchmarks are in [bench.2025-01-31](bench.2025-01-31) and [oltauto.bench.2025-02-01](oltauto.bench.2025-02-01). They can be reevaluated with (takes arround 8 hours on a Intel Core i9-13900K CPU with 64GB RAM)
 ```shell
 make tauto-bench
 ```
