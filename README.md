@@ -10,7 +10,7 @@ $ opam install dune.3.8.2 coq.8.18.0
 ```
 Alternatively, you can use the Docker image provided in this repository using:
 ```shell
-$ docker load load < orthologic-coq.tar.gz
+$ docker load < orthologic-coq.tar.gz
 ```
 To run the image, use:
 ```shell
@@ -18,7 +18,7 @@ $ docker run -it orthologic-coq:latest
 ```
 
 ### Building the project
-Build and verify the entire project using:
+Build and verify the entire project using (takes a couple minutes):
 
 ```shell
 $ dune build
@@ -41,5 +41,12 @@ A short introduction to the plugin can be found in [theories/Tutorial.v](theorie
 
 ### Benchmarks
 Benchmarks where generated according to [Main.scala](generation/src/main/scala/Main.scala) using [Scala](https://www.scala-lang.org/download/). Regenerate using `sbt run`. Benchmarks can be found in [theories/olsolve_bench](theories/olsolve_bench) and [theories/oltauto_bench](theories/oltauto_bench).
-The raw results of the benchmarks are in [bench.2025-01-31](bench.2025-01-31) and [oltauto.bench.2025-02-01](oltauto.bench.2025-02-01). They can be reevaluated with `make tauto-bench` and `make solve-bench`.
+The raw results of the benchmarks are in [bench.2025-01-31](bench.2025-01-31) and [oltauto.bench.2025-02-01](oltauto.bench.2025-02-01). They can be reevaluated with (takes arround 12 hours on a desktop machine)
+```shell
+make tauto-bench
+```
+and 
+```shell
+make solve-bench
+```
 Plots are plotted using [plot.py](plot.py).
