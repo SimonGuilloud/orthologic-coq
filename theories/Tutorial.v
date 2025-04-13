@@ -1,5 +1,6 @@
 Require Import OLPlugin.
 Require Import OL_Reflection_1_base.
+Require Import OL_Reflection_5_pointers.
 
 (* The orthologic-coq plugin enables orthologic-based reasoning *)
 
@@ -23,8 +24,6 @@ Example example3 (a b c: bool):
 Proof.
   olcert_goal.
 Qed.
-
-Axiom admit: forall A, A.
 
 (* if the goal is not an ol-tautology, it is still possible to make progress by normalizing it: *)
 Example example4 (f: bool -> nat) (a b c: bool) : f (a && (b || c) && (a && b) || (a && c)) >= 5.
