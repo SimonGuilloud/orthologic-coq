@@ -13,7 +13,8 @@ import pandas as pd
 
 BENCHMARK_ENTRY = re.compile(
     r"""::[ ]"(?P<experiment>.*?)"[ ]:::[ ]"?(?P<solver>.*?)"?[ ]:::[ ]"?(?P<reduction>.*?)"?[\n]
-        (?P<status>solved|not[ ]solved|timeout)[\n]
+        (?:Goals[ ]left:[ ](?P<numgoals>[0-9]+)[\n])?
+        (?:(?P<timeout>timeout)[\n])?
         Tactic[ ]call[ ]ran[ ]for[ ](?P<wall>.*?)[ ]secs[ ][(](?P<user>.*?)u,(?P<system>.*?)s[)]""",
     re.VERBOSE
 )
@@ -21,9 +22,13 @@ BENCHMARK_ENTRY = re.compile(
 SEPARATOR = "-" * 80 + "\n"
 
 def parse_entry(entry_contents: str) -> dict[str, Any]:
-    m = BENCHMARK_ENTRY.match(entry_contents)
-    assert m, f"Unparseable entry: {entry_contents}"
-    return m.groupdict() if m else None
+    if m := BENCHMARK_ENTRY.match(entry_contents):
+        d = m.groupdict()
+        timeout, numgoals = d.pop("timeout"), d.pop("numgoals")
+        d["status"] = timeout or ("solved" if numgoals == "0" else "not solved")
+        return d
+    # assert m, f"Unparseable entry: {entry_contents}"
+    return None
 
 SOLVER_RENAME = {
     "btauto": "btauto",
@@ -38,11 +43,10 @@ SOLVER_RENAME = {
     "oltauto_cert": "OCaml+n",
 
     # Old names
-    "OL_Reflection_1_base.reduce_to_decideOL": "OL",
     "OL_Reflection_2_memo.reduce_to_decideOL_memo": "OL+l",
     "OL_Reflection_3_fmap.reduce_to_decideOL_fmap": "OL+m",
     "OL_Reflection_4_pointers.reduce_to_decideOL_pointer": "OL+m+φ",
-    # Old Old names
+    # Older names
     "OL_Reflection_1_base.reduceToAlgo": "OL",
     "OL_Reflection_2_memo.reduceToAlgoMemo": "OL+l",
     "OL_Reflection_3_fmap.reduceToAlgoFmap": "OL+m",
@@ -62,6 +66,8 @@ def parse_log(contents: str) -> pd.DataFrame:
         if entry_contents.strip()
         if (entry := parse_entry(entry_contents))
     )
+    if df.empty:
+        return df
     df["solver"] = df["solver"].map(SOLVER_RENAME) # type: ignore
     df["solver+reduction"] = df["solver"] + df["reduction"].map(REDUCTION_RENAME) # type: ignore
     if df.experiment.str.contains("_").any():
@@ -116,7 +122,7 @@ def plot_cloud(df):
         for s2 in solvers:
             if s1 >= s2:
                 continue
-            print(s1, s2, s1 >= s2)
+            print(s1, s2)
             sns.scatterplot(data=df, x=s1, y=s2)
             plt.savefig(f"{s1}+{s2}.pdf")
             plt.show()
@@ -228,7 +234,7 @@ def main():
     args = parse_arguments()
     df = read_df(args.infile)
     if args.style == "lines":
-        fit(df)
+        # fit(df)
         table = df[
             (df["size"] == 30) &
             (df["reduction"].isin(("vm_compute", "none")))
