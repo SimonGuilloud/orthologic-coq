@@ -56,6 +56,7 @@ Notation "¬ x" := (neg x) (at level 20).
 Infix "<=" := leq.
 Infix "==" := equiv.
 
+Hint Resolve equiv_leq zero_leq one_leq P1 P2 P4 P5 P6 P7 P8 P9 P4' P5' P6' P7' P9' : ol.
 
 (* Some useful lemmas needed for Withman's algorithm*)
 Lemma swap_equiv {OL: Ortholattice} x y: (x == y) -> y == x. Proof. intro. rewrite equiv_leq in *. exact (conj (proj2 H) (proj1 H)).  Qed.
