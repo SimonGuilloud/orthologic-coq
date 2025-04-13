@@ -31,7 +31,7 @@ Example example4 (f: bool -> nat) (a b c: bool) : f (a && (b || c) && (a && b) |
 Proof.
   olnormalize.
   Validate Proof.
-Admitted.
+Abort.
 
 (* olnormalize uses solveOLPointers under the hood; olnormalize_cert is similar
    but uses olcert_goal instead. *)
@@ -39,7 +39,7 @@ Example example4a (f: bool -> nat) (a b c: bool) : f (a && (b || c) && (a && b) 
 Proof.
   olnormalize_cert.
   Validate Proof.
-Admitted.
+Abort.
 
 (* Finally, arbitrary boolean equalities (not just OL equalities) can be solved using oltauto. *)
 Example example5 (a b c: bool):
