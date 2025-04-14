@@ -16,6 +16,8 @@ Open Scope bool_scope.
 Import List.
 Import ListNotations.
 
+Ltac Tauto.intuition_solver ::= auto.
+
 
 Definition MemoKey := (AnTerm * AnTerm * bool * bool)%type.
 

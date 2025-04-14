@@ -20,6 +20,8 @@ Require Import Coq.Numbers.BinNums.
 Require Import Coq.PArith.BinPosDef.
 Require Import Coq.PArith.BinPos.
 
+Ltac Tauto.intuition_solver ::= auto.
+
 
 Definition Pointer:= positive.
 

@@ -15,6 +15,8 @@ Open Scope bool_scope.
 Import List.
 Import ListNotations.
 
+Ltac Tauto.intuition_solver ::= auto.
+
 
 Fixpoint compare_term (x y : Term): comparison :=
   match x, y with

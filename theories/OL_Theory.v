@@ -3,6 +3,7 @@ Require Import Lia.
 Require Import Coq.Arith.Bool_nat.
 Require Import Coq.Arith.PeanoNat.
 Require Import Btauto.
+Ltac Tauto.intuition_solver ::= auto.
 
 
 Open Scope bool_scope.
