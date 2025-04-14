@@ -12,9 +12,6 @@ $ opam install dune.3.8.2 coq.8.18.0
 Alternatively, you can use the Docker image provided in this repository using:
 ```shell
 $ docker load < orthologic-coq.tar.gz
-```
-To run the image, use:
-```shell
 $ docker run -it orthologic-coq:latest
 ```
 
@@ -28,10 +25,44 @@ You can also try the plugin by running:
 ```shell
 $ coqtop -R _build/default/theories/ OLCoq -I _build/default/src/
 ```
-and then
+and then in Coq:
 ```coq
-Coq < Require Import OLCoq.OLPlugin.
+Require Import OLCoq.OLPlugin.
 ```
+
+
+### Tutorial
+A short introduction to the plugin can be found in [theories/Tutorial.v](theories/Tutorial.v). 
+
+### Benchmarks
+Benchmarks can be found in [theories/olsolve_bench](theories/olsolve_bench) and [theories/oltauto_bench](theories/oltauto_bench).
+The raw results of the benchmarks are in [bench.2025-01-31](bench.2025-01-31) and [oltauto.bench.2025-02-01](oltauto.bench.2025-02-01). They can be reevaluated with (takes arround 1 hour on a Intel Core i9-13900K CPU with 64GB RAM)
+```shell
+$ make solve-bench
+```
+and 
+```shell
+$ make tauto-bench
+```
+To ease replication, this will run each benchmark only once. The results we report in the paper are the median of 5 runs. This can be changed line 82 of the [theories/OL_Bench.v](theories/OL_Bench.v) file. 
+
+Plots are then plotted using [plot.py](plot.py) (requires seaborn, `pip install seaborn`)
+```shell
+$ ./plot.py lines ./theories/olsolve_bench/*.bench
+$ ./plot.py cloud ./theories/oltauto_bench/*.bench
+```
+
+Note that the objective of the first benchmark is to demonstrate that the asymptotic behaviour is as expected from the theory (results in [lines.pdf](lines.pdf)) and the objective of the second benchmark is to show practical improvements over Coq's built-in solver for propositional logic, `btauto` (results in [OCaml+n+btauto.pdf](OCaml+n+btauto.pdf)). The key corectness property of the artifact is validation by Coq, which is verified with `dune build`.
+
+We do not particularly recommend running the benchmarks within docker and don't guarantee results. If you do, `seaborn` is already installed and you can produce the graphs as above. Then, outside of docker, you can run:
+```shell
+$ docker ps
+```
+and then
+```shell
+$ docker cp <container_id>:/home/coq/<file>.pdf .
+```
+where `<container_id>` is the id of the container obtained at the previous step and `<file>` is either of `lines.pdf`, `OCaml+n+btauto.pdf`, `OCaml+n+OLT.pdf` or `OLT+btauto.pdf`. This will copy the file from the docker container to your local environment where you can see the results with any PDF viewer.
 
 ### Installing the plugin
 To install the plugin locally on your machine and use it in your own projects, run
@@ -43,28 +74,5 @@ or clone the repository and run at root
 $ opam pin --yes ./
 ```
 
-### Tutorial
-A short introduction to the plugin can be found in [theories/Tutorial.v](theories/Tutorial.v). 
-
 ### Reference Paper
 [Verified and Optimized Implementation of Orthologic Proof Search](https://infoscience.epfl.ch/entities/publication/398b9d7c-1bd9-4570-9c12-7214e12d9caf) (Preprint, CAV 2025)
-
-### Benchmarks
-Benchmarks where generated according to [Main.scala](generation/src/main/scala/Main.scala) using [Scala](https://www.scala-lang.org/download/) and can be regenerated using `sbt run`. Benchmarks can be found in [theories/olsolve_bench](theories/olsolve_bench) and [theories/oltauto_bench](theories/oltauto_bench).
-The raw results of the benchmarks are in [bench.2025-01-31](bench.2025-01-31) and [oltauto.bench.2025-02-01](oltauto.bench.2025-02-01). They can be reevaluated with (takes arround 1 hour on a Intel Core i9-13900K CPU with 64GB RAM)
-```shell
-make solve-bench
-```
-and 
-```shell
-make tauto-bench
-```
-To ease replication, this will run each benchmark only once. The results we report in the paper are the median of 5 runs. This can be changed line 82 of the [theories/OL_Bench.v](theories/OL_Bench.v) file. 
-
-Plots are then plotted using [plot.py](plot.py) (require seaborn, `pip install seaborn`)
-```shell
-./plot.py lines ./theories/olsolve_bench/*.bench
-./plot.py cloud ./theories/oltauto_bench/*.bench
-```
-
-Note that the objective of the first benchmark is to demonstrate that the asymptotic behaviour is as expected from the theory (results in [lines.pdf](lines.pdf)) and the objective of the second benchmark is to show practical improvements over Coq's built-in solver for propositional logic, `btauto` (results in [OCaml+n+btauto.pdf](OCaml+n+btauto.pdf)). The key corectness property of the artifact is validation by Coq, which is verified with `dune build`.
