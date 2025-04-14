@@ -52,6 +52,10 @@ make tauto-bench
 ```
 To ease replication, this will run each benchmark only once. The results we report in the paper are the median of 5 runs. This can be changed line 82 of the [theories/OL_Bench.v](theories/OL_Bench.v) file. 
 
-Plots are plotted using [plot.py](plot.py).
+Plots are then plotted using [plot.py](plot.py) (require seaborn, `pip install seaborn`)
+```shell
+./plot.py lines ./theories/olsolve_bench/*.bench
+./plot.py cloud ./theories/oltauto_bench/*.bench
+```
 
 Note that the objective of the first benchmark is to demonstrate that the asymptotic behaviour is as expected from the theory (results in [lines.pdf](lines.pdf)) and the objective of the second benchmark is to show practical improvements over Coq's built-in solver for propositional logic, `btauto` (results in [OCaml+n+btauto.pdf](OCaml+n+btauto.pdf)). The key corectness property of the artifact is validation by Coq, which is verified with `dune build`.
