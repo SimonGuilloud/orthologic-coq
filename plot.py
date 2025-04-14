@@ -41,7 +41,9 @@ SOLVER_RENAME = {
     "oltauto": "OLT",
     "olcert_goal": "OCaml",
     "oltauto_cert": "OCaml+n",
+}
 
+SOLVER_RENAME_OLD = {
     # Old names
     "OL_Reflection_2_memo.reduce_to_decideOL_memo": "OL+l",
     "OL_Reflection_3_fmap.reduce_to_decideOL_fmap": "OL+m",
@@ -54,10 +56,10 @@ SOLVER_RENAME = {
 }
 
 REDUCTION_RENAME = {
-    "none": "",
     "lazy": "+lz",
     "compute": "+c",
     "vm_compute": "+vm",
+    "none": "",
 }
 
 def parse_log(contents: str) -> pd.DataFrame:
@@ -68,7 +70,7 @@ def parse_log(contents: str) -> pd.DataFrame:
     )
     if df.empty:
         return df
-    df["solver"] = df["solver"].map(SOLVER_RENAME) # type: ignore
+    df["solver"] = df["solver"].map(SOLVER_RENAME | SOLVER_RENAME_OLD) # type: ignore
     df["solver+reduction"] = df["solver"] + df["reduction"].map(REDUCTION_RENAME) # type: ignore
     if df.experiment.str.contains("_").any():
         df[["experiment", "variation"]] = df["experiment"].str.split("_(?=[0-9])", n=1, expand=True)
@@ -92,9 +94,14 @@ def plot_lines(df):
     # df = df[df["status"] == "solved"]
     # ax = sns.violinplot(
     # ax = sns.barplot(errorbar="ci",
-    ax = sns.lineplot(marker="o",
-        data=df, x='size', y='wall', hue='solver',
-        style='reduction',
+    solvers, reductions = df["solver"].unique(), df["reduction"].unique()
+    solvers = [r for r in SOLVER_RENAME.values() if r in solvers]
+    reductions = [r for r in REDUCTION_RENAME if r in reductions]
+    ax = sns.lineplot(
+        marker="o",
+        data=df, x="size", y="wall",
+        hue="solver", hue_order=["OL", "OL+o", "btauto", "OL+o+l", "OL+o+m", "OL+o+m+φ", "OCaml"],
+        style="reduction", style_order=reductions,
     )
 
     # ax.set_yscale('log')
