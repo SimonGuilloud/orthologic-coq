@@ -9,6 +9,15 @@ This formalization has been carried using Coq 8.18, [Ocaml](https://ocaml.org/do
 $ opam install dune.3.8.2 coq.8.18.0
 ```
 
+Alternatively, you can use the Docker image provided in this repository using:
+```shell
+$ docker load < orthologic-coq.tar.gz
+```
+To run the image, use:
+```shell
+$ docker run -it orthologic-coq:latest
+```
+
 ### Building the project
 Build and verify the project using (takes a couple minutes):
 
