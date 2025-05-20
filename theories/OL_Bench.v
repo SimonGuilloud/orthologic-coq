@@ -79,7 +79,7 @@ Tactic Notation "bench2" uconstr(id) constr(strategy) :=
 
 (* Change the number below to do more repetitions *)
 Tactic Notation "doN" tactic3(t) :=
-  do 1 t.
+  do 3 t.
 
 Tactic Notation "benchtauto" uconstr(id) :=
   doN (bench2 id oltauto);
