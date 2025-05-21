@@ -23,5 +23,6 @@ solve-bench: $(solve_bench) FORCE
 
 bench-clean:
 	rm -f $(tauto_bench)
+	rm -f $(solve_bench)
 
 FORCE:

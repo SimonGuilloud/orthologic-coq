@@ -79,7 +79,7 @@ Tactic Notation "bench2" uconstr(id) constr(strategy) :=
 
 (* Change the number below to do more repetitions *)
 Tactic Notation "doN" tactic3(t) :=
-  do 3 t.
+  do 5 t.
 
 Tactic Notation "benchtauto" uconstr(id) :=
   doN (bench2 id oltauto);
@@ -87,15 +87,15 @@ Tactic Notation "benchtauto" uconstr(id) :=
   doN (bench2 id btauto).
 
 Tactic Notation "benchSuperFast" uconstr(id) :=
-  doN (bench1 id OL_Reflection_4_fmap.reduce_to_decideOL_fmap lazy);
+  (* doN (bench1 id OL_Reflection_4_fmap.reduce_to_decideOL_fmap lazy); *)
   doN (bench1 id OL_Reflection_4_fmap.reduce_to_decideOL_fmap vm_compute);
-  doN (bench1 id OL_Reflection_5_pointers.reduce_to_decideOL_pointer lazy);
+  (* doN (bench1 id OL_Reflection_5_pointers.reduce_to_decideOL_pointer lazy); *)
   doN (bench1 id OL_Reflection_5_pointers.reduce_to_decideOL_pointer vm_compute);
   doN (header id "olcert_goal" "none"; time (run1 (olcert_goal)));
   idtac.
 
 Tactic Notation "benchFast" uconstr(id) :=
-  doN (bench1 id OL_Reflection_3_memo.reduce_to_decideOL_memo lazy);
+  (* doN (bench1 id OL_Reflection_3_memo.reduce_to_decideOL_memo lazy); *)
   doN (bench1 id OL_Reflection_3_memo.reduce_to_decideOL_memo vm_compute);
   benchSuperFast id;
   idtac.
@@ -106,9 +106,9 @@ Tactic Notation "bench" uconstr(id) :=
   idtac.
 
 Tactic Notation "benchSlow" uconstr(id) :=
-  doN (bench1 id OL_Reflection_1_base.reduce_to_decideOL lazy);
+  (* doN (bench1 id OL_Reflection_1_base.reduce_to_decideOL lazy); *)
   doN (bench1 id OL_Reflection_1_base.reduce_to_decideOL vm_compute);
-  doN (bench1 id OL_Reflection_2_opti.reduce_to_decideOL_opti lazy);
+  (* doN (bench1 id OL_Reflection_2_opti.reduce_to_decideOL_opti lazy); *)
   doN (bench1 id OL_Reflection_2_opti.reduce_to_decideOL_opti vm_compute);
   bench id;
   idtac.
